@@ -2,6 +2,84 @@ const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+// Get Current User Controller
+exports.getUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Get user from database (only columns that exist)
+    const [users] = await db.execute(
+      `SELECT 
+        id, 
+        username, 
+        nickname, 
+        email_or_phone, 
+        role,
+        created_at,
+        last_login,
+        vip_level_id,
+        total_wagered,
+        status
+      FROM users 
+      WHERE id = ?`,
+      [userId],
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    const user = users[0];
+
+    // Format user data
+    const formattedUser = {
+      id: user.id,
+      username: user.username,
+      nickname: user.nickname || user.username,
+      email: user.email_or_phone,
+      role: user.role,
+      bankInfo: undefined, // Add later when we have these columns
+      mobile: undefined,
+      carrier: undefined,
+      birthDate: undefined,
+      isActive: user.status === "ACTIVE",
+      emailVerified: false,
+      phoneVerified: false,
+      createdAt: user.created_at,
+      lastLogin: user.last_login,
+      profile: {
+        userId: user.id,
+        balance: 0, // Add later when we have this column
+        points: 0,
+        level: user.vip_level_id || 1,
+        experience: 0,
+        totalDeposits: 0,
+        totalWithdrawals: 0,
+        totalBets: 0,
+        totalWins: 0,
+        createdAt: user.created_at,
+        updatedAt: new Date(),
+      },
+    };
+
+    res.json({ success: true, user: formattedUser });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: "Server error fetching user: " + error.message,
+      });
+  }
+};
+
+// Logout Controller
+exports.logout = (req, res) => {
+  res.clearCookie("token");
+  res.status(200).json({ success: true, message: "Logged out successfully" });
+};
+
 // Register Controller
 exports.register = async (req, res) => {
   const { emailOrPhone, username, password, referralCode } = req.body;
@@ -61,13 +139,15 @@ exports.login = async (req, res) => {
     // 1. Check for existing lockout
     const [lockouts] = await db.execute(
       "SELECT attempts, lockout_until FROM login_attempts WHERE (ip_address = ? OR username = ?) AND lockout_until > NOW()",
-      [cleanIp, username]
+      [cleanIp, username],
     );
 
     if (lockouts.length > 0) {
-      const remainingTime = Math.ceil((new Date(lockouts[0].lockout_until).getTime() - Date.now()) / 60000);
-      return res.status(429).json({ 
-        message: `Too many failed attempts. Try again in ${remainingTime} minutes.` 
+      const remainingTime = Math.ceil(
+        (new Date(lockouts[0].lockout_until).getTime() - Date.now()) / 60000,
+      );
+      return res.status(429).json({
+        message: `Too many failed attempts. Try again in ${remainingTime} minutes.`,
       });
     }
 
@@ -103,25 +183,35 @@ exports.login = async (req, res) => {
     );
 
     // Update last login and IP address
-    const ipAddress = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "";
+    const ipAddress =
+      req.headers["x-forwarded-for"] || req.socket.remoteAddress || "";
     const deviceInfo = req.headers["user-agent"] || "unknown";
     try {
       await db.execute(
         "UPDATE users SET last_login = NOW(), last_ip_address = ? WHERE id = ?",
-        [ipAddress, user.id]
+        [ipAddress, user.id],
       );
       // Also log to history
       await db.execute(
         "INSERT INTO user_login_history (user_id, ip_address, device_info) VALUES (?, ?, ?)",
-        [user.id, ipAddress, deviceInfo]
+        [user.id, ipAddress, deviceInfo],
       );
     } catch (updateError) {
       console.error("Failed to update user login info:", updateError);
       // We don't block the login if this fails
     }
 
+    // Set cookie with token
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: "strict",
+    });
+
     // Return token and user info (excluding password)
     res.status(200).json({
+      success: true,
       token,
       user: {
         id: user.id,
@@ -142,18 +232,18 @@ async function recordFailedAttempt(ip, username) {
   try {
     const [rows] = await db.execute(
       "SELECT attempts FROM login_attempts WHERE ip_address = ? AND username = ?",
-      [ip, username]
+      [ip, username],
     );
 
     if (rows.length === 0) {
       await db.execute(
         "INSERT INTO login_attempts (ip_address, username, attempts) VALUES (?, ?, 1)",
-        [ip, username]
+        [ip, username],
       );
     } else {
       const newAttempts = rows[0].attempts + 1;
       let lockoutUntil = null;
-      
+
       if (newAttempts >= 5) {
         // Lock for 15 minutes
         lockoutUntil = new Date(Date.now() + 15 * 60000);
@@ -161,7 +251,7 @@ async function recordFailedAttempt(ip, username) {
 
       await db.execute(
         "UPDATE login_attempts SET attempts = ?, lockout_until = ? WHERE ip_address = ? AND username = ?",
-        [newAttempts, lockoutUntil, ip, username]
+        [newAttempts, lockoutUntil, ip, username],
       );
     }
   } catch (error) {
@@ -173,10 +263,9 @@ async function resetAttempts(ip, username) {
   try {
     await db.execute(
       "DELETE FROM login_attempts WHERE ip_address = ? OR username = ?",
-      [ip, username]
+      [ip, username],
     );
   } catch (error) {
     console.error("Error resetting login attempts:", error);
   }
 }
-

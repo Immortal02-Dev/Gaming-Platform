@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
-import { getEventMarkets } from "../../../../lib/mockSports";
+import { NextResponse, NextRequest } from "next/server";
+import { getEventMarkets } from "@/lib/mockSports";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const id = params.id;
+  const { id } = await params;
   const data = getEventMarkets(id);
   if (!data)
     return new Response(JSON.stringify({ message: "not found" }), {

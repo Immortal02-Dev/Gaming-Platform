@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
 const FavoriteIcon = ({ isFavorite }: { isFavorite: boolean }) => (
   <svg
@@ -27,7 +27,7 @@ const FavoriteIcon = ({ isFavorite }: { isFavorite: boolean }) => (
       />
     )}
   </svg>
-)
+);
 
 export type Game = {
   id: number;
@@ -45,31 +45,43 @@ type GameCardProps = {
   onClick?: () => void;
 };
 
-export const GameCard = ({ game, isFavorite, toggleFavorite, onClick }: GameCardProps) => {
-  const fallbackSrc = '/assets/slots/1.png'
-  const [src, setSrc] = useState(game.image)
+export const GameCard = ({
+  game,
+  isFavorite,
+  toggleFavorite,
+  onClick,
+}: GameCardProps) => {
+  const fallbackSrc = "/assets/slots/1.png";
+  const [src, setSrc] = useState(game.image);
 
   useEffect(() => {
-    setSrc(game.image)
-  }, [game.image])
+    setSrc(game.image);
+  }, [game.image]);
 
   return (
-    <div className="card-game" onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
+    <div
+      className="card-game"
+      onClick={onClick}
+      style={{ cursor: onClick ? "pointer" : "default" }}
+    >
       <div className="card-boxImage">
         <img
           src={src}
-          alt={game.title || 'Game thumbnail'}
-          className="card-image"
+          alt={game.title || "Game thumbnail"}
+          className="card-image w-auto"
           width={300}
-          height={200}
+          height={500}
           onError={() => {
-            if (src !== fallbackSrc) setSrc(fallbackSrc)
+            if (src !== fallbackSrc) setSrc(fallbackSrc);
           }}
         />
         <button
           type="button"
-          className={`card-favoriteBtn ${isFavorite ? 'selected' : ''}`}
-          onClick={(e) => { e.stopPropagation(); toggleFavorite(game.id) }}
+          className={`card-favoriteBtn ${isFavorite ? "selected" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFavorite(game.id);
+          }}
         >
           <FavoriteIcon isFavorite={isFavorite} />
         </button>
@@ -79,5 +91,5 @@ export const GameCard = ({ game, isFavorite, toggleFavorite, onClick }: GameCard
         <span className="card-vendor">{game.subtitle || game.vendor}</span>
       </div>
     </div>
-  )
-}
+  );
+};

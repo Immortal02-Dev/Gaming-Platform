@@ -1,12 +1,14 @@
-import type { Metadata } from 'next'
-import Link from 'next/link'
-import Image from 'next/image'
-import LoginForm from '@/components/LoginForm'
+import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import LoginForm from "@/components/LoginForm";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: 'Login | TB-14 Gaming Platform',
-  description: 'Login to your TB-14 gaming account',
-}
+  title: "Login | TB-14 Gaming Platform",
+  description: "Login to your TB-14 gaming account",
+};
 
 export default function LoginPage() {
   return (
@@ -38,7 +40,10 @@ export default function LoginPage() {
               <div className="quick-menu-container">
                 <div className="quick-menu-box">
                   <div className="header-menu-container">
-                    <Link href="/account/login" className="tab-menu-item active">
+                    <Link
+                      href="/account/login"
+                      className="tab-menu-item active"
+                    >
                       <span className="tab-menu-text">로그인</span>
                     </Link>
                     <Link href="/account/register" className="tab-menu-item">
@@ -70,5 +75,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

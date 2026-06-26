@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { calcMultiBet } from "../../../lib/mockSports";
+import { calcMultiBet } from "@/lib/mockSports";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));

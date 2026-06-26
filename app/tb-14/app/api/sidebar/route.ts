@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSidebar } from "../../../lib/mockSports";
+import { getSidebar } from "@/lib/mockSports";
 
 export async function GET() {
   const data = getSidebar();

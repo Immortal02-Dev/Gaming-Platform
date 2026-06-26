@@ -17,8 +17,16 @@ export async function GET(request: NextRequest) {
     // Create redirect response
     const redirectResponse = NextResponse.redirect(new URL('/', request.url))
 
-    // Clear cookie
+    // Clear both cookies
     redirectResponse.cookies.set('session-token', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      expires: new Date(0),
+      path: '/',
+    })
+    
+    redirectResponse.cookies.set('token', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -33,8 +41,16 @@ export async function GET(request: NextRequest) {
     // Still redirect even if API call fails
     const redirectResponse = NextResponse.redirect(new URL('/', request.url))
     
-    // Clear cookie
+    // Clear both cookies
     redirectResponse.cookies.set('session-token', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      expires: new Date(0),
+      path: '/',
+    })
+    
+    redirectResponse.cookies.set('token', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
