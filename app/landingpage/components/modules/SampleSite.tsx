@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function SampleSite() {
   return (
     <section
@@ -245,7 +247,7 @@ export function SampleSite() {
                     }}
                   >
                     <img
-                      src="/assets/images/carousel/online_img/icon_1.jpg"
+                      src="/assets/images/carousel/online_img/icon_7.png"
                       alt=""
                       className="w-full"
                     />
@@ -255,12 +257,14 @@ export function SampleSite() {
                     <div className="mt-1 text-neutral-400 text-md">
                       하이엔드 게이밍 디자인
                     </div>
-                    <button
+                    <Link
+                      href="https://tb-14.vercel.app"
                       type="button"
+                      target="_blank"
                       className="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 gap-1.5 justify-center bg-primary hover:bg-primary/75 active:bg-primary/75 disabled:bg-primary aria-disabled:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary mt-6 text-white h-[46px] w-full max-w-[140px] text-sm"
                     >
                       {/**/}디자인 확인하기{/**/}
-                    </button>
+                    </Link>
                   </div>
                 </div>
                 <div className="mt-6 mb-12 flex flex-wrap gap-2 justify-center">
@@ -446,7 +450,7 @@ export function SampleSite() {
                 <div className="border border-white/10 bg-[hsla(0,0%,9%,1)] rounded-xl overflow-hidden">
                   <div className="mx-6 mt-12 w-auto max-h-[220px] overflow-hidden rounded-lg">
                     <img
-                      src="/assets/images/carousel/online_img/icon_2.jpg"
+                      src="/assets/images/carousel/online_img/icon_8.png"
                       alt=""
                       className="w-full"
                     />
@@ -456,12 +460,14 @@ export function SampleSite() {
                     <div className="mt-1 text-neutral-400 text-md">
                       프리미엄 블랙 디자인
                     </div>
-                    <button
+                    <Link
+                      href="https://bc-game-platform.vercel.app"
+                      target="_blank"
                       type="button"
                       className="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 gap-1.5 justify-center bg-primary hover:bg-primary/75 active:bg-primary/75 disabled:bg-primary aria-disabled:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary mt-6 text-white h-[46px] w-full max-w-[140px] text-sm"
                     >
                       {/**/}디자인 확인하기{/**/}
-                    </button>
+                    </Link>
                   </div>
                 </div>
                 <div className="mt-6 mb-12 flex flex-wrap gap-2 justify-center">
