@@ -1,0 +1,222 @@
+export default function FriendsPage() {
+  return (
+    <div className="bg-layer2 font-semibold">
+      <section className="mb-4 flex flex-col gap-3 rounded-xl bg-layer4 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+        <div className="flex flex-col border-b border-third pb-3 sm:flex-1 sm:border-none sm:pb-0">
+          <div className="flex items-center justify-between">
+            <span className="text-secondary">Available Commission Rewards</span>
+            <div className="icon size-5! fill-secondary">
+              <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.3646 27.9996C8.19298 27.9996 4 23.8067 4 18.635V13.3646C4 8.19298 8.19298 4 13.3646 4L18.635 4.00003C23.8066 4.00003 27.9996 8.19301 27.9996 13.3647V18.635C27.9996 23.8067 23.8066 27.9997 18.6349 27.9997H13.3646L13.3646 27.9996ZM13.3646 25.9604H18.6349C22.6812 25.9604 25.9605 22.6804 25.9605 18.6349V13.3646C25.9605 9.31831 22.6804 6.03913 18.6351 6.03913H13.3647C9.31836 6.03913 6.03918 9.31917 6.03918 13.3646V18.6349C6.03918 22.6812 9.31925 25.9604 13.3647 25.9604H13.3646ZM16.0003 13.2918C15.3887 13.2918 14.8838 12.8375 14.8038 12.2482L14.7931 12.0846V12.0073C14.7931 11.3406 15.3336 10.7993 16.0012 10.7993C16.6127 10.7993 17.1176 11.2535 17.1976 11.8428L17.2082 12.0064V12.0837C17.2082 12.7504 16.6678 13.2918 16.0002 13.2918H16.0003ZM16.0003 21.8919C15.3887 21.8919 14.8838 21.4377 14.8038 20.8484L14.7931 20.6849V15.5016C14.7931 14.8349 15.3336 14.2936 16.0012 14.2936C16.6127 14.2936 17.1176 14.7478 17.1976 15.3371L17.2082 15.5007V20.684C17.2082 21.3515 16.6678 21.8919 16.0002 21.8919H16.0003Z" />
+              </svg>
+            </div>
+          </div>
+          <span className="mb-3 text-2xl font-extrabold text-brand">$0.00</span>
+          <div>
+            <span className="mr-1 text-nowrap">Total Received</span>
+            <span>$0.00</span>
+          </div>
+          <div className="text-secondary mt-1">
+            0 House Edge Wager does not calculate commission.
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-1">
+          <div className="flex items-center justify-between">
+            <span className="text-secondary">Available Referral Rewards</span>
+            <div className="icon size-5! fill-secondary">
+              <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.3646 27.9996C8.19298 27.9996 4 23.8067 4 18.635V13.3646C4 8.19298 8.19298 4 13.3646 4L18.635 4.00003C23.8066 4.00003 27.9996 8.19301 27.9996 13.3647V18.635C27.9996 23.8067 23.8066 27.9997 18.6349 27.9997H13.3646L13.3646 27.9996ZM13.3646 25.9604H18.6349C22.6812 25.9604 25.9605 22.6804 25.9605 18.6349V13.3646C25.9605 9.31831 22.6804 6.03913 18.6351 6.03913H13.3647C9.31836 6.03913 6.03918 9.31917 6.03918 13.3646V18.6349C6.03918 22.6812 9.31925 25.9604 13.3647 25.9604H13.3646ZM16.0003 13.2918C15.3887 13.2918 14.8838 12.8375 14.8038 12.2482L14.7931 12.0846V12.0073C14.7931 11.3406 15.3336 10.7993 16.0012 10.7993C16.6127 10.7993 17.1176 11.2535 17.1976 11.8428L17.2082 12.0064V12.0837C17.2082 12.7504 16.6678 13.2918 16.0002 13.2918H16.0003ZM16.0003 21.8919C15.3887 21.8919 14.8838 21.4377 14.8038 20.8484L14.7931 20.6849V15.5016C14.7931 14.8349 15.3336 14.2936 16.0012 14.2936C16.6127 14.2936 17.1176 14.7478 17.1976 15.3371L17.2082 15.5007V20.684C17.2082 21.3515 16.6678 21.8919 16.0002 21.8919H16.0003Z" />
+              </svg>
+            </div>
+          </div>
+          <span className="mb-3 text-2xl font-extrabold text-brand">$0.00</span>
+          <div className="flex items-center gap-3">
+            <div>
+              <span className="mr-1 text-nowrap text-secondary">
+                Total Received
+              </span>
+              <span className="sub-num">$0.00</span>
+            </div>
+            <div>
+              <span className="mr-1 text-nowrap text-secondary">
+                Locked Rewards
+              </span>
+              <span className="sub-num">$0.00</span>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 border-third sm:h-20 sm:border-l sm:pl-4 lg:pl-10">
+          <button
+            className="button button-second button-m h-10! flex-1 sm:px-8"
+            disabled
+            type="button"
+          >
+            Swap
+          </button>
+          <button
+            className="button button-brand button-m h-10! flex-1 sm:flex-auto sm:px-8"
+            disabled
+            type="button"
+          >
+            Withdraw to Wallet
+          </button>
+        </div>
+      </section>
+      <section className="relative rounded-xl bg-layer4 pt-2">
+        <div
+          className="scroll-x tabs-title hide-scroll border-third sm:w-96"
+          data-type="indicator"
+          style={
+            {
+              ["--tabs-indicator-position" as any]: "0%",
+              ["--tabs-width" as any]: "132px",
+            } as React.CSSProperties
+          }
+        >
+          <button aria-selected="true" className="tabs-btn btn-like">
+            Commission by Friends
+          </button>
+          <button className="tabs-btn btn-like">Commission by Currency</button>
+          <button className="tabs-btn btn-like">Level Up Rewards</button>
+          <div className="tabs-indicator" />
+        </div>
+        <div
+          className="tabs-content"
+          style={{
+            opacity: "1",
+          }}
+        >
+          <div className="p-4">
+            <div className="mb-3 flex flex-col gap-3 sm:flex-row">
+              <div className="center flex-1 gap-3">
+                <button
+                  className="button button-m select bg-input_bright flex-1 bg-layer3!"
+                  type="button"
+                >
+                  All Codes
+                  <div className="size-6 ml-auto bg-input_button center rounded-md ">
+                    <div className="icon size-4! transition-all -rotate-90">
+                      <svg
+                        viewBox="0 0 32 32"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M20.9717 9.59292L15.2482 15.3155L20.9717 21.0389L18.5143 23.4972L10.3325 15.3164L18.5143 7.1355L20.9717 9.59292Z" />
+                      </svg>
+                    </div>
+                  </div>
+                </button>
+                <div className="input flex-1 bg-layer3">
+                  <input placeholder="Search UserName" />
+                  <div className="icon order-first size-6 fill-secondary">
+                    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20.6269 21.5678L19.3527 20.2936C17.8403 21.5314 15.9082 22.2749 13.8023 22.2774C8.95471 22.2774 5.02441 18.3471 5.02441 13.4996C5.02441 8.65197 8.95471 4.72168 13.8023 4.72168C18.6499 4.72168 22.5802 8.65197 22.5802 13.4996C22.5776 15.5902 21.8443 17.5095 20.6235 19.0169L21.9003 20.2936L21.8714 20.3216L21.8825 20.3123C22.158 20.0936 22.5598 20.1122 22.815 20.3665L27.2599 24.8114C27.5337 25.0853 27.5337 25.5304 27.2599 25.805L26.1307 26.9343C25.8568 27.2081 25.4117 27.2081 25.1371 26.9343L20.6922 22.4894C20.4378 22.235 20.4192 21.8332 20.6379 21.5568L20.6269 21.5678ZM13.8023 6.82332C10.1153 6.82332 7.12605 9.81258 7.12605 13.4996C7.12605 17.1865 10.1153 20.1758 13.8023 20.1758C17.4893 20.1758 20.4785 17.1865 20.4785 13.4996C20.4751 9.81343 17.4884 6.82671 13.8023 6.82332Z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-1 flex-col gap-3 sm:flex-row">
+                <div className="relative w-full">
+                  <div className="input relative bg-layer3">
+                    <input readOnly />
+                    <div className="order-first text-nowrap">
+                      Registration Date:
+                    </div>
+                  </div>
+                  <div className="center absolute right-4 top-1/2 size-5! -translate-y-1/2 cursor-pointer rounded-full bg-layer4">
+                    <div className="icon size-3! text-secondary">
+                      <svg
+                        viewBox="0 0 32 32"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M7.15445 7.40846C6.3734 8.18951 6.3734 9.45584 7.15445 10.2369L12.9175 15.9999L7.15445 21.7629C6.3734 22.544 6.3734 23.8103 7.15445 24.5914L7.40846 24.8454C8.18951 25.6264 9.45584 25.6264 10.2369 24.8454L15.9998 19.0825L21.7631 24.8458C22.5441 25.6269 23.8104 25.6269 24.5915 24.8458L24.8455 24.5918C25.6265 23.8108 25.6265 22.5444 24.8455 21.7634L19.0825 16.0003L24.8455 10.2373C25.6265 9.45627 25.6265 8.18994 24.8455 7.40889L24.5915 7.15488C23.8104 6.37383 22.5441 6.37383 21.7631 7.15488L16.0002 12.9177L10.2369 7.15445C9.45584 6.3734 8.18951 6.3734 7.40846 7.15445L7.15445 7.40846Z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div className="relative w-full">
+                  <div className="input relative bg-layer3">
+                    <input readOnly />
+                    <div className="order-first text-nowrap">Wager Date:</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-solid border-b-third">
+                  <th className="px-3 py-2 align-middle text-xs font-semibold leading-none text-secondary text-left">
+                    Username
+                  </th>
+                  <th className="px-3 py-2 align-middle text-xs font-semibold leading-none text-secondary text-center">
+                    User ID
+                  </th>
+                  <th className="px-3 py-2 align-middle text-xs font-semibold leading-none text-secondary text-center">
+                    Commission Rate
+                  </th>
+                  <th className="px-3 py-2 align-middle text-xs font-semibold leading-none text-secondary text-center">
+                    Total Deposits (Past 7D)
+                  </th>
+                  <th className="px-3 py-2 align-middle text-xs font-semibold leading-none text-secondary text-center">
+                    Registration Date
+                  </th>
+                  <th className="px-3 py-2 align-middle text-xs font-semibold leading-none text-secondary text-right">
+                    Total Commission
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colSpan={6}>
+                    <section className="py-10 text-center center flex-col">
+                      <img
+                        className="w-48 h-48"
+                        src="https://bc.game/substation/bc/common/empty_w.png"
+                      />
+                      <div className="leading-5 mt-4">
+                        No rewards yet invite friends to join you now!
+                      </div>
+                    </section>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className="right-2 top-2 flex items-center justify-between sm:absolute sm:gap-3">
+          <button
+            className="button button-second button-m center h-8! gap-1 px-2"
+            type="button"
+          >
+            <div className="icon size-5!">
+              <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <path d="M28.7345 11.2036V11.3434C28.716 11.5195 28.669 11.6699 28.5938 11.7946C28.3792 12.1504 28.2424 12.3743 28.1834 12.4661C28.0779 12.6293 27.9078 12.6571 27.7521 12.5601C24.9837 10.8403 22.2071 9.11095 19.4221 7.37194C19.2475 7.2625 19.2072 7.06801 19.3167 6.88445C19.4241 6.70339 19.5359 6.52183 19.652 6.33977C19.9022 5.94779 20.3658 5.75877 20.8085 5.89208C20.8993 5.91961 21.0517 5.99886 21.2656 6.12985C23.5694 7.54222 25.8959 8.96885 28.2451 10.4097C28.5266 10.5825 28.6898 10.8471 28.7345 11.2036Z" />
+                <path d="M3.26611 10.0934V9.95212C3.32912 9.49979 3.5727 9.20149 3.99684 9.05724C6.56689 8.18243 9.13711 7.30794 11.7075 6.43379C11.9479 6.35188 12.1182 6.30778 12.2184 6.30148C12.6581 6.27362 13.0724 6.55368 13.2252 6.96654C13.3091 7.19271 13.3896 7.427 13.4669 7.66941C13.5361 7.88778 13.4092 8.01114 13.2237 8.07432C10.1306 9.12986 7.03812 10.1854 3.9461 11.241C3.78692 11.2952 3.61382 11.231 3.55562 11.0614C3.44966 10.754 3.30839 10.4207 3.26611 10.0934Z" />
+                <path d="M19.1864 24.1035C19.633 23.9533 19.9245 23.619 19.9484 23.1385C19.9544 23.0151 19.9226 22.8515 19.8529 22.6475C18.5642 18.8843 17.3653 15.3625 16.256 12.0821C16.2218 11.9813 16.2346 11.8825 16.2943 11.7856C16.9303 10.7516 17.5604 9.72975 18.1845 8.71997C18.3208 8.49961 18.5163 8.57074 18.7058 8.68863C21.4689 10.4087 24.2316 12.1289 26.994 13.849C27.1482 13.945 27.1607 14.1345 27.0736 14.2763C24.8388 17.9155 22.6078 21.5543 20.3807 25.1929C20.2315 25.4366 20.1094 25.5944 20.0146 25.6664C19.7728 25.8501 19.5057 25.9198 19.2132 25.8753C19.068 25.8534 18.9267 25.7923 18.8023 25.7167C18.5122 25.5399 18.19 25.3442 17.8358 25.1297C17.7655 25.0872 17.715 25.0431 17.6841 24.9974C17.5812 24.8461 17.6508 24.6268 17.8309 24.5646C18.3104 24.3998 18.7622 24.2461 19.1864 24.1035ZM20.3354 15.2741C20.135 15.3 19.9733 15.1895 19.9778 14.9756C19.9832 14.7419 20.0414 14.4936 19.9997 14.2663C19.8718 13.5724 18.9257 13.4441 18.6064 14.0733C18.5563 14.1718 18.5231 14.3272 18.5069 14.5394C18.4661 15.0823 18.4231 15.6021 18.378 16.0988C18.3552 16.3549 18.4269 16.5649 18.5934 16.7291C18.8287 16.9614 19.0894 16.9679 19.4187 16.9181C20.3701 16.7742 21.2268 16.654 21.9889 16.5575C22.2117 16.529 22.3804 16.4844 22.4948 16.4237C23.0837 16.1113 22.9628 15.2189 22.3212 15.0562C22.2008 15.0261 22.0142 15.0305 21.7616 15.0697C21.2897 15.1433 20.8143 15.2114 20.3354 15.2741Z" />
+                <path d="M17.5329 23.4479C14.6465 24.4368 12.0439 25.3225 9.72523 26.1051C9.62542 26.1386 9.52245 26.1534 9.41633 26.1494C9.09632 26.1368 8.82887 26.0051 8.61398 25.7544C8.54732 25.6768 8.45347 25.4603 8.33243 25.1048C6.96251 21.0756 5.59358 17.0504 4.22565 13.0292C4.15999 12.8367 4.28932 12.7054 4.46292 12.6457C7.55727 11.5848 10.6609 10.5251 13.7738 9.4666C13.934 9.41188 14.0917 9.5049 14.1429 9.65513C15.5662 13.8332 16.9746 17.9727 18.3681 22.0735C18.5153 22.5067 18.3681 22.9947 17.989 23.2519C17.9101 23.3056 17.7581 23.3709 17.5329 23.4479ZM11.0947 13.8793C10.9484 14.2399 10.8111 14.5971 10.6674 14.9493C10.5763 15.1731 10.4042 15.2542 10.1844 15.1244C9.84014 14.9211 9.50935 14.7282 9.19199 14.5459C8.49111 14.1434 7.73552 14.9687 8.21006 15.6258C8.27805 15.72 8.38881 15.8103 8.54235 15.8969C8.94294 16.1224 9.35034 16.3613 9.76453 16.6137C9.87745 16.6828 9.91625 16.833 9.86899 16.9564C9.7327 17.3122 9.59043 17.6696 9.4422 18.0284C9.37355 18.1945 9.34089 18.3358 9.3442 18.4522C9.36062 19.0212 9.9441 19.3824 10.4545 19.0874C10.5944 19.0068 10.6962 18.8931 10.7599 18.7462C10.8786 18.4722 10.9877 18.2 11.0872 17.9294C11.1737 17.6936 11.3334 17.521 11.5886 17.6717C11.8871 17.8481 12.1776 18.0168 12.4601 18.1776C13.3649 18.6924 14.1051 17.4155 13.1859 16.8753C12.8244 16.6628 12.4525 16.446 12.0701 16.2252C11.9383 16.1491 11.8597 16.0108 11.9184 15.8556C12.0637 15.4719 12.2256 15.0645 12.4044 14.6334C12.4916 14.4228 12.5336 14.2617 12.5302 14.1499C12.5064 13.3172 11.4046 13.1152 11.0947 13.8793Z" />
+              </svg>
+            </div>
+            <span className="font-extrabold">Rules</span>
+          </button>
+          <button
+            className="button button-second button-m center h-8! gap-1 px-2"
+            type="button"
+          >
+            <div className="icon size-4!">
+              <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 4C22.6274 4 28 9.37257 28 16C28 22.6274 22.6274 28 16 28C9.37257 28 4 22.6274 4 16C4 9.37257 9.37257 4 16 4ZM16 6.57143C10.7929 6.57143 6.57143 10.7929 6.57143 16C6.57143 21.2071 10.7929 25.4286 16 25.4286C21.2071 25.4286 25.4286 21.2071 25.4286 16C25.4286 10.7929 21.2071 6.57143 16 6.57143ZM15.1429 9.256C15.9297 9.256 16.5751 9.862 16.6377 10.6326L16.6429 10.756V16.4637L20.7503 16.4646C21.5783 16.4646 22.2503 17.1366 22.2503 17.9646C22.2503 18.7514 21.6443 19.3969 20.8737 19.4594L20.7503 19.4646H15.1429C15.0246 19.4646 14.9089 19.4509 14.7983 19.4251C14.7923 19.4234 14.7863 19.4226 14.7803 19.4209C14.7589 19.4157 14.7374 19.4097 14.7169 19.4037C14.6963 19.3977 14.6731 19.39 14.6517 19.3831C14.6423 19.3797 14.6329 19.3763 14.6234 19.3729C14.596 19.3626 14.5686 19.3514 14.542 19.3403C14.5249 19.3326 14.5094 19.3257 14.4931 19.318C14.476 19.3094 14.458 19.3009 14.4409 19.2914C14.4194 19.2803 14.398 19.2683 14.3766 19.2554C14.3629 19.2477 14.35 19.2391 14.3363 19.2306C14.3209 19.2211 14.3063 19.2109 14.2917 19.2006C14.2711 19.186 14.2506 19.1714 14.2309 19.156C14.218 19.1466 14.2051 19.1363 14.1923 19.126C14.176 19.1131 14.1614 19.1003 14.146 19.0866C14.1306 19.0729 14.1169 19.06 14.1031 19.0463C14.0886 19.0326 14.0749 19.0189 14.062 19.0051C14.0457 18.9889 14.0303 18.9717 14.0149 18.9537C14.0054 18.9426 13.996 18.9314 13.9866 18.9203C13.9729 18.904 13.96 18.8877 13.9471 18.8706C13.9334 18.8526 13.9206 18.8346 13.9069 18.8157C13.8966 18.8011 13.8871 18.7857 13.8769 18.7711C13.8666 18.7549 13.8563 18.7377 13.846 18.7214C13.8357 18.7051 13.8263 18.6863 13.8169 18.6683C13.8066 18.6494 13.7971 18.6297 13.7877 18.61C13.78 18.5929 13.7723 18.5766 13.7646 18.5594C13.7577 18.5431 13.7509 18.5277 13.7449 18.5114C13.7226 18.454 13.7037 18.3949 13.6883 18.3349C13.6583 18.2166 13.6429 18.0931 13.6429 17.9654V10.7569C13.6429 9.92886 14.3149 9.25686 15.1429 9.25686V9.256Z" />
+              </svg>
+            </div>
+            <span className="font-extrabold">History</span>
+            <div className="icon size-4! rotate-180 fill-primary">
+              <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.9717 9.59292L15.2482 15.3155L20.9717 21.0389L18.5143 23.4972L10.3325 15.3164L18.5143 7.1355L20.9717 9.59292Z" />
+              </svg>
+            </div>
+          </button>
+        </div>
+        <div className="absolute top-12 h-px w-full bg-third" />
+      </section>
+    </div>
+  );
+}
+

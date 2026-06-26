@@ -1,0 +1,70 @@
+.swiperContainer {
+  /* Variables para sa basic colors */
+  --swiper-navigation-size: 24px;
+  --swiper-navigation-color: #24dc72; /* Green brand color */
+  --swiper-pagination-color: #24dc72; /* Active dot color */
+}
+
+/* Custom Position ng Arrows */
+.swiperContainer :global(.swiper-button-next),
+.swiperContainer :global(.swiper-button-prev) {
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%);
+  width: var(--swiper-navigation-size);
+  height: var(--swiper-navigation-size);
+  background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background */
+  border-radius: 50%; /* Round background */
+  display: flex; /* Para ma-center ang SVG icon */
+  align-items: center;
+  justify-content: center;
+  color: var(--swiper-navigation-color);
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+  opacity: 0; /* Hidden by default */
+  pointer-events: none; /* Hindi clickable kapag hidden */
+  padding: 5px;
+}
+
+.swiperContainer :global(.swiper-button-next:hover),
+.swiperContainer :global(.swiper-button-prev:hover) {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* Gawing visible ang arrows kapag naka-hover sa buong carousel wrapper */
+.carouselWrapper:hover .swiperContainer :global(.swiper-button-next),
+.carouselWrapper:hover .swiperContainer :global(.swiper-button-prev) {
+  opacity: 1;
+  pointer-events: auto; /* Clickable kapag visible */
+}
+
+.swiperContainer :global(.swiper-button-next) {
+  right: 5px; /* Adjust as needed */
+}
+.swiperContainer :global(.swiper-button-prev) {
+  left: 5px; /* Adjust as needed */
+}
+
+/* Pagination (Dots) adjustment */
+.swiperContainer :global(.swiper-pagination) {
+  position: relative;
+  bottom: 0px !important; /* Important para hindi ma-override ng Swiper default */
+}
+
+/* Size ng Dots */
+.swiperContainer :global(.swiper-pagination-bullet) {
+  width: 24px;
+  height: 4px;
+  border-radius: 5px;
+  background: #fff; /* Inactive dot color */
+  opacity: 1;
+  margin: 0 6px; /* Space between dots */
+  transition: all 0.3s ease;
+}
+
+/* Active Dot - Gawing pahaba (Pill shape) */
+.swiperContainer :global(.swiper-pagination-bullet-active) {
+  width: 24px;
+  border-radius: 5px;
+  background: var(--swiper-pagination-color);
+}

@@ -1,0 +1,25 @@
+-- Migration: Create board betting table
+CREATE TABLE IF NOT EXISTS board_bet_orders (
+  id INT(11) NOT NULL AUTO_INCREMENT,
+  transaction_id VARCHAR(100) NOT NULL,
+  user_id INT(11) NOT NULL,
+  api_provider VARCHAR(100) NOT NULL,
+  game_type_idx INT(11) NOT NULL,
+  game_name VARCHAR(100) NOT NULL,
+  round_id VARCHAR(100) NOT NULL,
+  game_holdem_group_key VARCHAR(100) DEFAULT NULL,
+  bet_money DECIMAL(20,2) NOT NULL DEFAULT 0.00,
+  win_money DECIMAL(20,2) NOT NULL DEFAULT 0.00,
+  jackpot DECIMAL(20,2) NOT NULL DEFAULT 0.00,
+  bet_status TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1=win, 2=lose, 3=jackpot',
+  bet_details JSON DEFAULT NULL,
+  note TEXT DEFAULT NULL,
+  game_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_bbo_transaction_id (transaction_id),
+  KEY idx_bbo_user_id (user_id),
+  KEY idx_bbo_game_type_idx (game_type_idx),
+  KEY idx_bbo_game_time (game_time),
+  CONSTRAINT fk_bbo_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
