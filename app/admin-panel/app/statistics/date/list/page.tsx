@@ -50,6 +50,30 @@ interface GameType {
   display_order: number;
 }
 
+interface DateStatisticsDateRange {
+  minDate: string | null;
+  maxDate: string | null;
+}
+
+const formatDateInput = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+const getDefaultDateRange = () => {
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setMonth(startDate.getMonth() - 1);
+
+  return {
+    startDate: formatDateInput(startDate),
+    endDate: formatDateInput(endDate),
+  };
+};
+
 interface CustomWindow extends Window {
   flatpickr?: (element: HTMLElement, options: Record<string, unknown>) => void;
   userDetail?: (userIdx: string | number, tab: number) => void;
@@ -57,11 +81,11 @@ interface CustomWindow extends Window {
 }
 
 export default function StatisticsDateListPage() {
-  const [startDate, setStartDate] = useState(new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split("T")[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [userID, setUserID] = useState("");
-  const [userIdx, setUserIdx] = useState("");
-  const [child, setChild] = useState("");
+  const [userIdx] = useState("");
+  const [child] = useState("");
   const [gameGroupIdx, setGameGroupIdx] = useState("");
 
   // Data states
@@ -73,26 +97,69 @@ export default function StatisticsDateListPage() {
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
 
-  // Fetch game types on mount
-  useEffect(() => {
-    fetchGameTypes();
+  const getAuthHeaders = React.useCallback((): HeadersInit => {
+    if (typeof window === "undefined") return {};
+
+    const token = localStorage.getItem("adminToken");
+    return token ? { Authorization: `Bearer ${token}` } : {};
   }, []);
 
-  // Fetch statistics when dates change
-  useEffect(() => {
-    if (startDate && endDate) {
-      fetchStatistics();
-    }
-  }, [startDate, endDate, userIdx, gameGroupIdx]);
+  const redirectToLogin = React.useCallback(() => {
+    window.location.href = "/login";
+  }, []);
 
-  const fetchGameTypes = async () => {
+  const fetchStatisticsDateRange = React.useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${BACKEND_URL}/api/admin/statistics/date/date-range`,
+        {
+          credentials: "include",
+          headers: getAuthHeaders(),
+        }
+      );
+
+      if (response.status === 401) {
+        redirectToLogin();
+        return;
+      }
+
+      const data = await response.json();
+      const range = data.data as DateStatisticsDateRange | undefined;
+
+      if (data.success && range?.maxDate) {
+        const maxDate = new Date(`${range.maxDate}T00:00:00`);
+        const minDate = range.minDate ? new Date(`${range.minDate}T00:00:00`) : null;
+        const start = new Date(maxDate);
+        start.setMonth(start.getMonth() - 1);
+
+        setStartDate(formatDateInput(minDate && start < minDate ? minDate : start));
+        setEndDate(formatDateInput(maxDate));
+        return;
+      }
+    } catch (err) {
+      console.error("Failed to fetch date statistics date range:", err);
+    }
+
+    const fallback = getDefaultDateRange();
+    setStartDate(fallback.startDate);
+    setEndDate(fallback.endDate);
+  }, [getAuthHeaders, redirectToLogin]);
+
+  const fetchGameTypes = React.useCallback(async () => {
     try {
       const response = await fetch(
         `${BACKEND_URL}/api/admin/statistics/game-types`,
         {
           credentials: "include",
+          headers: getAuthHeaders(),
         }
       );
+
+      if (response.status === 401) {
+        redirectToLogin();
+        return;
+      }
+
       const data = await response.json();
       if (data.success) {
         setGameTypes(data.data || []);
@@ -100,9 +167,9 @@ export default function StatisticsDateListPage() {
     } catch (err) {
       console.error("Failed to fetch game types:", err);
     }
-  };
+  }, [getAuthHeaders, redirectToLogin]);
 
-  const fetchStatistics = async () => {
+  const fetchStatistics = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -123,23 +190,45 @@ export default function StatisticsDateListPage() {
         `${BACKEND_URL}/api/admin/statistics/date?${params}`,
         {
           credentials: "include",
+          headers: getAuthHeaders(),
         }
       );
+
+      if (response.status === 401) {
+        redirectToLogin();
+        return;
+      }
 
       const data = await response.json();
 
       if (data.success) {
         setStatistics(data.data || []);
       } else {
-        setError(data.error || "Failed to fetch statistics");
+        setError(data.error || data.message || "Failed to fetch statistics");
       }
-    } catch (err: any) {
-      console.error("Failed to fetch statistics:", err);
-      setError(err.message || "Network error");
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error("Failed to fetch statistics:", error);
+      setError(error.message || "Network error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [startDate, endDate, userIdx, gameGroupIdx, getAuthHeaders, redirectToLogin]);
+
+  // Fetch game types and initialize date range on mount
+  useEffect(() => {
+    void Promise.resolve().then(() => {
+      fetchGameTypes();
+      fetchStatisticsDateRange();
+    });
+  }, [fetchGameTypes, fetchStatisticsDateRange]);
+
+  // Fetch statistics when dates change
+  useEffect(() => {
+    if (startDate && endDate) {
+      void Promise.resolve().then(fetchStatistics);
+    }
+  }, [startDate, endDate, userIdx, gameGroupIdx, fetchStatistics]);
 
   useEffect(() => {
     // Initialize flatpickr for date inputs if available
@@ -182,7 +271,6 @@ export default function StatisticsDateListPage() {
 
   const handleGameGroupFilter = (groupIdx: string) => {
     setGameGroupIdx(groupIdx);
-    fetchStatistics();
   };
 
   const formatNumber = (value: number | string | null | undefined) => {
@@ -228,17 +316,26 @@ export default function StatisticsDateListPage() {
     return acc;
   }, {} as Record<string, { date: string; gameTypes: DateStatistics[]; total: DateStatistics | null }>);
 
-  // Ensure all dates have at least a total entry (even if all zeros)
-  statistics.forEach((stat) => {
-    const key = stat.stat_date;
-    if (groupedByDate[key] && !groupedByDate[key].total) {
-      // Create a default total entry if missing
-      groupedByDate[key].total = {
-        ...stat,
-        game_type_id: null,
-        game_type_code: null,
-        game_type_name: null,
-      };
+    // Ensure all dates have at least a total entry (calculate sum)
+  Object.values(groupedByDate).forEach((group) => {
+    if (!group.total && group.gameTypes.length > 0) {
+      const baseStat = group.gameTypes[0];
+      const totalStat = { ...baseStat, game_type_id: null, game_type_code: null, game_type_name: null };
+      
+      const sumFields = [
+        'site_balance', 'casino_balance', 'holdem_balance', 'mini_balance', 'total_points',
+        'user_deposit', 'user_withdrawal', 'user_profit', 'partner_deposit', 'partner_deposit_received',
+        'partner_withdrawal', 'partner_withdrawal_received', 'partner_profit', 'admin_deposit',
+        'admin_withdrawal', 'total_bet_amount', 'invalid_bet_amount', 'public_bet_amount',
+        'total_win_amount', 'betting_profit', 'rolling', 'member_comp', 'first_deposit_bonus',
+        'regular_deposit_bonus', 'final_profit', 'losing_amount', 'money_deposit', 'money_withdrawal',
+        'point_deposit', 'point_withdrawal'
+      ];
+      
+      sumFields.forEach(field => {
+        totalStat[field as keyof DateStatistics] = group.gameTypes.reduce((sum, stat) => sum + Number(stat[field as keyof DateStatistics] || 0), 0) as never;
+      });
+      group.total = totalStat;
     }
   });
 
@@ -314,7 +411,7 @@ export default function StatisticsDateListPage() {
 
   const totals = calculateTotals();
   const gameTypeOrder = ["casino", "slot", "board", "mini", "sports"];
-  const sortedGameTypes = [...gameTypes].sort((a, b) => {
+  /* const sortedGameTypes = [...gameTypes].sort((a, b) => {
     const aIndex = gameTypeOrder.indexOf(a.code);
     const bIndex = gameTypeOrder.indexOf(b.code);
     if (aIndex === -1 && bIndex === -1)
@@ -322,7 +419,7 @@ export default function StatisticsDateListPage() {
     if (aIndex === -1) return 1;
     if (bIndex === -1) return -1;
     return aIndex - bIndex;
-  });
+  }); */
 
   const gameTypeMap: Record<string, string> = {
     casino: "카지노",
@@ -515,8 +612,310 @@ export default function StatisticsDateListPage() {
             id="partnerTable"
             className="table table-bordered table-responsive align-middle bg-white text-center fw-bold"
           >
+            {/* Table Header */}
+            <thead
+              className="bg-dark bg-gradient text-white"
+              style={{ position: "sticky", top: "50px", zIndex: 1 }}
+            >
+              <tr>
+                <th rowSpan={2} className="align-middle">
+                  일자
+                </th>
+                <th rowSpan={2} colSpan={2} className="align-middle">
+                  보유 금액
+                </th>
+                <th rowSpan={2} className="align-middle">
+                  보유 포인트
+                </th>
+                <th colSpan={9}>충 / 환전</th>
+                <th rowSpan={2} className="align-middle">
+                  구분
+                </th>
+                <th colSpan={2}>관리자</th>
+                <th rowSpan={2} className="align-middle">
+                  구분
+                </th>
+                <th colSpan={5}>베팅</th>
+                <th colSpan={4}>수수료</th>
+                <th
+                  rowSpan={2}
+                  className="align-middle"
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="베팅손익 - 롤링"
+                >
+                  최종손익
+                </th>
+              </tr>
+              <tr>
+                <th colSpan={2}>사이트 충전</th>
+                <th>사이트 환전</th>
+                <th>충환 손익</th>
+                <th>파트너 지급</th>
+                <th>파트너 지급받음</th>
+                <th>파트너 회수</th>
+                <th>파트너 회수됨</th>
+                <th>파트너 손익</th>
+                <th>지급</th>
+                <th>회수</th>
+                <th>총 베팅금</th>
+                <th>무효 베팅</th>
+                <th>공 베팅</th>
+                <th>총 당첨금</th>
+                <th>베팅 손익</th>
+                <th>롤링</th>
+                <th>회원콤프</th>
+                <th>첫충</th>
+                <th>매충</th>
+              </tr>
+
+              {/* Summary Rows - 합계 (Total) */}
+              {(() => {
+                const summaryRowDefs = [
+                  {
+                    balanceType: "사이트",
+                    depositType: "유저",
+                    adminType: "머니",
+                    gameType: "카지노",
+                  },
+                  {
+                    balanceType: "카지노",
+                    depositType: "파트너",
+                    adminType: "포인트",
+                    gameType: "슬롯",
+                  },
+                  {
+                    balanceType: "홀덤",
+                    depositType: "합계",
+                    adminType: "합계",
+                    gameType: "보드게임",
+                  },
+                  {
+                    balanceType: "-",
+                    depositType: "-",
+                    adminType: "-",
+                    gameType: "미니게임",
+                  },
+                  {
+                    balanceType: "-",
+                    depositType: "-",
+                    adminType: "-",
+                    gameType: "스포츠",
+                  },
+                  {
+                    balanceType: "-",
+                    depositType: "-",
+                    adminType: "-",
+                    gameType: "합계",
+                  },
+                ];
+
+                return summaryRowDefs.map((rowDef, rowIndex) => {
+                  const isFirstRow = rowIndex === 0;
+                  const balance =
+                    rowDef.balanceType === "사이트"
+                      ? totals.site_balance
+                      : rowDef.balanceType === "카지노"
+                      ? 0
+                      : rowDef.balanceType === "홀덤"
+                      ? 0
+                      : 0;
+
+                  const getDepositData = () => {
+                    if (rowDef.depositType === "유저") {
+                      return {
+                        deposit: totals.user_deposit,
+                        withdrawal: totals.user_withdrawal,
+                        profit: totals.user_profit,
+                      };
+                    } else if (rowDef.depositType === "파트너") {
+                      return { deposit: 0, withdrawal: 0, profit: 0 };
+                    } else if (rowDef.depositType === "합계") {
+                      return {
+                        deposit: totals.user_deposit,
+                        withdrawal: totals.user_withdrawal,
+                        profit: totals.user_profit,
+                      };
+                    }
+                    return { deposit: 0, withdrawal: 0, profit: 0 };
+                  };
+
+                  const depositData = getDepositData();
+
+                  const getAdminData = () => {
+                    if (rowDef.adminType === "머니") {
+                      return {
+                        deposit: totals.money_deposit,
+                        withdrawal: totals.money_withdrawal,
+                      };
+                    } else if (rowDef.adminType === "포인트") {
+                      return { deposit: 0, withdrawal: 0 };
+                    } else if (rowDef.adminType === "합계") {
+                      return {
+                        deposit: totals.money_deposit,
+                        withdrawal: totals.money_withdrawal,
+                      };
+                    }
+                    return { deposit: 0, withdrawal: 0 };
+                  };
+
+                  const adminData = getAdminData();
+                  const isTotalGameRow = rowDef.gameType === "합계";
+
+                  return (
+                    <tr
+                      key={`summary-${rowIndex}`}
+                      className="bg-gray-200 text-black"
+                    >
+                      {isFirstRow && (
+                        <td rowSpan={6} className="align-middle">
+                          합계
+                        </td>
+                      )}
+                      <td>{rowDef.balanceType}</td>
+                      <td>
+                        {rowDef.balanceType !== "-"
+                          ? formatNumber(balance)
+                          : "-"}
+                      </td>
+                      {isFirstRow && (
+                        <td rowSpan={6} className="align-middle">
+                          {formatNumber(totals.total_points)}
+                        </td>
+                      )}
+                      <td>{rowDef.depositType}</td>
+                      <td className="align-middle">
+                        {rowDef.depositType !== "-"
+                          ? formatNumber(depositData.deposit)
+                          : "-"}
+                      </td>
+                      <td className="align-middle">
+                        {rowDef.depositType !== "-"
+                          ? formatNumber(depositData.withdrawal)
+                          : "-"}
+                      </td>
+                      <td
+                        className={`align-middle ${
+                          rowDef.depositType !== "-" && depositData.profit < 0
+                            ? "text-red"
+                            : ""
+                        }`}
+                      >
+                        {rowDef.depositType !== "-"
+                          ? formatNumber(depositData.profit)
+                          : "-"}
+                      </td>
+                      {isFirstRow && (
+                        <>
+                          <td rowSpan={6} className="align-middle">
+                            {formatNumber(totals.partner_deposit)}
+                          </td>
+                          <td rowSpan={6} className="align-middle">
+                            {formatNumber(totals.partner_deposit_received)}
+                          </td>
+                          <td rowSpan={6} className="align-middle">
+                            {formatNumber(totals.partner_withdrawal)}
+                          </td>
+                          <td rowSpan={6} className="align-middle">
+                            {formatNumber(totals.partner_withdrawal_received)}
+                          </td>
+                          <td
+                            rowSpan={6}
+                            className={`align-middle ${
+                              totals.partner_profit < 0 ? "text-red" : ""
+                            }`}
+                          >
+                            {formatNumber(totals.partner_profit)}
+                          </td>
+                        </>
+                      )}
+                      <td>{rowDef.adminType}</td>
+                      <td>
+                        {rowDef.adminType !== "-"
+                          ? formatNumber(adminData.deposit)
+                          : "-"}
+                      </td>
+                      <td>
+                        {rowDef.adminType !== "-"
+                          ? formatNumber(adminData.withdrawal)
+                          : "-"}
+                      </td>
+                      <td>{rowDef.gameType}</td>
+                      <td>
+                        {isTotalGameRow
+                          ? formatNumber(totals.total_bet_amount)
+                          : "0"}
+                      </td>
+                      <td>
+                        {isTotalGameRow
+                          ? "0"
+                          : rowDef.gameType === "보드게임" ||
+                            rowDef.gameType === "미니게임" ||
+                            rowDef.gameType === "스포츠"
+                          ? "-"
+                          : "0"}
+                      </td>
+                      <td>
+                        {isTotalGameRow
+                          ? "0"
+                          : rowDef.gameType === "보드게임" ||
+                            rowDef.gameType === "미니게임" ||
+                            rowDef.gameType === "스포츠"
+                          ? "-"
+                          : "0"}
+                      </td>
+                      <td>
+                        {isTotalGameRow
+                          ? formatNumber(totals.total_win_amount)
+                          : "0"}
+                      </td>
+                      <td
+                        className={
+                          isTotalGameRow && totals.betting_profit < 0
+                            ? "text-red"
+                            : ""
+                        }
+                      >
+                        {isTotalGameRow
+                          ? formatNumber(totals.betting_profit)
+                          : "0"}
+                      </td>
+                      <td>
+                        {isTotalGameRow ? formatNumber(totals.rolling) : "0"}
+                      </td>
+                      <td>
+                        {isTotalGameRow
+                          ? formatNumber(totals.member_comp)
+                          : "0"}
+                      </td>
+                      <td className="align-middle" rowSpan={1}>
+                        {isTotalGameRow
+                          ? formatNumber(totals.first_deposit_bonus)
+                          : "0"}
+                      </td>
+                      <td className="align-middle" rowSpan={1}>
+                        {isTotalGameRow
+                          ? formatNumber(totals.regular_deposit_bonus)
+                          : "0"}
+                      </td>
+                      <td
+                        className={
+                          isTotalGameRow && totals.final_profit < 0
+                            ? "text-red"
+                            : ""
+                        }
+                      >
+                        {isTotalGameRow
+                          ? formatNumber(totals.final_profit)
+                          : "0"}
+                      </td>
+                    </tr>
+                  );
+                });
+              })()}
+            </thead>
             <tbody>
-              {dateList.map((group, dateIndex) => {
+              {dateList.map((group) => {
                 const date = group.date;
                 const total =
                   group.total ||
@@ -881,308 +1280,7 @@ export default function StatisticsDateListPage() {
               })}
             </tbody>
 
-            {/* Table Header */}
-            <thead
-              className="bg-dark bg-gradient text-white"
-              style={{ position: "sticky", top: "50px", zIndex: 1 }}
-            >
-              <tr>
-                <th rowSpan={2} className="align-middle">
-                  일자
-                </th>
-                <th rowSpan={2} colSpan={2} className="align-middle">
-                  보유 금액
-                </th>
-                <th rowSpan={2} className="align-middle">
-                  보유 포인트
-                </th>
-                <th colSpan={9}>충 / 환전</th>
-                <th rowSpan={2} className="align-middle">
-                  구분
-                </th>
-                <th colSpan={2}>관리자</th>
-                <th rowSpan={2} className="align-middle">
-                  구분
-                </th>
-                <th colSpan={5}>베팅</th>
-                <th colSpan={4}>수수료</th>
-                <th
-                  rowSpan={2}
-                  className="align-middle"
-                  data-toggle="tooltip"
-                  data-placement="top"
-                  title="베팅손익 - 롤링"
-                >
-                  최종손익
-                </th>
-              </tr>
-              <tr>
-                <th colSpan={2}>사이트 충전</th>
-                <th>사이트 환전</th>
-                <th>충환 손익</th>
-                <th>파트너 지급</th>
-                <th>파트너 지급받음</th>
-                <th>파트너 회수</th>
-                <th>파트너 회수됨</th>
-                <th>파트너 손익</th>
-                <th>지급</th>
-                <th>회수</th>
-                <th>총 베팅금</th>
-                <th>무효 베팅</th>
-                <th>공 베팅</th>
-                <th>총 당첨금</th>
-                <th>베팅 손익</th>
-                <th>롤링</th>
-                <th>회원콤프</th>
-                <th>첫충</th>
-                <th>매충</th>
-              </tr>
-
-              {/* Summary Rows - 합계 (Total) */}
-              {(() => {
-                const summaryRowDefs = [
-                  {
-                    balanceType: "사이트",
-                    depositType: "유저",
-                    adminType: "머니",
-                    gameType: "카지노",
-                  },
-                  {
-                    balanceType: "카지노",
-                    depositType: "파트너",
-                    adminType: "포인트",
-                    gameType: "슬롯",
-                  },
-                  {
-                    balanceType: "홀덤",
-                    depositType: "합계",
-                    adminType: "합계",
-                    gameType: "보드게임",
-                  },
-                  {
-                    balanceType: "-",
-                    depositType: "-",
-                    adminType: "-",
-                    gameType: "미니게임",
-                  },
-                  {
-                    balanceType: "-",
-                    depositType: "-",
-                    adminType: "-",
-                    gameType: "스포츠",
-                  },
-                  {
-                    balanceType: "-",
-                    depositType: "-",
-                    adminType: "-",
-                    gameType: "합계",
-                  },
-                ];
-
-                return summaryRowDefs.map((rowDef, rowIndex) => {
-                  const isFirstRow = rowIndex === 0;
-                  const balance =
-                    rowDef.balanceType === "사이트"
-                      ? totals.site_balance
-                      : rowDef.balanceType === "카지노"
-                      ? 0
-                      : rowDef.balanceType === "홀덤"
-                      ? 0
-                      : 0;
-
-                  const getDepositData = () => {
-                    if (rowDef.depositType === "유저") {
-                      return {
-                        deposit: totals.user_deposit,
-                        withdrawal: totals.user_withdrawal,
-                        profit: totals.user_profit,
-                      };
-                    } else if (rowDef.depositType === "파트너") {
-                      return { deposit: 0, withdrawal: 0, profit: 0 };
-                    } else if (rowDef.depositType === "합계") {
-                      return {
-                        deposit: totals.user_deposit,
-                        withdrawal: totals.user_withdrawal,
-                        profit: totals.user_profit,
-                      };
-                    }
-                    return { deposit: 0, withdrawal: 0, profit: 0 };
-                  };
-
-                  const depositData = getDepositData();
-
-                  const getAdminData = () => {
-                    if (rowDef.adminType === "머니") {
-                      return {
-                        deposit: totals.money_deposit,
-                        withdrawal: totals.money_withdrawal,
-                      };
-                    } else if (rowDef.adminType === "포인트") {
-                      return { deposit: 0, withdrawal: 0 };
-                    } else if (rowDef.adminType === "합계") {
-                      return {
-                        deposit: totals.money_deposit,
-                        withdrawal: totals.money_withdrawal,
-                      };
-                    }
-                    return { deposit: 0, withdrawal: 0 };
-                  };
-
-                  const adminData = getAdminData();
-                  const isTotalGameRow = rowDef.gameType === "합계";
-
-                  return (
-                    <tr
-                      key={`summary-${rowIndex}`}
-                      className="bg-gray-200 text-black"
-                    >
-                      {isFirstRow && (
-                        <td rowSpan={6} className="align-middle">
-                          합계
-                        </td>
-                      )}
-                      <td>{rowDef.balanceType}</td>
-                      <td>
-                        {rowDef.balanceType !== "-"
-                          ? formatNumber(balance)
-                          : "-"}
-                      </td>
-                      {isFirstRow && (
-                        <td rowSpan={6} className="align-middle">
-                          {formatNumber(totals.total_points)}
-                        </td>
-                      )}
-                      <td>{rowDef.depositType}</td>
-                      <td className="align-middle">
-                        {rowDef.depositType !== "-"
-                          ? formatNumber(depositData.deposit)
-                          : "-"}
-                      </td>
-                      <td className="align-middle">
-                        {rowDef.depositType !== "-"
-                          ? formatNumber(depositData.withdrawal)
-                          : "-"}
-                      </td>
-                      <td
-                        className={`align-middle ${
-                          rowDef.depositType !== "-" && depositData.profit < 0
-                            ? "text-red"
-                            : ""
-                        }`}
-                      >
-                        {rowDef.depositType !== "-"
-                          ? formatNumber(depositData.profit)
-                          : "-"}
-                      </td>
-                      {isFirstRow && (
-                        <>
-                          <td rowSpan={6} className="align-middle">
-                            {formatNumber(totals.partner_deposit)}
-                          </td>
-                          <td rowSpan={6} className="align-middle">
-                            {formatNumber(totals.partner_deposit_received)}
-                          </td>
-                          <td rowSpan={6} className="align-middle">
-                            {formatNumber(totals.partner_withdrawal)}
-                          </td>
-                          <td rowSpan={6} className="align-middle">
-                            {formatNumber(totals.partner_withdrawal_received)}
-                          </td>
-                          <td
-                            rowSpan={6}
-                            className={`align-middle ${
-                              totals.partner_profit < 0 ? "text-red" : ""
-                            }`}
-                          >
-                            {formatNumber(totals.partner_profit)}
-                          </td>
-                        </>
-                      )}
-                      <td>{rowDef.adminType}</td>
-                      <td>
-                        {rowDef.adminType !== "-"
-                          ? formatNumber(adminData.deposit)
-                          : "-"}
-                      </td>
-                      <td>
-                        {rowDef.adminType !== "-"
-                          ? formatNumber(adminData.withdrawal)
-                          : "-"}
-                      </td>
-                      <td>{rowDef.gameType}</td>
-                      <td>
-                        {isTotalGameRow
-                          ? formatNumber(totals.total_bet_amount)
-                          : "0"}
-                      </td>
-                      <td>
-                        {isTotalGameRow
-                          ? "0"
-                          : rowDef.gameType === "보드게임" ||
-                            rowDef.gameType === "미니게임" ||
-                            rowDef.gameType === "스포츠"
-                          ? "-"
-                          : "0"}
-                      </td>
-                      <td>
-                        {isTotalGameRow
-                          ? "0"
-                          : rowDef.gameType === "보드게임" ||
-                            rowDef.gameType === "미니게임" ||
-                            rowDef.gameType === "스포츠"
-                          ? "-"
-                          : "0"}
-                      </td>
-                      <td>
-                        {isTotalGameRow
-                          ? formatNumber(totals.total_win_amount)
-                          : "0"}
-                      </td>
-                      <td
-                        className={
-                          isTotalGameRow && totals.betting_profit < 0
-                            ? "text-red"
-                            : ""
-                        }
-                      >
-                        {isTotalGameRow
-                          ? formatNumber(totals.betting_profit)
-                          : "0"}
-                      </td>
-                      <td>
-                        {isTotalGameRow ? formatNumber(totals.rolling) : "0"}
-                      </td>
-                      <td>
-                        {isTotalGameRow
-                          ? formatNumber(totals.member_comp)
-                          : "0"}
-                      </td>
-                      <td className="align-middle" rowSpan={1}>
-                        {isTotalGameRow
-                          ? formatNumber(totals.first_deposit_bonus)
-                          : "0"}
-                      </td>
-                      <td className="align-middle" rowSpan={1}>
-                        {isTotalGameRow
-                          ? formatNumber(totals.regular_deposit_bonus)
-                          : "0"}
-                      </td>
-                      <td
-                        className={
-                          isTotalGameRow && totals.final_profit < 0
-                            ? "text-red"
-                            : ""
-                        }
-                      >
-                        {isTotalGameRow
-                          ? formatNumber(totals.final_profit)
-                          : "0"}
-                      </td>
-                    </tr>
-                  );
-                });
-              })()}
-            </thead>
+            
           </table>
         </div>
       </div>

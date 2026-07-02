@@ -2,88 +2,135 @@ const db = require("../../config/db");
 
 // ── Wallet & Financials ──────────────────────────────────────
 
+const toNumber = (value) => Number(value || 0);
+
+const formatDateKey = (value) => {
+  if (!value) return null;
+  return new Date(value).toISOString().split("T")[0];
+};
+
+const buildHistoryWindow = (anchorDate, rows) => {
+  const byDate = new Map(
+    rows.map((row) => [
+      formatDateKey(row.date),
+      {
+        date: formatDateKey(row.date),
+        deposits: toNumber(row.deposits),
+        withdrawals: toNumber(row.withdrawals),
+      },
+    ]),
+  );
+
+  const history = [];
+  const end = new Date(`${anchorDate}T00:00:00`);
+  for (let offset = 6; offset >= 0; offset -= 1) {
+    const day = new Date(end);
+    day.setDate(end.getDate() - offset);
+    const date = formatDateKey(day);
+    history.push(byDate.get(date) || { date, deposits: 0, withdrawals: 0 });
+  }
+
+  return history;
+};
+
 exports.getPlatformStats = async (req, res) => {
   try {
-    // 1. Total Stats
     const [[totalUsers]] = await db.execute("SELECT COUNT(*) as count FROM users");
-    const [[totalBets]] = await db.execute("SELECT COUNT(*) as count, SUM(amount) as volume FROM bets");
-    
-    // 2. Today's Stats
+    const [[totalBets]] = await db.execute("SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as volume FROM bets");
+    const [[latestTransaction]] = await db.execute(`
+      SELECT DATE(MAX(created_at)) as latestDate
+      FROM wallet_transactions
+      WHERE type IN ('deposit', 'withdraw') AND status = 'completed'
+    `);
+
+    const anchorDate = formatDateKey(latestTransaction.latestDate) || formatDateKey(new Date());
+    const [anchorYear, anchorMonth] = anchorDate.split("-").map(Number);
+
     const [[todayCharge]] = await db.execute(`
-      SELECT SUM(amount) as total, COUNT(*) as count 
-      FROM wallet_transactions 
-      WHERE type = 'deposit' AND status = 'completed' AND DATE(created_at) = CURDATE()
-    `);
+      SELECT COALESCE(SUM(amount), 0) as total, COUNT(*) as count
+      FROM wallet_transactions
+      WHERE type = 'deposit' AND status = 'completed' AND DATE(created_at) = ?
+    `, [anchorDate]);
+
     const [[todayExchange]] = await db.execute(`
-      SELECT SUM(amount) as total, COUNT(*) as count 
-      FROM wallet_transactions 
-      WHERE type = 'withdraw' AND status = 'completed' AND DATE(created_at) = CURDATE()
-    `);
+      SELECT COALESCE(SUM(amount), 0) as total, COUNT(*) as count
+      FROM wallet_transactions
+      WHERE type = 'withdraw' AND status = 'completed' AND DATE(created_at) = ?
+    `, [anchorDate]);
 
-    // 3. Month's Stats
     const [[monthCharge]] = await db.execute(`
-      SELECT SUM(amount) as total, COUNT(*) as count 
-      FROM wallet_transactions 
-      WHERE type = 'deposit' AND status = 'completed' 
-      AND YEAR(created_at) = YEAR(CURDATE()) AND MONTH(created_at) = MONTH(CURDATE())
-    `);
-    const [[monthExchange]] = await db.execute(`
-      SELECT SUM(amount) as total, COUNT(*) as count 
-      FROM wallet_transactions 
-      WHERE type = 'withdraw' AND status = 'completed' 
-      AND YEAR(created_at) = YEAR(CURDATE()) AND MONTH(created_at) = MONTH(CURDATE())
-    `);
+      SELECT COALESCE(SUM(amount), 0) as total, COUNT(*) as count
+      FROM wallet_transactions
+      WHERE type = 'deposit' AND status = 'completed'
+      AND YEAR(created_at) = ? AND MONTH(created_at) = ?
+    `, [anchorYear, anchorMonth]);
 
-    // 4. Last 7 Days History (for Chart)
-    const [history] = await db.execute(`
-      SELECT 
+    const [[monthExchange]] = await db.execute(`
+      SELECT COALESCE(SUM(amount), 0) as total, COUNT(*) as count
+      FROM wallet_transactions
+      WHERE type = 'withdraw' AND status = 'completed'
+      AND YEAR(created_at) = ? AND MONTH(created_at) = ?
+    `, [anchorYear, anchorMonth]);
+
+    const [historyRows] = await db.execute(`
+      SELECT
         DATE(created_at) as date,
-        SUM(CASE WHEN type = 'deposit' THEN amount ELSE 0 END) as deposits,
-        SUM(CASE WHEN type = 'withdraw' THEN amount ELSE 0 END) as withdrawals
-      FROM wallet_transactions 
-      WHERE status = 'completed' AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        COALESCE(SUM(CASE WHEN type = 'deposit' THEN amount ELSE 0 END), 0) as deposits,
+        COALESCE(SUM(CASE WHEN type = 'withdraw' THEN amount ELSE 0 END), 0) as withdrawals
+      FROM wallet_transactions
+      WHERE status = 'completed'
+        AND type IN ('deposit', 'withdraw')
+        AND DATE(created_at) BETWEEN DATE_SUB(?, INTERVAL 6 DAY) AND ?
       GROUP BY DATE(created_at)
       ORDER BY date ASC
-    `);
+    `, [anchorDate, anchorDate]);
 
-    // 5. Recent Transactions
     const [recent] = await db.execute(`
-      SELECT t.*, u.username 
-      FROM wallet_transactions t 
-      JOIN users u ON t.user_id = u.id 
-      ORDER BY t.created_at DESC 
+      SELECT
+        t.id,
+        COALESCE(u.username, CONCAT('User #', t.user_id)) as username,
+        t.type,
+        t.amount,
+        t.currency,
+        t.status,
+        t.created_at
+      FROM wallet_transactions t
+      LEFT JOIN users u ON t.user_id = u.id
+      WHERE t.type IN ('deposit', 'withdraw')
+      ORDER BY t.created_at DESC
       LIMIT 5
     `);
 
     res.status(200).json({
       success: true,
       data: {
-        totalUsers: totalUsers.count,
-        totalBets: totalBets.count,
-        bettingVolume: totalBets.volume || 0,
+        totalUsers: toNumber(totalUsers.count),
+        totalBets: toNumber(totalBets.count),
+        bettingVolume: toNumber(totalBets.volume),
+        statsDate: anchorDate,
         today: {
-          chargeAmount: todayCharge.total || 0,
-          chargeCount: todayCharge.count || 0,
-          exchangeAmount: todayExchange.total || 0,
-          exchangeCount: todayExchange.count || 0,
-          profit: (todayCharge.total || 0) - (todayExchange.total || 0)
+          chargeAmount: toNumber(todayCharge.total),
+          chargeCount: toNumber(todayCharge.count),
+          exchangeAmount: toNumber(todayExchange.total),
+          exchangeCount: toNumber(todayExchange.count),
+          profit: toNumber(todayCharge.total) - toNumber(todayExchange.total),
         },
         month: {
-          chargeAmount: monthCharge.total || 0,
-          chargeCount: monthCharge.count || 0,
-          exchangeAmount: monthExchange.total || 0,
-          exchangeCount: monthExchange.count || 0,
-          profit: (monthCharge.total || 0) - (monthExchange.total || 0)
+          chargeAmount: toNumber(monthCharge.total),
+          chargeCount: toNumber(monthCharge.count),
+          exchangeAmount: toNumber(monthExchange.total),
+          exchangeCount: toNumber(monthExchange.count),
+          profit: toNumber(monthCharge.total) - toNumber(monthExchange.total),
         },
-        history: history.map(h => ({
-          date: new Date(h.date).toISOString().split('T')[0],
-          deposits: Number(h.deposits),
-          withdrawals: Number(h.withdrawals)
+        history: buildHistoryWindow(anchorDate, historyRows),
+        recent: recent.map((tx) => ({
+          ...tx,
+          amount: toNumber(tx.amount),
         })),
-        recent: recent
       },
     });
   } catch (error) {
+    console.error("Failed to fetch platform stats:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

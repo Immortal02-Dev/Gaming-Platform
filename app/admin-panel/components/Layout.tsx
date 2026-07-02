@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useState, useRef } from "react";
+import { ReactNode, useEffect, useState, useRef, type MouseEvent } from "react";
 import { usePathname } from "next/navigation";
 import UserDetailModal from "./UserDetailModal";
 
@@ -12,6 +12,7 @@ export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   const [counts, setCounts] = useState<Record<number, number>>({});
   const prevCountsRef = useRef<Record<number, number>>({});
+  const mobileSidebarCloseTimerRef = useRef<number | null>(null);
   const [detailModal, setDetailModal] = useState<{
     isOpen: boolean;
     userIdx: string | number;
@@ -82,28 +83,21 @@ export default function Layout({ children }: LayoutProps) {
     return () => clearInterval(interval);
   }, []);
 
-  // Add global messageWrite function for use in href="javascript:messageWrite(userId)"
   useEffect(() => {
-    // Repeatedly attempt to fix the layout for the first 5 seconds to handle late-loading scripts
     let attempts = 0;
     const fixLayout = () => {
       window.dispatchEvent(new Event("resize"));
 
-      // PerfectScrollbar (from vendor.min.js) sets overflow:hidden as an INLINE style
-      // on .app-sidebar-content, which overrides even !important CSS rules.
-      // We must actively remove PS instances and force native scrolling.
       const sidebarContent = document.querySelector(
         ".app-sidebar-content",
       ) as HTMLElement | null;
       if (sidebarContent) {
-        // Destroy PerfectScrollbar instance if it exists on this element
         interface PSElement extends HTMLElement {
           _ps_?: { destroy?: () => void };
           ps?: { destroy?: () => void };
         }
         const psEl = sidebarContent as PSElement;
 
-        // PerfectScrollbar stores its instance in different ways depending on version
         if (psEl._ps_ && typeof psEl._ps_.destroy === "function") {
           psEl._ps_.destroy();
           delete psEl._ps_;
@@ -113,15 +107,11 @@ export default function Layout({ children }: LayoutProps) {
           delete psEl.ps;
         }
 
-        // Remove the 'ps' class that PerfectScrollbar adds
         sidebarContent.classList.remove("ps", "ps--active-y", "ps--active-x");
-
-        // Remove PS rail elements that PerfectScrollbar injects
         sidebarContent
           .querySelectorAll(".ps__rail-x, .ps__rail-y")
           .forEach((el) => el.remove());
 
-        // Force native scrolling by setting inline styles (overrides PS inline styles)
         sidebarContent.style.overflow = "";
         sidebarContent.style.overflowY = "auto";
         sidebarContent.style.overflowX = "hidden";
@@ -136,6 +126,73 @@ export default function Layout({ children }: LayoutProps) {
     fixLayout();
   }, []);
 
+  const clearMobileSidebarCloseTimer = () => {
+    if (mobileSidebarCloseTimerRef.current === null) return;
+    window.clearTimeout(mobileSidebarCloseTimerRef.current);
+    mobileSidebarCloseTimerRef.current = null;
+  };
+
+  const finishMobileSidebarClose = () => {
+    const app = document.getElementById("app");
+    if (!app) return;
+    app.classList.remove("app-sidebar-mobile-closed");
+    clearMobileSidebarCloseTimer();
+  };
+
+  const closeMobileSidebar = () => {
+    const app = document.getElementById("app");
+    if (!app) return;
+
+    clearMobileSidebarCloseTimer();
+    app.classList.remove("app-sidebar-mobile-toggled");
+    app.classList.add("app-sidebar-mobile-closed");
+
+    const sidebar = document.querySelector(
+      ".app-sidebar:not(.app-sidebar-end)",
+    );
+    sidebar?.addEventListener("animationend", finishMobileSidebarClose, {
+      once: true,
+    });
+    mobileSidebarCloseTimerRef.current = window.setTimeout(
+      finishMobileSidebarClose,
+      250,
+    );
+  };
+
+  const openMobileSidebar = () => {
+    const app = document.getElementById("app");
+    if (!app) return;
+
+    clearMobileSidebarCloseTimer();
+    app.classList.remove("app-sidebar-mobile-closed");
+    app.classList.add("app-sidebar-mobile-toggled");
+  };
+
+  const toggleMobileSidebar = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    const app = document.getElementById("app");
+    if (!app) return;
+
+    if (app.classList.contains("app-sidebar-mobile-toggled")) {
+      closeMobileSidebar();
+      return;
+    }
+
+    openMobileSidebar();
+  };
+
+  const dismissMobileSidebar = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    closeMobileSidebar();
+  };
+
+  useEffect(() => {
+    return () => {
+      clearMobileSidebarCloseTimer();
+    };
+  }, []);
+
+  // Add global messageWrite function for use in href="javascript:messageWrite(userId)"
   useEffect(() => {
     if (typeof window !== "undefined") {
       interface CustomWindow extends Window {
@@ -191,6 +248,7 @@ export default function Layout({ children }: LayoutProps) {
             type="button"
             className="navbar-mobile-toggler"
             data-toggle="app-sidebar-mobile"
+            onClick={toggleMobileSidebar}
           >
             <span className="icon-bar"></span>
             <span className="icon-bar"></span>
@@ -842,7 +900,8 @@ export default function Layout({ children }: LayoutProps) {
                   <a href="/casino/inout" className="menu-link">
                     <div className="menu-text">게임 머니전환내역</div>
                   </a>
-                  <div
+                </div>
+                <div
                   className={`menu-item ${
                     pathname === "/vault" ? "active" : ""
                   }`}
@@ -851,7 +910,6 @@ export default function Layout({ children }: LayoutProps) {
                     <div className="menu-text">금고 관리(Vault)</div>
                   </a>
                 </div>
-              </div>
               </div>
             </div>
 
@@ -1394,6 +1452,7 @@ export default function Layout({ children }: LayoutProps) {
           href="#"
           data-dismiss="app-sidebar-mobile"
           className="stretched-link"
+          onClick={dismissMobileSidebar}
         ></a>
       </div>
 

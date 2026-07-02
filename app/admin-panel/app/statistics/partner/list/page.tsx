@@ -54,6 +54,30 @@ interface GameType {
   display_order: number;
 }
 
+interface PartnerStatisticsDateRange {
+  minDate: string | null;
+  maxDate: string | null;
+}
+
+const formatDateInput = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+const getDefaultDateRange = () => {
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setMonth(startDate.getMonth() - 1);
+
+  return {
+    startDate: formatDateInput(startDate),
+    endDate: formatDateInput(endDate),
+  };
+};
+
 // Helper function to format numbers
 const formatNumber = (num: number | null | undefined): string => {
   if (num === null || num === undefined || isNaN(num)) return "0";
@@ -67,8 +91,8 @@ interface CustomWindow extends Window {
 }
 
 export default function StatisticsPartnerListPage() {
-  const [startDate, setStartDate] = useState(new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split("T")[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [userID, setUserID] = useState("");
   const [userIdx] = useState("");
   const [gameGroupIdx, setGameGroupIdx] = useState("");
@@ -83,14 +107,69 @@ export default function StatisticsPartnerListPage() {
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
 
+  const getAuthHeaders = React.useCallback((): HeadersInit => {
+    if (typeof window === "undefined") return {};
+
+    const token = localStorage.getItem("adminToken");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }, []);
+
+  const redirectToLogin = React.useCallback(() => {
+    window.location.href = "/login";
+  }, []);
+
+  const fetchStatisticsDateRange = React.useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${BACKEND_URL}/api/admin/statistics/partner/date-range`,
+        {
+          credentials: "include",
+          headers: getAuthHeaders(),
+        },
+      );
+
+      if (response.status === 401) {
+        redirectToLogin();
+        return;
+      }
+
+      const data = await response.json();
+      const range = data.data as PartnerStatisticsDateRange | undefined;
+
+      if (data.success && range?.maxDate) {
+        const maxDate = new Date(`${range.maxDate}T00:00:00`);
+        const minDate = range.minDate ? new Date(`${range.minDate}T00:00:00`) : null;
+        const start = new Date(maxDate);
+        start.setMonth(start.getMonth() - 1);
+
+        setStartDate(formatDateInput(minDate && start < minDate ? minDate : start));
+        setEndDate(formatDateInput(maxDate));
+        return;
+      }
+    } catch (err) {
+      console.error("Failed to fetch partner statistics date range:", err);
+    }
+
+    const fallback = getDefaultDateRange();
+    setStartDate(fallback.startDate);
+    setEndDate(fallback.endDate);
+  }, [getAuthHeaders, redirectToLogin]);
+
   const fetchGameTypes = React.useCallback(async () => {
     try {
       const response = await fetch(
         `${BACKEND_URL}/api/admin/statistics/game-types`,
         {
           credentials: "include",
-        }
+          headers: getAuthHeaders(),
+        },
       );
+
+      if (response.status === 401) {
+        redirectToLogin();
+        return;
+      }
+
       const data = await response.json();
       if (data.success) {
         setGameTypes(data.data || []);
@@ -98,7 +177,7 @@ export default function StatisticsPartnerListPage() {
     } catch (err) {
       console.error("Failed to fetch game types:", err);
     }
-  }, []);
+  }, [getAuthHeaders, redirectToLogin]);
 
   const fetchStatistics = React.useCallback(async () => {
     setLoading(true);
@@ -121,8 +200,14 @@ export default function StatisticsPartnerListPage() {
         `${BACKEND_URL}/api/admin/statistics/partner?${params}`,
         {
           credentials: "include",
-        }
+          headers: getAuthHeaders(),
+        },
       );
+
+      if (response.status === 401) {
+        redirectToLogin();
+        return;
+      }
 
       const data = await response.json();
 
@@ -130,7 +215,7 @@ export default function StatisticsPartnerListPage() {
         console.log("Statistics Data Received:", data.data);
         setStatistics(data.data || []);
       } else {
-        setError(data.error || "Failed to fetch statistics");
+        setError(data.error || data.message || "Failed to fetch statistics");
       }
     } catch (err: unknown) {
       const error = err as Error;
@@ -139,17 +224,20 @@ export default function StatisticsPartnerListPage() {
     } finally {
       setLoading(false);
     }
-  }, [startDate, endDate, userIdx, gameGroupIdx]);
+  }, [startDate, endDate, userIdx, gameGroupIdx, getAuthHeaders, redirectToLogin]);
 
-  // Fetch game types on mount
+  // Fetch game types and initialize date range on mount
   useEffect(() => {
-    fetchGameTypes();
-  }, [fetchGameTypes]);
+    void Promise.resolve().then(() => {
+      fetchGameTypes();
+      fetchStatisticsDateRange();
+    });
+  }, [fetchGameTypes, fetchStatisticsDateRange]);
 
   // Fetch statistics when dates change
   useEffect(() => {
     if (startDate && endDate) {
-      fetchStatistics();
+      void Promise.resolve().then(fetchStatistics);
     }
   }, [startDate, endDate, userIdx, gameGroupIdx, fetchStatistics]);
 
@@ -214,37 +302,56 @@ export default function StatisticsPartnerListPage() {
   };
 
   // Group statistics by partner
-  const groupedByPartner = statistics.reduce((acc, stat) => {
-    const key = stat.partner_id;
-    if (!acc[key]) {
-      acc[key] = {
-        partner: stat,
-        gameTypes: [],
-        total: null as PartnerStatistics | null,
-      };
-    }
+  const groupedByPartner = statistics.reduce(
+    (acc, stat) => {
+      const key = stat.partner_id;
+      if (!acc[key]) {
+        acc[key] = {
+          partner: stat,
+          gameTypes: [],
+          total: null as PartnerStatistics | null,
+        };
+      }
 
-    // If game_type_id is null or undefined, it's a total row
-    if (stat.game_type_id === null || stat.game_type_id === undefined) {
-      acc[key].total = stat;
-    } else {
-      acc[key].gameTypes.push(stat);
-    }
+      // If game_type_id is null or undefined, it's a total row
+      if (stat.game_type_id === null || stat.game_type_id === undefined) {
+        acc[key].total = stat;
+      } else {
+        acc[key].gameTypes.push(stat);
+      }
 
-    return acc;
-  }, {} as Record<number, { partner: PartnerStatistics; gameTypes: PartnerStatistics[]; total: PartnerStatistics | null }>);
+      return acc;
+    },
+    {} as Record<
+      number,
+      {
+        partner: PartnerStatistics;
+        gameTypes: PartnerStatistics[];
+        total: PartnerStatistics | null;
+      }
+    >,
+  );
 
-  // Ensure all partners have at least a total entry (even if all zeros)
-  statistics.forEach((stat) => {
-    const key = stat.partner_id;
-    if (groupedByPartner[key] && !groupedByPartner[key].total) {
-      // Create a default total entry if missing
-      groupedByPartner[key].total = {
-        ...stat,
-        game_type_id: null,
-        game_type_code: null,
-        game_type_name: null,
-      };
+    // Ensure all partners have at least a total entry (calculate sum)
+  Object.values(groupedByPartner).forEach((group) => {
+    if (!group.total && group.gameTypes.length > 0) {
+      const baseStat = group.gameTypes[0];
+      const totalStat = { ...baseStat, game_type_id: null, game_type_code: null, game_type_name: null };
+      
+      const sumFields = [
+        'site_balance', 'casino_balance', 'holdem_balance', 'mini_balance', 'total_points',
+        'user_deposit', 'user_withdrawal', 'user_profit', 'partner_deposit', 'partner_deposit_received',
+        'partner_withdrawal', 'partner_withdrawal_received', 'partner_profit', 'admin_deposit',
+        'admin_withdrawal', 'total_bet_amount', 'invalid_bet_amount', 'public_bet_amount',
+        'total_win_amount', 'betting_profit', 'rolling', 'member_comp', 'first_deposit_bonus',
+        'regular_deposit_bonus', 'final_profit', 'losing_amount', 'money_deposit', 'money_withdrawal',
+        'point_deposit', 'point_withdrawal'
+      ];
+      
+      sumFields.forEach(field => {
+        totalStat[field as keyof PartnerStatistics] = group.gameTypes.reduce((sum, stat) => sum + Number(stat[field as keyof PartnerStatistics] || 0), 0) as never;
+      });
+      group.total = totalStat;
     }
   });
 
@@ -313,7 +420,7 @@ export default function StatisticsPartnerListPage() {
         final_profit: 0,
         money_deposit: 0,
         money_withdrawal: 0,
-      }
+      },
     );
     return totals;
   };
@@ -361,7 +468,7 @@ export default function StatisticsPartnerListPage() {
       {/* Search Form */}
       <div className="row mb-2">
         <div className="col">
-          <div className="d-flex bg-white p-2">
+          <div className="d-flex bg-white p-2 flex-wrap gap-2">
             <form id="searchForm" onSubmit={handleSearch} method="get">
               <input
                 type="hidden"
@@ -369,7 +476,7 @@ export default function StatisticsPartnerListPage() {
                 id="gameGroupIdx"
                 value={gameGroupIdx}
               />
-              <div className="d-flex">
+              <div className="d-flex flex-wrap gap-2">
                 {/* Date Range Picker */}
                 <div className="input-group me-2" style={{ width: "250px" }}>
                   <input
@@ -518,528 +625,7 @@ export default function StatisticsPartnerListPage() {
             id="partnerTable"
             className="table table-bordered table-responsive align-middle bg-white text-center fw-bold"
           >
-            <tbody>
-              {partnerList.map((group) => {
-                const partner = group.partner;
-                const total =
-                  group.total ||
-                  ({
-                    ...partner,
-                    game_type_id: null,
-                    game_type_code: null,
-                    game_type_name: null,
-                    site_balance: 0,
-                    casino_balance: 0,
-                    holdem_balance: 0,
-                    mini_balance: 0,
-                    total_points: 0,
-                    user_deposit: 0,
-                    user_withdrawal: 0,
-                    user_profit: 0,
-                    partner_deposit: 0,
-                    partner_deposit_received: 0,
-                    partner_withdrawal: 0,
-                    partner_withdrawal_received: 0,
-                    partner_profit: 0,
-                    admin_deposit: 0,
-                    admin_withdrawal: 0,
-                    total_bet_amount: 0,
-                    invalid_bet_amount: 0,
-                    public_bet_amount: 0,
-                    total_win_amount: 0,
-                    betting_profit: 0,
-                    rolling: 0,
-                    member_comp: 0,
-                    first_deposit_bonus: 0,
-                    regular_deposit_bonus: 0,
-                    final_profit: 0,
-                    losing_amount: 0,
-                    money_deposit: 0,
-                    money_withdrawal: 0,
-                    point_deposit: 0,
-                    point_withdrawal: 0,
-                  } as PartnerStatistics);
-                const gameTypeStats = group.gameTypes;
-                const rowSpan = 6; // 사이트, 카지노, 홀덤, 미니, -, 합계
-
-                // Create row definitions matching HTML structure exactly
-                const rowDefinitions = [
-                  {
-                    balanceType: "사이트",
-                    depositType: "유저",
-                    adminType: "머니",
-                    gameType: "casino",
-                  },
-                  {
-                    balanceType: "카지노",
-                    depositType: "파트너",
-                    adminType: "포인트",
-                    gameType: "slot",
-                  },
-                  {
-                    balanceType: "홀덤",
-                    depositType: "합계",
-                    adminType: "합계",
-                    gameType: "board",
-                  },
-                  {
-                    balanceType: "-",
-                    depositType: "-",
-                    adminType: "-",
-                    gameType: "mini",
-                  },
-                  {
-                    balanceType: "-",
-                    depositType: "-",
-                    adminType: "-",
-                    gameType: "sports",
-                  },
-                  {
-                    balanceType: "-",
-                    depositType: "-",
-                    adminType: "-",
-                    gameType: "total",
-                  },
-                ];
-
-                return (
-                  <React.Fragment key={partner.partner_id}>
-                    {rowDefinitions.map((rowDef, rowIndex) => {
-                      const isFirstRow = rowIndex === 0;
-                      
-                      const getBalanceByType = (stats: PartnerStatistics, type: string): number => {
-                        switch (type) {
-                          case "사이트":
-                            return Number(stats.site_balance || 0);
-                          case "카지노":
-                            return Number(stats.casino_balance || 0);
-                          case "홀덤":
-                            return Number(stats.holdem_balance || 0);
-                          case "미니":
-                            return Number(stats.mini_balance || 0);
-                          default:
-                            return 0;
-                        }
-                      };
-
-                      const balance =
-                        rowDef.balanceType !== "-"
-                          ? getBalanceByType(total, rowDef.balanceType)
-                          : 0;
-                      const gameTypeStat =
-                        gameTypeStats.find(
-                          (stat) => stat.game_type_code === rowDef.gameType
-                        ) || null;
-                      const isTotalRow = rowDef.gameType === "total";
-
-                      // Get deposit/withdrawal values based on type
-                      const getDepositWithdrawal = () => {
-                        if (rowDef.depositType === "유저") {
-                          return {
-                            deposit: Number(total.user_deposit || 0),
-                            withdrawal: Number(total.user_withdrawal || 0),
-                            profit: Number(total.user_profit || 0),
-                          };
-                        } else if (rowDef.depositType === "파트너") {
-                          return {
-                            deposit: Number(total.partner_deposit || 0),
-                            withdrawal: Number(total.partner_withdrawal || 0),
-                            profit: Number(total.partner_profit || 0),
-                          };
-                        } else if (rowDef.depositType === "합계") {
-                          const userDep = Number(total.user_deposit || 0);
-                          const partDep = Number(total.partner_deposit || 0);
-                          const userWith = Number(total.user_withdrawal || 0);
-                          const partWith = Number(total.partner_withdrawal || 0);
-                          const userProf = Number(total.user_profit || 0);
-                          const partProf = Number(total.partner_profit || 0);
-                          return {
-                            deposit: userDep + partDep,
-                            withdrawal: userWith + partWith,
-                            profit: userProf + partProf,
-                          };
-                        }
-                        return { deposit: 0, withdrawal: 0, profit: 0 };
-                      };
-
-                      const depositData = getDepositWithdrawal();
-
-                      // Get admin values based on type
-                      const getAdminData = () => {
-                        if (rowDef.adminType === "머니") {
-                          return {
-                            deposit: Number(total.money_deposit || 0),
-                            withdrawal: Number(total.money_withdrawal || 0),
-                          };
-                        } else if (rowDef.adminType === "포인트") {
-                          return {
-                            deposit: Number(total.point_deposit || 0),
-                            withdrawal: Number(total.point_withdrawal || 0),
-                          };
-                        } else if (rowDef.adminType === "합계") {
-                          const mDep = Number(total.money_deposit || 0);
-                          const pDep = Number(total.point_deposit || 0);
-                          const mWith = Number(total.money_withdrawal || 0);
-                          const pWith = Number(total.point_withdrawal || 0);
-                          return {
-                            deposit: mDep + pDep,
-                            withdrawal: mWith + pWith,
-                          };
-                        }
-                        return { deposit: 0, withdrawal: 0 };
-                      };
-
-                      const adminData = getAdminData();
-
-                      // Get game type display name
-                      const getGameTypeName = () => {
-                        if (isTotalRow) return "합계";
-                        if (gameTypeStat)
-                          return (
-                            gameTypeStat.game_type_name ||
-                            gameTypeMap[rowDef.gameType] ||
-                            "-"
-                          );
-                        return gameTypeMap[rowDef.gameType] || "-";
-                      };
-
-                      // Get betting/commission data
-                      const getBettingData = () => {
-                        const target = gameTypeStat || total;
-                        if (isTotalRow || gameTypeStat) {
-                          return {
-                            total_bet: Number(target.total_bet_amount || 0),
-                            invalid_bet: Number(target.invalid_bet_amount || 0),
-                            public_bet: Number(target.public_bet_amount || 0),
-                            total_win: Number(target.total_win_amount || 0),
-                            betting_profit: Number(target.betting_profit || 0),
-                            rolling: Number(target.rolling || 0),
-                            member_comp: Number(target.member_comp || 0),
-                            first_deposit: Number(target.first_deposit_bonus || 0),
-                            regular_deposit: Number(target.regular_deposit_bonus || 0),
-                            final_profit: Number(target.final_profit || 0),
-                          };
-                        }
-                        return {
-                          total_bet: 0,
-                          invalid_bet: 0,
-                          public_bet: 0,
-                          total_win: 0,
-                          betting_profit: 0,
-                          rolling: 0,
-                          member_comp: 0,
-                          first_deposit: 0,
-                          regular_deposit: 0,
-                          final_profit: 0,
-                        };
-                      };
-
-                      const bettingData = getBettingData();
-
-                      return (
-                        <tr
-                          key={`${partner.partner_id}-${rowIndex}`}
-                          data-depth={partner.partner_id}
-                          className="depthclose"
-                        >
-                          {/* Partner Info (only on first row) */}
-                          {isFirstRow && (
-                            <td
-                              rowSpan={rowSpan}
-                              className="text-start conetentID"
-                              style={{
-                                paddingLeft: "5px",
-                                paddingRight: "5px",
-                              }}
-                            >
-                              <div
-                                className="input-group w-auto d-inline-flex user-action"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                              >
-                                <div
-                                  className="input-group-text p-1 cursor-pointer"
-                                  style={{ backgroundColor: "#f4a29c" }}
-                                >
-                                  {partner.partner_type}
-                                </div>
-                                <label className="form-control p-1 cursor-pointer">
-                                  {partner.username} ({partner.nickname})
-                                </label>
-                              </div>
-                              <ul className="dropdown-menu dropdown-menu-dark py-0">
-                                <li
-                                  className="fw-600 text-white"
-                                  style={{
-                                    padding:
-                                      "var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)",
-                                  }}
-                                >
-                                  <i className="fa fa-user me-2"></i>
-                                  {partner.username} ({partner.nickname})
-                                </li>
-                                <li className="bg-gray-700">
-                                  <a
-                                    className="dropdown-item"
-                                    href="javascript:void(0);"
-                                    onClick={() => (window as unknown as CustomWindow).userDetail?.(partner.partner_id, 1)}
-                                  >
-                                    정보수정
-                                  </a>
-                                </li>
-                                <li className="bg-gray-700">
-                                  <a
-                                    className="dropdown-item"
-                                    href="javascript:void(0);"
-                                    onClick={() => (window as unknown as CustomWindow).userDetail?.(partner.partner_id, 17)}
-                                  >
-                                    수수료율
-                                  </a>
-                                </li>
-                                <li className="bg-gray-700">
-                                  <a
-                                    className="dropdown-item"
-                                    href="javascript:void(0);"
-                                    onClick={() => (window as unknown as CustomWindow).userDetail?.(partner.partner_id, 3)}
-                                  >
-                                    머니지급/차감
-                                  </a>
-                                </li>
-                                <li className="bg-gray-700">
-                                  <a
-                                    className="dropdown-item"
-                                    href="javascript:void(0);"
-                                    onClick={() => (window as unknown as CustomWindow).userDetail?.(partner.partner_id, 6)}
-                                  >
-                                    포인트지급/차감
-                                  </a>
-                                </li>
-                                <li className="bg-gray-700">
-                                  <a
-                                    className="dropdown-item"
-                                    href="javascript:void(0);"
-                                    onClick={() => (window as unknown as CustomWindow).messageWrite?.(partner.partner_id)}
-                                  >
-                                    쪽지보내기
-                                  </a>
-                                </li>
-                                <li>
-                                  <a
-                                    className="dropdown-item"
-                                    href="javascript:void(0);"
-                                    onClick={() => (window as unknown as CustomWindow).userDetail?.(partner.partner_id, 8)}
-                                  >
-                                    베팅내역
-                                  </a>
-                                </li>
-                                <li>
-                                  <a
-                                    className="dropdown-item"
-                                    href="javascript:void(0);"
-                                    onClick={() => (window as unknown as CustomWindow).userDetail?.(partner.partner_id, 4)}
-                                  >
-                                    충환전내역
-                                  </a>
-                                </li>
-                                <li>
-                                  <a
-                                    className="dropdown-item"
-                                    href="javascript:void(0);"
-                                    onClick={() => (window as unknown as CustomWindow).userDetail?.(partner.partner_id, 5)}
-                                  >
-                                    머니거래내역
-                                  </a>
-                                </li>
-                                <li>
-                                  <a
-                                    className="dropdown-item"
-                                    href="javascript:void(0);"
-                                    onClick={() => (window as unknown as CustomWindow).userDetail?.(partner.partner_id, 7)}
-                                  >
-                                    포인트거래내역
-                                  </a>
-                                </li>
-                                <li>
-                                  <a
-                                    className="dropdown-item"
-                                    href="javascript:void(0);"
-                                    onClick={() => (window as unknown as CustomWindow).userDetail?.(partner.partner_id, 15)}
-                                  >
-                                    쿠폰 현황
-                                  </a>
-                                </li>
-                              </ul>
-                            </td>
-                          )}
-
-                          {/* Balance Type */}
-                          <td>{rowDef.balanceType}</td>
-                          <td>
-                            {rowDef.balanceType !== "-"
-                              ? formatNumber(balance)
-                              : "-"}
-                          </td>
-
-                          {/* Points (only on first row) */}
-                          {isFirstRow && (
-                            <td rowSpan={rowSpan} className="align-middle">
-                               {formatNumber(Number(total.total_points || 0))}
-                            </td>
-                          )}
-
-                          {/* Deposit/Withdrawal */}
-                          <td>{rowDef.depositType}</td>
-                          <td className="align-middle">
-                            {rowDef.depositType !== "-"
-                              ? formatNumber(depositData.deposit)
-                              : "-"}
-                          </td>
-                          <td className="align-middle">
-                            {rowDef.depositType !== "-"
-                              ? formatNumber(depositData.withdrawal)
-                              : "-"}
-                          </td>
-                          <td
-                            className={`align-middle ${
-                              rowDef.depositType !== "-" &&
-                              depositData.profit < 0
-                                ? "text-red"
-                                : ""
-                            }`}
-                          >
-                            {rowDef.depositType !== "-"
-                              ? formatNumber(depositData.profit)
-                              : "-"}
-                          </td>
-
-                          {/* Partner transactions (only on first row) */}
-                          {isFirstRow && (
-                            <>
-                              <td rowSpan={rowSpan} className="align-middle">
-                                {formatNumber(total.partner_deposit)}
-                              </td>
-                              <td rowSpan={rowSpan} className="align-middle">
-                                {formatNumber(total.partner_deposit_received)}
-                              </td>
-                              <td rowSpan={rowSpan} className="align-middle">
-                                {formatNumber(total.partner_withdrawal)}
-                              </td>
-                              <td rowSpan={rowSpan} className="align-middle">
-                                {formatNumber(
-                                  total.partner_withdrawal_received
-                                )}
-                              </td>
-                              <td
-                                rowSpan={rowSpan}
-                                className={`align-middle ${
-                                  total.partner_profit < 0 ? "text-red" : ""
-                                }`}
-                              >
-                                {formatNumber(total.partner_profit)}
-                              </td>
-                            </>
-                          )}
-
-                          {/* Admin Actions */}
-                          <td>{rowDef.adminType}</td>
-                          <td>
-                            {rowDef.adminType !== "-"
-                              ? formatNumber(adminData.deposit)
-                              : "-"}
-                          </td>
-                          <td>
-                            {rowDef.adminType !== "-"
-                              ? formatNumber(adminData.withdrawal)
-                              : "-"}
-                          </td>
-
-                          {/* Game Type */}
-                          <td>{getGameTypeName()}</td>
-
-                          {/* Betting Stats */}
-                          <td>
-                            {isTotalRow || gameTypeStat
-                              ? formatNumber(bettingData.total_bet)
-                              : "0"}
-                          </td>
-                          <td>
-                            {(isTotalRow || gameTypeStat) &&
-                            bettingData.invalid_bet !== null
-                              ? formatNumber(bettingData.invalid_bet)
-                              : "-"}
-                          </td>
-                          <td>
-                            {(isTotalRow || gameTypeStat) &&
-                            bettingData.public_bet !== null
-                              ? formatNumber(bettingData.public_bet)
-                              : "-"}
-                          </td>
-                          <td>
-                            {isTotalRow || gameTypeStat
-                              ? formatNumber(bettingData.total_win)
-                              : "0"}
-                          </td>
-                          <td
-                            className={
-                              bettingData.betting_profit < 0 ? "text-red" : ""
-                            }
-                          >
-                            {isTotalRow || gameTypeStat
-                              ? formatNumber(bettingData.betting_profit)
-                              : "0"}
-                          </td>
-
-                          {/* Commission */}
-                          <td>
-                            {isTotalRow || gameTypeStat
-                              ? formatNumber(bettingData.rolling)
-                              : "0"}
-                          </td>
-                          <td>
-                            {isTotalRow || gameTypeStat
-                              ? formatNumber(bettingData.member_comp)
-                              : "0"}
-                          </td>
-                          <td
-                            className={rowIndex < 2 ? "9" : ""}
-                            rowSpan={rowIndex < 2 ? 1 : undefined}
-                          >
-                            {isTotalRow || gameTypeStat
-                              ? formatNumber(bettingData.first_deposit)
-                              : "0"}
-                          </td>
-                          <td
-                            className={rowIndex < 2 ? "11" : ""}
-                            rowSpan={rowIndex < 2 ? 1 : undefined}
-                          >
-                            {isTotalRow || gameTypeStat
-                              ? formatNumber(bettingData.regular_deposit)
-                              : "0"}
-                          </td>
-
-                          {/* Final Profit */}
-                          <td className="text-red finalSum">
-                            {isTotalRow || gameTypeStat
-                              ? formatNumber(bettingData.final_profit)
-                              : "0"}
-                          </td>
-
-                          {/* Losing (only on first row) */}
-                          {isFirstRow && (
-                            <td rowSpan={rowSpan} className="align-middle">
-                              {total.losing_amount
-                                ? formatNumber(total.losing_amount)
-                                : "-"}
-                            </td>
-                          )}
-                        </tr>
-                      );
-                    })}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-
+            
             {/* Table Header */}
             <thead
               className="bg-dark bg-gradient text-white"
@@ -1147,10 +733,10 @@ export default function StatisticsPartnerListPage() {
                     rowDef.balanceType === "사이트"
                       ? totals.site_balance
                       : rowDef.balanceType === "카지노"
-                      ? 0
-                      : rowDef.balanceType === "홀덤"
-                      ? 0
-                      : 0;
+                        ? 0
+                        : rowDef.balanceType === "홀덤"
+                          ? 0
+                          : 0;
 
                   const getDepositData = () => {
                     if (rowDef.depositType === "유저") {
@@ -1281,19 +867,19 @@ export default function StatisticsPartnerListPage() {
                         {isTotalGameRow
                           ? "0"
                           : rowDef.gameType === "보드게임" ||
-                            rowDef.gameType === "미니게임" ||
-                            rowDef.gameType === "스포츠"
-                          ? "-"
-                          : "0"}
+                              rowDef.gameType === "미니게임" ||
+                              rowDef.gameType === "스포츠"
+                            ? "-"
+                            : "0"}
                       </td>
                       <td>
                         {isTotalGameRow
                           ? "0"
                           : rowDef.gameType === "보드게임" ||
-                            rowDef.gameType === "미니게임" ||
-                            rowDef.gameType === "스포츠"
-                          ? "-"
-                          : "0"}
+                              rowDef.gameType === "미니게임" ||
+                              rowDef.gameType === "스포츠"
+                            ? "-"
+                            : "0"}
                       </td>
                       <td>
                         {isTotalGameRow
@@ -1350,6 +936,578 @@ export default function StatisticsPartnerListPage() {
                 });
               })()}
             </thead>
+            <tbody>
+              {partnerList.map((group) => {
+                const partner = group.partner;
+                const total =
+                  group.total ||
+                  ({
+                    ...partner,
+                    game_type_id: null,
+                    game_type_code: null,
+                    game_type_name: null,
+                    site_balance: 0,
+                    casino_balance: 0,
+                    holdem_balance: 0,
+                    mini_balance: 0,
+                    total_points: 0,
+                    user_deposit: 0,
+                    user_withdrawal: 0,
+                    user_profit: 0,
+                    partner_deposit: 0,
+                    partner_deposit_received: 0,
+                    partner_withdrawal: 0,
+                    partner_withdrawal_received: 0,
+                    partner_profit: 0,
+                    admin_deposit: 0,
+                    admin_withdrawal: 0,
+                    total_bet_amount: 0,
+                    invalid_bet_amount: 0,
+                    public_bet_amount: 0,
+                    total_win_amount: 0,
+                    betting_profit: 0,
+                    rolling: 0,
+                    member_comp: 0,
+                    first_deposit_bonus: 0,
+                    regular_deposit_bonus: 0,
+                    final_profit: 0,
+                    losing_amount: 0,
+                    money_deposit: 0,
+                    money_withdrawal: 0,
+                    point_deposit: 0,
+                    point_withdrawal: 0,
+                  } as PartnerStatistics);
+                const gameTypeStats = group.gameTypes;
+                const rowSpan = 6; // 사이트, 카지노, 홀덤, 미니, -, 합계
+
+                // Create row definitions matching HTML structure exactly
+                const rowDefinitions = [
+                  {
+                    balanceType: "사이트",
+                    depositType: "유저",
+                    adminType: "머니",
+                    gameType: "casino",
+                  },
+                  {
+                    balanceType: "카지노",
+                    depositType: "파트너",
+                    adminType: "포인트",
+                    gameType: "slot",
+                  },
+                  {
+                    balanceType: "홀덤",
+                    depositType: "합계",
+                    adminType: "합계",
+                    gameType: "board",
+                  },
+                  {
+                    balanceType: "-",
+                    depositType: "-",
+                    adminType: "-",
+                    gameType: "mini",
+                  },
+                  {
+                    balanceType: "-",
+                    depositType: "-",
+                    adminType: "-",
+                    gameType: "sports",
+                  },
+                  {
+                    balanceType: "-",
+                    depositType: "-",
+                    adminType: "-",
+                    gameType: "total",
+                  },
+                ];
+
+                return (
+                  <React.Fragment key={partner.partner_id}>
+                    {rowDefinitions.map((rowDef, rowIndex) => {
+                      const isFirstRow = rowIndex === 0;
+
+                      const getBalanceByType = (
+                        stats: PartnerStatistics,
+                        type: string,
+                      ): number => {
+                        switch (type) {
+                          case "사이트":
+                            return Number(stats.site_balance || 0);
+                          case "카지노":
+                            return Number(stats.casino_balance || 0);
+                          case "홀덤":
+                            return Number(stats.holdem_balance || 0);
+                          case "미니":
+                            return Number(stats.mini_balance || 0);
+                          default:
+                            return 0;
+                        }
+                      };
+
+                      const balance =
+                        rowDef.balanceType !== "-"
+                          ? getBalanceByType(total, rowDef.balanceType)
+                          : 0;
+                      const gameTypeStat =
+                        gameTypeStats.find(
+                          (stat) => stat.game_type_code === rowDef.gameType,
+                        ) || null;
+                      const isTotalRow = rowDef.gameType === "total";
+
+                      // Get deposit/withdrawal values based on type
+                      const getDepositWithdrawal = () => {
+                        if (rowDef.depositType === "유저") {
+                          return {
+                            deposit: Number(total.user_deposit || 0),
+                            withdrawal: Number(total.user_withdrawal || 0),
+                            profit: Number(total.user_profit || 0),
+                          };
+                        } else if (rowDef.depositType === "파트너") {
+                          return {
+                            deposit: Number(total.partner_deposit || 0),
+                            withdrawal: Number(total.partner_withdrawal || 0),
+                            profit: Number(total.partner_profit || 0),
+                          };
+                        } else if (rowDef.depositType === "합계") {
+                          const userDep = Number(total.user_deposit || 0);
+                          const partDep = Number(total.partner_deposit || 0);
+                          const userWith = Number(total.user_withdrawal || 0);
+                          const partWith = Number(
+                            total.partner_withdrawal || 0,
+                          );
+                          const userProf = Number(total.user_profit || 0);
+                          const partProf = Number(total.partner_profit || 0);
+                          return {
+                            deposit: userDep + partDep,
+                            withdrawal: userWith + partWith,
+                            profit: userProf + partProf,
+                          };
+                        }
+                        return { deposit: 0, withdrawal: 0, profit: 0 };
+                      };
+
+                      const depositData = getDepositWithdrawal();
+
+                      // Get admin values based on type
+                      const getAdminData = () => {
+                        if (rowDef.adminType === "머니") {
+                          return {
+                            deposit: Number(total.money_deposit || 0),
+                            withdrawal: Number(total.money_withdrawal || 0),
+                          };
+                        } else if (rowDef.adminType === "포인트") {
+                          return {
+                            deposit: Number(total.point_deposit || 0),
+                            withdrawal: Number(total.point_withdrawal || 0),
+                          };
+                        } else if (rowDef.adminType === "합계") {
+                          const mDep = Number(total.money_deposit || 0);
+                          const pDep = Number(total.point_deposit || 0);
+                          const mWith = Number(total.money_withdrawal || 0);
+                          const pWith = Number(total.point_withdrawal || 0);
+                          return {
+                            deposit: mDep + pDep,
+                            withdrawal: mWith + pWith,
+                          };
+                        }
+                        return { deposit: 0, withdrawal: 0 };
+                      };
+
+                      const adminData = getAdminData();
+
+                      // Get game type display name
+                      const getGameTypeName = () => {
+                        if (isTotalRow) return "합계";
+                        if (gameTypeStat)
+                          return (
+                            gameTypeStat.game_type_name ||
+                            gameTypeMap[rowDef.gameType] ||
+                            "-"
+                          );
+                        return gameTypeMap[rowDef.gameType] || "-";
+                      };
+
+                      // Get betting/commission data
+                      const getBettingData = () => {
+                        const target = gameTypeStat || total;
+                        if (isTotalRow || gameTypeStat) {
+                          return {
+                            total_bet: Number(target.total_bet_amount || 0),
+                            invalid_bet: Number(target.invalid_bet_amount || 0),
+                            public_bet: Number(target.public_bet_amount || 0),
+                            total_win: Number(target.total_win_amount || 0),
+                            betting_profit: Number(target.betting_profit || 0),
+                            rolling: Number(target.rolling || 0),
+                            member_comp: Number(target.member_comp || 0),
+                            first_deposit: Number(
+                              target.first_deposit_bonus || 0,
+                            ),
+                            regular_deposit: Number(
+                              target.regular_deposit_bonus || 0,
+                            ),
+                            final_profit: Number(target.final_profit || 0),
+                          };
+                        }
+                        return {
+                          total_bet: 0,
+                          invalid_bet: 0,
+                          public_bet: 0,
+                          total_win: 0,
+                          betting_profit: 0,
+                          rolling: 0,
+                          member_comp: 0,
+                          first_deposit: 0,
+                          regular_deposit: 0,
+                          final_profit: 0,
+                        };
+                      };
+
+                      const bettingData = getBettingData();
+
+                      return (
+                        <tr
+                          key={`${partner.partner_id}-${rowIndex}`}
+                          data-depth={partner.partner_id}
+                          className="depthclose"
+                        >
+                          {/* Partner Info (only on first row) */}
+                          {isFirstRow && (
+                            <td
+                              rowSpan={rowSpan}
+                              className="text-start conetentID"
+                              style={{
+                                paddingLeft: "5px",
+                                paddingRight: "5px",
+                              }}
+                            >
+                              <div
+                                className="input-group w-auto d-inline-flex user-action"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                              >
+                                <div
+                                  className="input-group-text p-1 cursor-pointer"
+                                  style={{ backgroundColor: "#f4a29c" }}
+                                >
+                                  {partner.partner_type}
+                                </div>
+                                <label className="form-control p-1 cursor-pointer">
+                                  {partner.username} ({partner.nickname})
+                                </label>
+                              </div>
+                              <ul className="dropdown-menu dropdown-menu-dark py-0">
+                                <li
+                                  className="fw-600 text-white"
+                                  style={{
+                                    padding:
+                                      "var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)",
+                                  }}
+                                >
+                                  <i className="fa fa-user me-2"></i>
+                                  {partner.username} ({partner.nickname})
+                                </li>
+                                <li className="bg-gray-700">
+                                  <a
+                                    className="dropdown-item"
+                                    href="javascript:void(0);"
+                                    onClick={() =>
+                                      (
+                                        window as unknown as CustomWindow
+                                      ).userDetail?.(partner.partner_id, 1)
+                                    }
+                                  >
+                                    정보수정
+                                  </a>
+                                </li>
+                                <li className="bg-gray-700">
+                                  <a
+                                    className="dropdown-item"
+                                    href="javascript:void(0);"
+                                    onClick={() =>
+                                      (
+                                        window as unknown as CustomWindow
+                                      ).userDetail?.(partner.partner_id, 17)
+                                    }
+                                  >
+                                    수수료율
+                                  </a>
+                                </li>
+                                <li className="bg-gray-700">
+                                  <a
+                                    className="dropdown-item"
+                                    href="javascript:void(0);"
+                                    onClick={() =>
+                                      (
+                                        window as unknown as CustomWindow
+                                      ).userDetail?.(partner.partner_id, 3)
+                                    }
+                                  >
+                                    머니지급/차감
+                                  </a>
+                                </li>
+                                <li className="bg-gray-700">
+                                  <a
+                                    className="dropdown-item"
+                                    href="javascript:void(0);"
+                                    onClick={() =>
+                                      (
+                                        window as unknown as CustomWindow
+                                      ).userDetail?.(partner.partner_id, 6)
+                                    }
+                                  >
+                                    포인트지급/차감
+                                  </a>
+                                </li>
+                                <li className="bg-gray-700">
+                                  <a
+                                    className="dropdown-item"
+                                    href="javascript:void(0);"
+                                    onClick={() =>
+                                      (
+                                        window as unknown as CustomWindow
+                                      ).messageWrite?.(partner.partner_id)
+                                    }
+                                  >
+                                    쪽지보내기
+                                  </a>
+                                </li>
+                                <li>
+                                  <a
+                                    className="dropdown-item"
+                                    href="javascript:void(0);"
+                                    onClick={() =>
+                                      (
+                                        window as unknown as CustomWindow
+                                      ).userDetail?.(partner.partner_id, 8)
+                                    }
+                                  >
+                                    베팅내역
+                                  </a>
+                                </li>
+                                <li>
+                                  <a
+                                    className="dropdown-item"
+                                    href="javascript:void(0);"
+                                    onClick={() =>
+                                      (
+                                        window as unknown as CustomWindow
+                                      ).userDetail?.(partner.partner_id, 4)
+                                    }
+                                  >
+                                    충환전내역
+                                  </a>
+                                </li>
+                                <li>
+                                  <a
+                                    className="dropdown-item"
+                                    href="javascript:void(0);"
+                                    onClick={() =>
+                                      (
+                                        window as unknown as CustomWindow
+                                      ).userDetail?.(partner.partner_id, 5)
+                                    }
+                                  >
+                                    머니거래내역
+                                  </a>
+                                </li>
+                                <li>
+                                  <a
+                                    className="dropdown-item"
+                                    href="javascript:void(0);"
+                                    onClick={() =>
+                                      (
+                                        window as unknown as CustomWindow
+                                      ).userDetail?.(partner.partner_id, 7)
+                                    }
+                                  >
+                                    포인트거래내역
+                                  </a>
+                                </li>
+                                <li>
+                                  <a
+                                    className="dropdown-item"
+                                    href="javascript:void(0);"
+                                    onClick={() =>
+                                      (
+                                        window as unknown as CustomWindow
+                                      ).userDetail?.(partner.partner_id, 15)
+                                    }
+                                  >
+                                    쿠폰 현황
+                                  </a>
+                                </li>
+                              </ul>
+                            </td>
+                          )}
+
+                          {/* Balance Type */}
+                          <td>{rowDef.balanceType}</td>
+                          <td>
+                            {rowDef.balanceType !== "-"
+                              ? formatNumber(balance)
+                              : "-"}
+                          </td>
+
+                          {/* Points (only on first row) */}
+                          {isFirstRow && (
+                            <td rowSpan={rowSpan} className="align-middle">
+                              {formatNumber(Number(total.total_points || 0))}
+                            </td>
+                          )}
+
+                          {/* Deposit/Withdrawal */}
+                          <td>{rowDef.depositType}</td>
+                          <td className="align-middle">
+                            {rowDef.depositType !== "-"
+                              ? formatNumber(depositData.deposit)
+                              : "-"}
+                          </td>
+                          <td className="align-middle">
+                            {rowDef.depositType !== "-"
+                              ? formatNumber(depositData.withdrawal)
+                              : "-"}
+                          </td>
+                          <td
+                            className={`align-middle ${
+                              rowDef.depositType !== "-" &&
+                              depositData.profit < 0
+                                ? "text-red"
+                                : ""
+                            }`}
+                          >
+                            {rowDef.depositType !== "-"
+                              ? formatNumber(depositData.profit)
+                              : "-"}
+                          </td>
+
+                          {/* Partner transactions (only on first row) */}
+                          {isFirstRow && (
+                            <>
+                              <td rowSpan={rowSpan} className="align-middle">
+                                {formatNumber(total.partner_deposit)}
+                              </td>
+                              <td rowSpan={rowSpan} className="align-middle">
+                                {formatNumber(total.partner_deposit_received)}
+                              </td>
+                              <td rowSpan={rowSpan} className="align-middle">
+                                {formatNumber(total.partner_withdrawal)}
+                              </td>
+                              <td rowSpan={rowSpan} className="align-middle">
+                                {formatNumber(
+                                  total.partner_withdrawal_received,
+                                )}
+                              </td>
+                              <td
+                                rowSpan={rowSpan}
+                                className={`align-middle ${
+                                  total.partner_profit < 0 ? "text-red" : ""
+                                }`}
+                              >
+                                {formatNumber(total.partner_profit)}
+                              </td>
+                            </>
+                          )}
+
+                          {/* Admin Actions */}
+                          <td>{rowDef.adminType}</td>
+                          <td>
+                            {rowDef.adminType !== "-"
+                              ? formatNumber(adminData.deposit)
+                              : "-"}
+                          </td>
+                          <td>
+                            {rowDef.adminType !== "-"
+                              ? formatNumber(adminData.withdrawal)
+                              : "-"}
+                          </td>
+
+                          {/* Game Type */}
+                          <td>{getGameTypeName()}</td>
+
+                          {/* Betting Stats */}
+                          <td>
+                            {isTotalRow || gameTypeStat
+                              ? formatNumber(bettingData.total_bet)
+                              : "0"}
+                          </td>
+                          <td>
+                            {(isTotalRow || gameTypeStat) &&
+                            bettingData.invalid_bet !== null
+                              ? formatNumber(bettingData.invalid_bet)
+                              : "-"}
+                          </td>
+                          <td>
+                            {(isTotalRow || gameTypeStat) &&
+                            bettingData.public_bet !== null
+                              ? formatNumber(bettingData.public_bet)
+                              : "-"}
+                          </td>
+                          <td>
+                            {isTotalRow || gameTypeStat
+                              ? formatNumber(bettingData.total_win)
+                              : "0"}
+                          </td>
+                          <td
+                            className={
+                              bettingData.betting_profit < 0 ? "text-red" : ""
+                            }
+                          >
+                            {isTotalRow || gameTypeStat
+                              ? formatNumber(bettingData.betting_profit)
+                              : "0"}
+                          </td>
+
+                          {/* Commission */}
+                          <td>
+                            {isTotalRow || gameTypeStat
+                              ? formatNumber(bettingData.rolling)
+                              : "0"}
+                          </td>
+                          <td>
+                            {isTotalRow || gameTypeStat
+                              ? formatNumber(bettingData.member_comp)
+                              : "0"}
+                          </td>
+                          <td
+                            className={rowIndex < 2 ? "9" : ""}
+                            rowSpan={rowIndex < 2 ? 1 : undefined}
+                          >
+                            {isTotalRow || gameTypeStat
+                              ? formatNumber(bettingData.first_deposit)
+                              : "0"}
+                          </td>
+                          <td
+                            className={rowIndex < 2 ? "11" : ""}
+                            rowSpan={rowIndex < 2 ? 1 : undefined}
+                          >
+                            {isTotalRow || gameTypeStat
+                              ? formatNumber(bettingData.regular_deposit)
+                              : "0"}
+                          </td>
+
+                          {/* Final Profit */}
+                          <td className="text-red finalSum">
+                            {isTotalRow || gameTypeStat
+                              ? formatNumber(bettingData.final_profit)
+                              : "0"}
+                          </td>
+
+                          {/* Losing (only on first row) */}
+                          {isFirstRow && (
+                            <td rowSpan={rowSpan} className="align-middle">
+                              {total.losing_amount
+                                ? formatNumber(total.losing_amount)
+                                : "-"}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+
+            
           </table>
         </div>
       </div>

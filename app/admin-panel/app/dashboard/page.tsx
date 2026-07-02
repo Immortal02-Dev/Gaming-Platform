@@ -39,10 +39,13 @@ interface DashboardData {
   month: Stats;
   history: { date: string; deposits: number; withdrawals: number }[];
   recent: Transaction[];
+  statsDate?: string;
 }
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [renderType, setRenderType] = useState<"1" | "2">("1"); // 1: Today, 2: Month
   const [adminName] = useState(() => {
     if (typeof window !== "undefined") {
@@ -61,30 +64,56 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchStats = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
         const token = localStorage.getItem("adminToken");
         const response = await fetch(`${BACKEND_URL}/api/admin/stats`, {
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
             ...(token && { Authorization: `Bearer ${token}` }),
           },
         });
-        const result = await response.json();
-        if (result.success) {
-          setData(result.data);
+
+        if (response.status === 401) {
+          window.location.href = "/login";
+          return;
         }
-      } catch (error) {
-        console.error("Failed to fetch dashboard stats:", error);
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || result.error || "Failed to fetch dashboard stats");
+        }
+
+        setData(result.data);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Failed to fetch dashboard stats";
+        console.error("Failed to fetch dashboard stats:", err);
+        setError(message);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchStats();
+    void fetchStats();
   }, []);
 
-  const currentStats = renderType === "1" ? data?.today : data?.month;
+  const emptyStats: Stats = {
+    chargeAmount: 0,
+    chargeCount: 0,
+    exchangeAmount: 0,
+    exchangeCount: 0,
+    profit: 0,
+  };
 
-  const formatNumber = (num: number = 0) => {
-    return new Intl.NumberFormat("ko-KR").format(num);
+  const currentStats = (renderType === "1" ? data?.today : data?.month) || emptyStats;
+  const chartData = data?.history || [];
+  const recentTransactions = data?.recent || [];
+
+  const formatNumber = (num: number | string | null | undefined = 0) => {
+    return new Intl.NumberFormat("ko-KR").format(Number(num || 0));
   };
 
   return (
@@ -166,6 +195,18 @@ export default function DashboardPage() {
         </div>
       </h1>
 
+      {loading && (
+        <div className="alert alert-info" role="status">
+          Loading dashboard data...
+        </div>
+      )}
+
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+
       <div className="dashbd mb-4">
         <div className="widget widget-stats bg-teal">
           <div className="stats-icon stats-icon-lg">
@@ -222,7 +263,7 @@ export default function DashboardPage() {
             <h5 className="mb-4">최근 7일 거래 추이</h5>
             <div style={{ width: "100%", height: 300 }}>
               <ResponsiveContainer>
-                <AreaChart data={data?.history}>
+                <AreaChart data={chartData}>
                   <defs>
                     <linearGradient
                       id="colorDeposit"
@@ -293,7 +334,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data?.recent.map((tx) => (
+                  {recentTransactions.map((tx) => (
                     <tr key={tx.id}>
                       <td>{tx.username}</td>
                       <td>
@@ -308,6 +349,13 @@ export default function DashboardPage() {
                       </td>
                     </tr>
                   ))}
+                  {!loading && !error && recentTransactions.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="text-center text-muted py-4">
+                        No recent transactions found.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

@@ -1,5 +1,30 @@
 const db = require("../../config/db");
 
+// Get available partner statistics date range
+exports.getPartnerStatisticsDateRange = async (req, res) => {
+  try {
+    const [rows] = await db.execute(`
+      SELECT
+        DATE_FORMAT(MIN(stat_date), '%Y-%m-%d') as minDate,
+        DATE_FORMAT(MAX(stat_date), '%Y-%m-%d') as maxDate
+      FROM partner_statistics
+    `);
+
+    res.status(200).json({
+      success: true,
+      data: rows[0] || { minDate: null, maxDate: null },
+    });
+  } catch (error) {
+    console.error("Failed to fetch partner statistics date range:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.getDateStatisticsDateRange = exports.getPartnerStatisticsDateRange;
+
 // Get partner statistics aggregated by date and game type
 exports.getPartnerStatistics = async (req, res) => {
   const { startDate, endDate, partnerId, gameTypeId } = req.query;
@@ -72,7 +97,7 @@ exports.getDateStatistics = async (req, res) => {
   try {
     let query = `
       SELECT 
-        DATE(ps.stat_date) as stat_date,
+        DATE_FORMAT(ps.stat_date, '%Y-%m-%d') as stat_date,
         ps.game_type_id,
         gt.code as game_type_code,
         gt.name_ko as game_type_name,
@@ -123,7 +148,7 @@ exports.getDateStatistics = async (req, res) => {
       params.push(gameTypeId);
     }
 
-    query += " GROUP BY DATE(ps.stat_date), ps.game_type_id, gt.code, gt.name_ko ORDER BY stat_date DESC";
+    query += " GROUP BY DATE_FORMAT(ps.stat_date, '%Y-%m-%d'), ps.game_type_id, gt.code, gt.name_ko ORDER BY stat_date DESC";
 
     const [rows] = await db.execute(query, params);
 

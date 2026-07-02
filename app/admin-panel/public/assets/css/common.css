@@ -946,73 +946,360 @@ table.dataTable thead > tr > td.sorting_asc_disabled:before {
   color: #fff !important;
 }
 
-.app-sidebar,
-#sidebar {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 220px !important;
-  bottom: 0 !important;
-  overflow: hidden !important; /* Clip parent, child will scroll */
-  z-index: 1010;
-  background: #2d353c !important;
-  box-sizing: border-box !important;
+/* ==========================================================================
+   Responsive layout – desktop sidebar (992px+)
+   ========================================================================== */
+@media (min-width: 992px) {
+  .app-sidebar,
+  #sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 220px !important;
+    bottom: 0 !important;
+    overflow: hidden !important;
+    z-index: 1010;
+    background: #2d353c !important;
+    box-sizing: border-box !important;
+  }
+
+  .app-sidebar .app-sidebar-content {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: calc(100vh - 50px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: transparent transparent !important;
+  }
+
+  .app-sidebar:hover .app-sidebar-content {
+    scrollbar-color: rgba(170, 170, 170, 0.5) transparent !important;
+  }
 }
 
-.app-sidebar .app-sidebar-content {
-  position: relative !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: calc(100vh - 50px) !important; /* Fill parent height */
-  overflow-y: auto !important; /* Native scroll here */
-  overflow-x: hidden !important;
-  display: block !important;
-  box-sizing: border-box !important;
-}
-
-/* Sidebar Scrollbar - hidden by default, appears on hover */
-/* Uses standard scrollbar-color/scrollbar-width only.                     */
-/* ::-webkit-scrollbar pseudo-elements are intentionally NOT used because: */
-/*   1) They override scrollbar-color in Chromium-based browsers           */
-/*   2) Brave has bugs with parent :hover cascading to the pseudo-element  */
-.app-sidebar .app-sidebar-content {
-  scrollbar-width: thin !important;
-  scrollbar-color: transparent transparent !important;
-}
-
-.app-sidebar:hover .app-sidebar-content {
-  scrollbar-color: rgba(170, 170, 170, 0.5) transparent !important;
-}
-
-@media (max-width: 767px) {
-  /* .app-sidebar .app-sidebar-content {
-    height: calc(100vh - 127px) !important;
-  } */
+/* ==========================================================================
+   Tablet & mobile shared (≤991px)
+   ========================================================================== */
+@media (max-width: 991.98px) {
+  .app-header .navbar-mobile-toggler {
+    display: block !important;
+  }
 
   .app-header {
-    height: 127px;
+    display: block;
+    height: auto;
+  }
+
+  .app-header .d-flex.flex-grow-1 {
+    flex-wrap: wrap;
+  }
+
+  .app-header .navbar-nav.moneyinfo {
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: flex-start !important;
+    border-top: 1px solid var(--app-header-mobile-divider-bg, #20252a);
+    padding: 0 5px;
+  }
+
+  .app-header .navbar-nav.moneyinfo .navbar-text {
+    flex: 1 1 calc(33.333% - 4px);
+    min-width: 90px;
+    max-width: calc(33.333% - 4px);
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+  }
+
+  .app-header .navbar-nav.moneyinfo .input-group {
+    flex-wrap: nowrap;
+  }
+
+  .app-header .navbar-nav.moneyinfo .form-control,
+  .app-header .navbar-nav.moneyinfo .input-group-text {
+    padding: 4px 2px;
+    font-size: 12px;
+  }
+
+  .app-header .navbar-nav.logout {
+    position: fixed;
+    right: 72px;
+    top: 0;
+    border: 0;
+    z-index: 1025;
   }
 
   .app-header-fixed {
     padding-top: 127px;
   }
+
   .app-sidebar,
   #sidebar {
+    position: fixed !important;
+    left: -220px !important;
     top: 127px !important;
-    width: 100% !important;
+    width: 220px !important;
     height: calc(100vh - 127px) !important;
     bottom: 0 !important;
     overflow: hidden !important;
+    z-index: 1021;
   }
 
   .app-sidebar .app-sidebar-content {
     height: calc(100vh - 127px) !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
   }
 
-  .app-header .navbar-nav {
-    padding: 0 5px;
+  .app-sidebar-bg {
+    left: -220px !important;
+    top: 127px !important;
+  }
+
+  .app-sidebar-mobile-toggled .app-sidebar:not(.app-sidebar-end),
+  .app-sidebar-mobile-toggled #sidebar,
+  .app-sidebar-mobile-toggled .app-sidebar-bg:not(.app-sidebar-end) {
+    left: 0 !important;
+  }
+
+  .app-content {
+    margin-left: 0 !important;
+    padding: 10px;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  /* Page headers with action buttons */
+  .page-header.d-flex {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .page-header.d-flex .ms-auto {
+    margin-left: 0 !important;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .page-header.d-flex .ms-auto .btn {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  /* Search / filter toolbars */
+  .app-content .d-flex.bg-white.p-2 > form.d-flex,
+  .app-content .d-flex.bg-white.p-2 > .d-flex,
+  .app-content .d-flex.bg-white.p-2 form.d-flex {
+    flex-wrap: wrap !important;
+    gap: 0.5rem;
+    align-items: stretch !important;
+  }
+
+  .app-content .d-flex.bg-white.p-2 .input-group {
+    width: 100% !important;
+    max-width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .app-content .d-flex.bg-white.p-2 .input-group.me-2 {
+    margin-right: 0 !important;
+  }
+
+  .app-content .d-flex.bg-white.p-2 .form-select,
+  .app-content .d-flex.bg-white.p-2 .form-control:not(.date) {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .app-content .d-flex.bg-white.p-2 .form-select.w-80px,
+  .app-content .d-flex.bg-white.p-2 .form-select.w-100px {
+    flex: 0 0 auto;
+    width: auto !important;
+    min-width: 70px;
+  }
+
+  .app-content .d-flex.bg-white.p-2 .form-control.w-150px {
+    width: 100% !important;
+    flex: 1 1 120px;
+  }
+
+  .app-content .d-flex.bg-white.p-2 .btn {
+    flex: 1 1 auto;
+    white-space: nowrap;
+  }
+
+  /* Fixed-width utility classes used in filter forms */
+  .app-content .w-220px,
+  .app-content .w-250px,
+  .app-content .w-300px,
+  .app-content .w-310px,
+  .app-content .w-360px {
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  /* Summary stat input groups (charge/exchange pages) */
+  .app-content .d-flex.bg-white.p-2 > .input-group {
+    flex-wrap: wrap;
+    width: 100% !important;
+  }
+
+  .app-content .d-flex.bg-white.p-2 > .input-group .form-control,
+  .app-content .d-flex.bg-white.p-2 > .input-group .input-group-text {
+    flex: 1 1 45%;
+    min-width: 0;
+  }
+
+  /* Stack fixed Bootstrap columns (col-3, col-6, etc.) */
+  .app-content .row > .col-1,
+  .app-content .row > .col-2,
+  .app-content .row > .col-3,
+  .app-content .row > .col-4,
+  .app-content .row > .col-5,
+  .app-content .row > .col-6,
+  .app-content .row > .col-7,
+  .app-content .row > .col-8,
+  .app-content .row > .col-9,
+  .app-content .row > .col-10,
+  .app-content .row > .col-11 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  /* Grade / settings tab pills */
+  .app-content .nav.nav-pills {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .app-content .nav.nav-pills .nav-link {
+    padding: 0.35rem 0.65rem;
+    font-size: 13px;
+  }
+
+  .app-content .nav.nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Tables – scroll within container, not whole page */
+  .app-content .row.overflow-auto {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+
+  table.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-responsive > table,
+  .app-content .table-responsive table {
+    margin-bottom: 0;
+  }
+
+  /* Modals with fixed inline widths */
+  .modal-content[style*="width"] {
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  .modal-dialog[style*="maxWidth"],
+  .modal-dialog[style*="max-width"] {
+    max-width: calc(100vw - 1rem) !important;
+    width: calc(100vw - 1rem) !important;
+    margin: 0.5rem auto;
+  }
+
+  /* User action button groups in tables */
+  .user-action {
+    flex-wrap: wrap !important;
+  }
+
+  /* Day/month toggle pills */
+  .daymonth li a {
+    min-width: 80px;
+    padding: 0.35rem 0.75rem;
+  }
+
+  /* Panel headings with buttons */
+  .panel-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .panel-heading-btn {
+    margin-left: auto;
+  }
+
+  /* Form rows in settings pages */
+  .form-group.row .col-form-label.col-md-4,
+  .form-group.row .col-form-label.col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .form-group.row > [class*="col-md-"] {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .page-header {
+    font-size: 16px;
+    padding: 8px 5px;
+  }
+
+  .panel .panel-body {
+    padding: 8px;
+  }
+
+  .dashbd {
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 5px;
+  }
+
+  .dashbd > div {
+    width: 49%;
+    padding: 8px !important;
+  }
+
+  .dashboard_box {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
+  .board_area {
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 10px auto;
+    gap: 10px;
+  }
+
+  .board_area > div {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+/* ==========================================================================
+   Small mobile (≤767px)
+   ========================================================================== */
+@media (max-width: 767.98px) {
+  .app-header {
+    min-height: 127px;
   }
 
   .app-header .navbar-nav.moneyinfo .form-control,
@@ -1022,78 +1309,66 @@ table.dataTable thead > tr > td.sorting_asc_disabled:before {
     width: 100%;
     text-align: center;
   }
+
   .app-header .navbar-nav.moneyinfo .input-group-text {
     border-radius: 3px 3px 0 0 !important;
   }
+
   .app-header .navbar-nav.moneyinfo .form-control {
     border-radius: 0 0 3px 3px !important;
     margin-left: 0 !important;
   }
-  .app-header .navbar-nav.logout {
-    position: fixed;
-    right: 72px;
-    top: 0px;
-    border: 0;
+
+  .app-header .navbar-nav.moneyinfo .navbar-text {
+    flex: 1 1 calc(33.333% - 4px);
+    max-width: calc(33.333% - 4px);
   }
-  .app-sidebar .app-sidebar-content {
-    /* overflow-y: scroll !important; */
-  }
+
   .app-content {
-    padding: 0px 5px;
+    padding: 0 5px;
   }
+
   .page-header {
     margin: 0;
-    font-size: 16px;
-    padding: 8px 5px;
   }
-  .app-content {
-    min-width: max-content;
-  }
+
   .app.userdetail {
-    min-width: max-content;
+    overflow-x: auto;
   }
-  .panel .panel-body {
-    padding: 5px;
-  }
-  /* .bg-dark.bg-gradient.text-white {
-    top: 127px !important;
-  } */
-  .dashbd {
-    padding-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 5px;
-    padding: 5px;
-  }
+
   .dashbd > div {
     width: 49.2%;
-    padding: 8px !important;
   }
+
   .widget-stats .stats-number,
   .widget.widget-stats .stats-number {
     font-size: 14px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
   }
-  .dashboard_box {
-    width: 100%;
-    margin-bottom: 5px;
-  }
+
   .widget-stats .stats-info p,
   .widget.widget-stats .stats-info p {
     font-size: 14px;
   }
-  .board_area {
-    padding: 0;
-    margin: 10px auto;
-    gap: 0;
-    flex-wrap: wrap;
-  }
-  .board_area > div {
-    width: 100%;
-    margin-bottom: 10px;
-  }
+
   .board_area > div table td {
     height: 30px;
     font-size: 12px;
     padding: 0 10px;
   }
+
+  .speech-bubble {
+    max-width: calc(100vw - 20px);
+    width: auto !important;
+  }
+}
+
+/* Prevent horizontal page scroll; tables scroll in their own containers */
+.app-content {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#app {
+  overflow-x: hidden;
 }

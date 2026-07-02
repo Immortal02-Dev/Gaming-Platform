@@ -98,7 +98,9 @@ router.get("/analytics/financial-flow", analyticsController.getFinancialFlow);
 router.get("/analytics/security", analyticsController.getSecurityAlerts);
 
 // Statistics
+router.get("/statistics/partner/date-range", statisticsController.getPartnerStatisticsDateRange);
 router.get("/statistics/partner", statisticsController.getPartnerStatistics);
+router.get("/statistics/date/date-range", statisticsController.getDateStatisticsDateRange);
 router.get("/statistics/date", statisticsController.getDateStatistics);
 router.get("/statistics/game-types", statisticsController.getGameTypes);
 
