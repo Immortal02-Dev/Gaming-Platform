@@ -14,7 +14,6 @@ interface InoutPopup {
   action: "in" | "out";
   logTypeIdx: string;
   currentAmount: string;
-  buttonElement: HTMLElement | null;
 }
 
 interface CustomWindow extends Window {
@@ -89,11 +88,14 @@ export default function UserListPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const amountInputRef = useRef<HTMLInputElement>(null);
+  const activeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.flatpickr) {
@@ -148,6 +150,7 @@ export default function UserListPage() {
       const data: UserListResponse = await response.json();
       setUsers(data.data || []);
       setCurrentPage(data.pagination.page);
+      setTotalPages(data.pagination.totalPages || 1);
     } catch (error) {
       console.error('Error fetching users:', error);
       setUsers([]);
@@ -157,7 +160,7 @@ export default function UserListPage() {
   }, [pageSize, startDate, endDate, userRoleIdx, userStatusIdx, searchText]);
 
   useEffect(() => {
-    fetchUsers(1);
+    void Promise.resolve().then(() => fetchUsers(1));
   }, [fetchUsers]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -225,6 +228,7 @@ export default function UserListPage() {
     } else {
       button.classList.add("btn-danger");
     }
+    activeButtonRef.current = button;
     setInoutPopup({
       userIdx,
       userID,
@@ -233,19 +237,19 @@ export default function UserListPage() {
       action,
       logTypeIdx,
       currentAmount,
-      buttonElement: button,
     });
     setAmount("");
   };
 
   const removeInoutForm = useCallback(() => {
-    if (inoutPopup?.buttonElement) {
-      inoutPopup.buttonElement.classList.remove("btn-primary", "btn-danger");
-      inoutPopup.buttonElement.classList.add("btn-lightgray");
+    if (activeButtonRef.current) {
+      activeButtonRef.current.classList.remove("btn-primary", "btn-danger");
+      activeButtonRef.current.classList.add("btn-lightgray");
+      activeButtonRef.current = null;
     }
     setInoutPopup(null);
     setAmount("");
-  }, [inoutPopup]);
+  }, []);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = removeCommas(e.target.value);
@@ -267,19 +271,45 @@ export default function UserListPage() {
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inoutPopup) return;
     const confirmMessage = inoutPopup.action === "in" ? "지급하시겠습니까?" : "회수하시겠습니까?";
     if (!confirm(confirmMessage)) return;
-    console.log("Submit:", {
-      type: inoutPopup.type,
-      action: inoutPopup.action,
-      amount: removeCommas(amount),
-      userIdx: inoutPopup.userIdx,
-      logTypeIdx: inoutPopup.logTypeIdx,
-    });
-    removeInoutForm();
+    const rawAmount = Number(removeCommas(amount));
+    if (!rawAmount || rawAmount <= 0) {
+      alert("금액을 입력해주세요.");
+      return;
+    }
+    setSubmitLoading(true);
+    try {
+      const currency = inoutPopup.type === "point" ? "POINT" : "KRW";
+      const type = inoutPopup.action === "in" ? "credit" : "debit";
+      const res = await fetch(`/api/admin/wallets/adjust-balance`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: inoutPopup.userIdx,
+          amount: rawAmount,
+          type,
+          currency,
+          notes: `관리자 ${inoutPopup.action === "in" ? "지급" : "회수"} (${inoutPopup.type})`,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("완료되었습니다.");
+        removeInoutForm();
+        fetchUsers(currentPage);
+      } else {
+        alert(data.message || "오류가 발생했습니다.");
+      }
+    } catch {
+      alert("네트워크 오류가 발생했습니다.");
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
   const getStatusName = (status: string) => {
@@ -307,8 +337,8 @@ export default function UserListPage() {
   };
 
   useEffect(() => {
-    if (inoutPopup && popupRef.current && inoutPopup.buttonElement) {
-      const button = inoutPopup.buttonElement;
+    if (inoutPopup && popupRef.current && activeButtonRef.current) {
+      const button = activeButtonRef.current;
       const buttonParent = button.parentElement;
       if (buttonParent) {
         buttonParent.style.position = "relative";
@@ -345,9 +375,9 @@ export default function UserListPage() {
       <style jsx>{`
         .flex-none { flex: none !important; }
         .sticky { position: sticky !important; }
-        .dataTable > :not(caption) > * > td { background-color: #ffffff; }
-        .dataTable > tbody > tr:nth-of-type(odd) > td { background-color: #f0f2f4; }
-        .dataTable td, th { border-left: 0; border-bottom: 1px solid rgb(206, 212, 218) !important; }
+        .custom-data-table > :not(caption) > * > td { background-color: #ffffff; }
+        .custom-data-table > tbody > tr:nth-of-type(odd) > td { background-color: #f0f2f4; }
+        .custom-data-table td, th { border-left: 0; border-bottom: 1px solid rgb(206, 212, 218) !important; }
         .btn-lightgray { background-color: #ced4da; }
         .speech-bubble { position: absolute; background: #fedc62; border-radius: 0.4em; z-index: 999; width: 446px; }
         .speech-bubble:after { content: ""; position: absolute; left: 0; top: 50%; border: 13px solid transparent; border-right-color: #fedc62; border-left: 0; margin-top: -13px; margin-left: -13px; }
@@ -389,7 +419,7 @@ export default function UserListPage() {
 
       <div className="row overflow-auto">
         <div className="col" style={{ minWidth: "3000px" }}>
-          <table className="table dataTable table-striped table-bordered align-middle text-center fw-bold m-0">
+          <table className="table custom-data-table table-striped table-bordered align-middle text-center fw-bold m-0">
             <thead className="bg-dark text-white sticky-top">
               <tr>
                 <th>No.</th><th>추천인</th><th>등급</th><th>아이디(닉네임)</th><th>상태</th>
@@ -454,7 +484,9 @@ export default function UserListPage() {
             <div className="input-group">
               <input type="text" className="form-control w-100px" value={inoutPopup.action === "in" ? "지급" : "회수"} readOnly />
               <input ref={amountInputRef} type="text" className="form-control" value={amount} onChange={handleAmountChange} />
-              <button type="submit" className="btn btn-success">저장</button>
+              <button type="submit" className="btn btn-success" disabled={submitLoading}>
+                {submitLoading ? <i className="fa fa-spinner fa-spin"></i> : "저장"}
+              </button>
               <button type="button" className="btn btn-secondary" onClick={removeInoutForm}>취소</button>
             </div>
             <div className="input-group mt-2">
@@ -463,6 +495,30 @@ export default function UserListPage() {
               ))}
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-center mt-3">
+          <ul className="pagination">
+            <li className={`page-item ${currentPage <= 1 ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => fetchUsers(currentPage - 1)} disabled={currentPage <= 1}>&laquo;</button>
+            </li>
+            {Array.from({ length: Math.min(10, totalPages) }, (_, i) => {
+              const start = Math.max(1, currentPage - 4);
+              const page = start + i;
+              if (page > totalPages) return null;
+              return (
+                <li key={page} className={`page-item ${page === currentPage ? "active" : ""}`}>
+                  <button className="page-link" onClick={() => fetchUsers(page)}>{page}</button>
+                </li>
+              );
+            })}
+            <li className={`page-item ${currentPage >= totalPages ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => fetchUsers(currentPage + 1)} disabled={currentPage >= totalPages}>&raquo;</button>
+            </li>
+          </ul>
         </div>
       )}
     </Layout>

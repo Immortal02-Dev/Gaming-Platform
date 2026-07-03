@@ -260,8 +260,10 @@ export default function StatisticsDateListPage() {
   }, []);
 
   const handleUserSelectPopup = () => {
-    // TODO: Implement user selection popup
-    console.log("User select popup");
+    const input = prompt("검색할 파트너 아이디를 입력하세요:");
+    if (input !== null) {
+      setUserID(input);
+    }
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -495,7 +497,6 @@ export default function StatisticsDateListPage() {
                     id="userID"
                     onClick={handleUserSelectPopup}
                     className="form-control"
-                    required
                     readOnly
                     value={userID}
                     onChange={(e) => setUserID(e.target.value)}
@@ -539,42 +540,24 @@ export default function StatisticsDateListPage() {
                     <i className="fa-solid fa-list me-2"></i>전체
                   </button>
                   <div className="input-group-text">자세히</div>
-                  <button
-                    className="btn btn-info"
-                    type="button"
-                    onClick={() =>
-                      (window.location.href = "/statisticsDateList-1.html")
-                    }
-                  >
-                    <i className="fa-solid fa-music me-2"></i>카지노/슬롯
-                  </button>
-                  <button
-                    className="btn btn-info"
-                    type="button"
-                    onClick={() =>
-                      (window.location.href = "/statisticsDateList-2.html")
-                    }
-                  >
-                    <i className="fa-solid fa-music me-2"></i>보드게임
-                  </button>
-                  <button
-                    className="btn btn-info"
-                    type="button"
-                    onClick={() =>
-                      (window.location.href = "/statisticsDateList-3.html")
-                    }
-                  >
-                    <i className="fa-solid fa-music me-2"></i>미니게임
-                  </button>
-                  <button
-                    className="btn btn-info"
-                    type="button"
-                    onClick={() =>
-                      (window.location.href = "/statisticsDateList-4.html")
-                    }
-                  >
-                    <i className="fa-solid fa-music me-2"></i>스포츠
-                  </button>
+                  {[...gameTypes].sort((a, b) => {
+                    const order = ["casino", "slot", "board", "mini", "sports"];
+                    const ai = order.indexOf(a.code);
+                    const bi = order.indexOf(b.code);
+                    if (ai === -1 && bi === -1) return a.display_order - b.display_order;
+                    if (ai === -1) return 1;
+                    if (bi === -1) return -1;
+                    return ai - bi;
+                  }).map((gt) => (
+                    <button
+                      key={gt.id}
+                      className={`btn btn-info ${gameGroupIdx === gt.id.toString() ? "active" : ""}`}
+                      type="button"
+                      onClick={() => handleGameGroupFilter(gt.id.toString())}
+                    >
+                      <i className="fa-solid fa-music me-2"></i>{gt.name_ko}
+                    </button>
+                  ))}
                 </div>
               </div>
             </form>
@@ -1249,18 +1232,12 @@ export default function StatisticsDateListPage() {
                               ? formatNumber(bettingData.member_comp)
                               : "0"}
                           </td>
-                          <td
-                            className={rowIndex < 2 ? "9" : ""}
-                            rowSpan={rowIndex < 2 ? 1 : undefined}
-                          >
+                          <td>
                             {isTotalRow || gameTypeStat
                               ? formatNumber(bettingData.first_deposit)
                               : "0"}
                           </td>
-                          <td
-                            className={rowIndex < 2 ? "11" : ""}
-                            rowSpan={rowIndex < 2 ? 1 : undefined}
-                          >
+                          <td>
                             {isTotalRow || gameTypeStat
                               ? formatNumber(bettingData.regular_deposit)
                               : "0"}

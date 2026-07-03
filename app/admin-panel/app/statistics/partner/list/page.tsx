@@ -96,7 +96,7 @@ export default function StatisticsPartnerListPage() {
   const [userID, setUserID] = useState("");
   const [userIdx] = useState("");
   const [gameGroupIdx, setGameGroupIdx] = useState("");
-  const [isSortedByFinal, setIsSortedByFinal] = useState(false);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
 
   // Data states
   const [statistics, setStatistics] = useState<PartnerStatistics[]>([]);
@@ -271,8 +271,10 @@ export default function StatisticsPartnerListPage() {
   }, []);
 
   const handleUserSelectPopup = () => {
-    // TODO: Implement user selection popup
-    console.log("User select popup");
+    const input = prompt("검색할 파트너 아이디를 입력하세요:");
+    if (input !== null) {
+      setUserID(input);
+    }
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -285,16 +287,11 @@ export default function StatisticsPartnerListPage() {
   };
 
   const handleSortByFinal = () => {
-    setIsSortedByFinal(!isSortedByFinal);
-    // Sort statistics by final_profit
-    const sorted = [...statistics].sort((a, b) => {
-      if (isSortedByFinal) {
-        return a.final_profit - b.final_profit;
-      } else {
-        return b.final_profit - a.final_profit;
-      }
+    setSortOrder(prev => {
+      if (prev === null) return "desc";
+      if (prev === "desc") return "asc";
+      return null;
     });
-    setStatistics(sorted);
   };
 
   const handleExcelDownload = () => {
@@ -357,7 +354,11 @@ export default function StatisticsPartnerListPage() {
 
   // Get partner list sorted
   const partnerList = Object.values(groupedByPartner).sort((a, b) => {
-    if (isSortedByFinal) {
+    if (sortOrder === "desc") {
+      const aProfit = a.total?.final_profit || 0;
+      const bProfit = b.total?.final_profit || 0;
+      return bProfit - aProfit;
+    } else if (sortOrder === "asc") {
       const aProfit = a.total?.final_profit || 0;
       const bProfit = b.total?.final_profit || 0;
       return aProfit - bProfit;
@@ -572,12 +573,12 @@ export default function StatisticsPartnerListPage() {
                 <button
                   type="button"
                   className={`btn ms-2 ${
-                    isSortedByFinal ? "btn-indigo active" : "btn-secondary"
+                    sortOrder ? "btn-indigo active" : "btn-secondary"
                   }`}
                   id="btnSortFinal"
                   onClick={handleSortByFinal}
                 >
-                  최종손익순
+                  최종손익순 {sortOrder === "desc" ? "↓" : sortOrder === "asc" ? "↑" : ""}
                 </button>
               </div>
             </form>

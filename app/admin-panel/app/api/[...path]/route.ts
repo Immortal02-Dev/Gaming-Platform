@@ -40,7 +40,10 @@ async function handleRequest(request: NextRequest, { params }: { params: Promise
       }
     });
 
-    return new NextResponse(data, {
+    const nullBodyStatuses = [101, 103, 204, 205, 304];
+    const isNullBody = nullBodyStatuses.includes(response.status);
+
+    return new NextResponse(isNullBody ? null : data, {
       status: response.status,
       statusText: response.statusText,
       headers: responseHeaders,
