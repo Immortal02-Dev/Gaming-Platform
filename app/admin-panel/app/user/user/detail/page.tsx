@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 
 const BACKEND_URL = ""; // Use relative path for proxy
@@ -89,34 +89,32 @@ export function UserDetailPageInner({ userIdxProp, tabTypeProp }: UserDetailPage
         else if (tabType === "15") setActiveTab("coupon");
     }, [tabType]);
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            if (!userIdx) return;
+    const fetchUserData = useCallback(async () => {
+        if (!userIdx) return;
 
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/admin/user/detail?userIdx=${userIdx}`, {
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                if (!response.ok) {
-                    throw new Error(`Error: ${response.status}`);
-                }
-                const result = await response.json();
-
-                if (result.success) {
-                    setUserData(result.data);
-                } else {
-                    console.error("Failed to fetch user data");
-                }
-            } catch (error) {
-                console.error("Failed to fetch user data:", error);
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/admin/user/detail?userIdx=${userIdx}`, {
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
             }
-        };
+            const result = await response.json();
 
-        fetchUserData();
+            if (result.success) {
+                setUserData(result.data);
+            } else {
+                console.error("Failed to fetch user data");
+            }
+        } catch (error) {
+            console.error("Failed to fetch user data:", error);
+        }
     }, [userIdx]);
+
+    useEffect(() => {
+        fetchUserData();
+    }, [fetchUserData]);
 
     const tabs = [
         { id: "basic", label: "기본 정보" },
@@ -207,7 +205,7 @@ export function UserDetailPageInner({ userIdxProp, tabTypeProp }: UserDetailPage
 
                     {/* Tab Content */}
                     <div className="tab-content panel p-3 rounded mb-0 bg-white">
-                        {activeTab === "basic" && <TabBasicInfo user={userData} />}
+                        {activeTab === "basic" && <TabBasicInfo user={userData} onSaved={fetchUserData} />}
                         {activeTab === "money_action" && <TabMoneyAction user={userData} />}
                         {activeTab === "charge_exchange" && <TabChargeExchange userIdx={userIdx} />}
 

@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 
 interface UserData {
   userIdx?: number;
@@ -7,7 +8,7 @@ interface UserData {
   role?: string;
   roleIdx?: number;
   level?: number;
-  status?: number;
+  status?: number | string;
   recommendCode?: string;
   warningColorIdx?: number | string;
   parentUser?: string;
@@ -25,17 +26,129 @@ interface UserData {
 
 interface TabBasicInfoProps {
   user: UserData | null;
+  onSaved?: () => void;
 }
 
-export default function TabBasicInfo({ user }: TabBasicInfoProps) {
+export default function TabBasicInfo({ user, onSaved }: TabBasicInfoProps) {
+  const [saving, setSaving] = useState(false);
+
+  // Controlled form state — initialized from user prop
+  const [formData, setFormData] = useState({
+    nickname: "",
+    recommendCode: "",
+    password: "",
+    warningColorIdx: "",
+    userStatusIdx: "2",
+    userStatusIdxChangeType: "",
+    userRoleIdx: "3",
+    userGradeIdx: "1",
+    phoneNumber: "",
+    chargeBankIdx: "",
+    bankIdx: "",
+    bankNumber: "",
+    bankerName: "",
+    exchangePassword: "",
+    memo: "",
+    gameLevel: {} as { [key: number]: number },
+  });
+
+  const [prevUser, setPrevUser] = useState<UserData | null>(null);
+
+  // Sync form when user data loads/changes
+  if (user !== prevUser) {
+    setPrevUser(user);
+    if (user) {
+      setFormData({
+        nickname: user.nickname || "",
+        recommendCode: user.recommendCode || "",
+        password: "",
+        warningColorIdx: String(user.warningColorIdx ?? ""),
+        userStatusIdx: String(user.status ?? "2"),
+        userStatusIdxChangeType: "",
+        userRoleIdx: String(user.roleIdx ?? "3"),
+        userGradeIdx: String(user.level ?? "1"),
+        phoneNumber: user.phoneNumber || "",
+        chargeBankIdx: String(user.chargeBankIdx ?? ""),
+        bankIdx: String(user.bankIdx ?? ""),
+        bankNumber: user.bankNumber || "",
+        bankerName: user.bankerName || "",
+        exchangePassword: "",
+        memo: user.memo || "",
+        gameLevel: user.gameLevel || {},
+      });
+    }
+  }
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleGameLevelChange = (gameIdx: number, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      gameLevel: { ...prev.gameLevel, [gameIdx]: Number(value) },
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user?.userIdx) {
+      alert("회원 정보를 불러올 수 없습니다.");
+      return;
+    }
+    if (!confirm("저장하시겠습니까?")) return;
+
+    setSaving(true);
+    try {
+      const body: Record<string, unknown> = {
+        nickname: formData.nickname,
+        status: formData.userStatusIdx,
+        level: formData.userGradeIdx,
+        role: formData.userRoleIdx === "4" ? "user" : "admin",
+        memo: formData.memo,
+        recommendCode: formData.recommendCode,
+        phoneNumber: formData.phoneNumber,
+        bankIdx: formData.bankIdx,
+        bankNumber: formData.bankNumber,
+        bankerName: formData.bankerName,
+        warningColorIdx: formData.warningColorIdx,
+        chargeBankIdx: formData.chargeBankIdx,
+        gameLevel: formData.gameLevel,
+      };
+
+      // Only include password if provided
+      if (formData.password && formData.password.trim() !== "") {
+        body.password = formData.password;
+      }
+
+      const res = await fetch(`/api/admin/users/${user.userIdx}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert("저장되었습니다.");
+        onSaved?.();
+      } else {
+        alert(data.message || "저장 중 오류가 발생했습니다.");
+      }
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("네트워크 오류가 발생했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <form onSubmit={(e) => e.preventDefault()}>
-      <input
-        type="hidden"
-        name="_token"
-        defaultValue="6vZ92tB27jHohsdPMCpiblrvCrfISz6Ebbd8TvTy"
-      />
-      <input type="hidden" name="userIdx" defaultValue={user?.userIdx || 14} />
+    <form onSubmit={handleSubmit}>
+      <input type="hidden" name="userIdx" value={user?.userIdx || ""} readOnly />
       <table className="table table-bordered table-responsive align-middle bg-white text-center fw-bold">
         <tbody>
           <tr>
@@ -50,21 +163,19 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                 >
                   {user?.role || "부본사"}
                 </span>
-                <label
-                  className="col-form-label w-auto"
-                  id="warningColorEnable"
-                >
-                  {user?.id || "ma999"}
+                <label className="col-form-label w-auto" id="warningColorEnable">
+                  {user?.id || ""}
                 </label>
                 <select
                   className="form-select w-auto ms-2"
                   name="warningColorIdx"
                   id="warningColorIdx"
-                  defaultValue={user?.warningColorIdx || ""}
+                  value={formData.warningColorIdx}
+                  onChange={handleChange}
                 >
                   <option value="" style={{ backgroundColor: "#fff" }} />
-                  <option value={1} style={{ backgroundColor: "#6aa84f" }} />
-                  <option value={2} style={{ backgroundColor: "#744700" }} />
+                  <option value="1" style={{ backgroundColor: "#6aa84f" }} />
+                  <option value="2" style={{ backgroundColor: "#744700" }} />
                 </select>
               </div>
             </td>
@@ -76,9 +187,10 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                 <div className="col">
                   <input
                     type="text"
-                    name="nickName"
+                    name="nickname"
                     className="form-control"
-                    defaultValue={user?.nickname || "전테스트"}
+                    value={formData.nickname}
+                    onChange={handleChange}
                     autoComplete="off"
                   />
                 </div>
@@ -87,7 +199,8 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                     type="text"
                     name="recommendCode"
                     className="form-control"
-                    defaultValue={user?.recommendCode || ""}
+                    value={formData.recommendCode}
+                    onChange={handleChange}
                     autoComplete="off"
                   />
                 </div>
@@ -101,7 +214,10 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                 type="password"
                 name="password"
                 className="form-control"
+                value={formData.password}
+                onChange={handleChange}
                 autoComplete="new-password"
+                placeholder="변경 시에만 입력"
               />
             </td>
             <th className="bg-gray-300">직속 상부 / 친구 추천</th>
@@ -114,14 +230,15 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                     id="parentUserID"
                     className="form-control"
                     readOnly
-                    defaultValue={user?.parentUser || ""}
+                    value={user?.parentUser || ""}
                     onClick={() => alert("User Select Popup")}
                   />
                   <input
                     type="hidden"
                     name="parentUserIdx"
                     id="parentUserIdx"
-                    defaultValue={user?.parentUserIdx || ""}
+                    value={user?.parentUserIdx || ""}
+                    readOnly
                   />
                 </div>
                 <div className="col">
@@ -138,24 +255,26 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                   <select
                     name="userStatusIdx"
                     className="form-select"
-                    defaultValue={user?.status || 2}
+                    value={formData.userStatusIdx}
+                    onChange={handleChange}
                   >
-                    <option value={1}>가입대기</option>
-                    <option value={2}>정상</option>
-                    <option value={3}>정지</option>
-                    <option value={4}>탈퇴</option>
-                    <option value={5}>테스터</option>
+                    <option value="1">가입대기</option>
+                    <option value="2">정상</option>
+                    <option value="3">정지</option>
+                    <option value="4">탈퇴</option>
+                    <option value="5">테스터</option>
                   </select>
                 </div>
                 <div className="col">
                   <select
                     name="userStatusIdxChangeType"
                     className="form-select"
-                    defaultValue=""
+                    value={formData.userStatusIdxChangeType}
+                    onChange={handleChange}
                   >
                     <option value="">본인만</option>
-                    <option value={1}>본인+직속회원</option>
-                    <option value={2}>전체</option>
+                    <option value="1">본인+직속회원</option>
+                    <option value="2">전체</option>
                   </select>
                 </div>
               </div>
@@ -167,20 +286,19 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                   <select
                     name="userRoleIdx"
                     className="form-select"
-                    defaultValue={user?.roleIdx || 3}
-                    onChange={() => alert("User Select Popup")}
+                    value={formData.userRoleIdx}
+                    onChange={handleChange}
                   >
-                    <option value={3}>파트너</option>
-                    <option disabled value={4}>
-                      회원
-                    </option>
+                    <option value="3">파트너</option>
+                    <option value="4">회원</option>
                   </select>
                 </div>
                 <div className="col">
                   <select
                     name="userGradeIdx"
                     className="form-select"
-                    defaultValue={user?.level || 1}
+                    value={formData.userGradeIdx}
+                    onChange={handleChange}
                   >
                     {Array.from({ length: 15 }, (_, i) => i + 1).map(
                       (level) => (
@@ -205,7 +323,8 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                       <select
                         name={`userGameGroupGrade[${idx + 1}]`}
                         className="form-select w-auto"
-                        defaultValue={user?.gameLevel?.[idx + 1] || 1}
+                        value={formData.gameLevel[idx + 1] ?? 1}
+                        onChange={(e) => handleGameLevelChange(idx + 1, e.target.value)}
                       >
                         {Array.from({ length: 15 }, (_, i) => i + 1).map(
                           (level) => (
@@ -221,7 +340,6 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
               </div>
             </td>
           </tr>
-          {/* ... Add other rows ... */}
           <tr>
             <th className="bg-gray-300">연락처</th>
             <td className="p-1">
@@ -229,7 +347,8 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                 type="text"
                 name="phoneNumber"
                 className="form-control"
-                defaultValue={user?.phoneNumber || ""}
+                value={formData.phoneNumber}
+                onChange={handleChange}
               />
             </td>
             <th className="bg-gray-300">충전 계좌 지정</th>
@@ -237,7 +356,8 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
               <select
                 name="chargeBankIdx"
                 className="form-select"
-                defaultValue={user?.chargeBankIdx || ""}
+                value={formData.chargeBankIdx}
+                onChange={handleChange}
               >
                 <option value="">선택</option>
               </select>
@@ -255,7 +375,8 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
               <select
                 name="bankIdx"
                 className="form-select"
-                defaultValue={user?.bankIdx || ""}
+                value={formData.bankIdx}
+                onChange={handleChange}
               >
                 <option value="">선택</option>
                 <option value="1">하나은행</option>
@@ -267,7 +388,8 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                 type="text"
                 name="bankNumber"
                 className="form-control"
-                defaultValue={user?.bankNumber || ""}
+                value={formData.bankNumber}
+                onChange={handleChange}
               />
             </td>
           </tr>
@@ -278,7 +400,8 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                 type="text"
                 name="bankerName"
                 className="form-control"
-                defaultValue={user?.bankerName || ""}
+                value={formData.bankerName}
+                onChange={handleChange}
               />
             </td>
             <th className="bg-gray-300">환전비번</th>
@@ -287,7 +410,10 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                 type="password"
                 name="exchangePassword"
                 className="form-control"
+                value={formData.exchangePassword}
+                onChange={handleChange}
                 autoComplete="new-password"
+                placeholder="변경 시에만 입력"
               />
             </td>
           </tr>
@@ -299,24 +425,17 @@ export default function TabBasicInfo({ user }: TabBasicInfoProps) {
                 cols={30}
                 rows={3}
                 className="form-control"
-                defaultValue={user?.memo || ""}
-              ></textarea>
+                value={formData.memo}
+                onChange={handleChange}
+              />
             </td>
           </tr>
         </tbody>
       </table>
       <div className="col text-center">
-        <button type="submit" className="btn btn-success">
+        <button type="submit" className="btn btn-success" disabled={saving}>
           <i className="fa fa-save me-1" />
-          저장
-        </button>
-        <button
-          type="button"
-          className="btn btn-gray ms-1"
-          onClick={() => window.close()}
-        >
-          <i className="fa-solid fa-xmark me-2" />
-          닫기
+          {saving ? "저장 중..." : "저장"}
         </button>
       </div>
     </form>
