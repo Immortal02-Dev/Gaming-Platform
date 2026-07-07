@@ -419,11 +419,11 @@ exports.getTreeList = async (req, res) => {
         u.nickname, 
         u.role, 
         u.status,
+        u.is_agent,
+        u.agent_level,
         rf.referrer_id,
         (SELECT amount FROM user_balances WHERE user_id = u.id AND currency = 'KRW' LIMIT 1) as balance,
         (SELECT amount FROM user_balances WHERE user_id = u.id AND currency = 'POINT' LIMIT 1) as points,
-        u.role as roleType,
-        CASE WHEN u.role = 'user' THEN 1 ELSE 2 END as roleLevel,
         (SELECT COUNT(*) FROM referral_friends WHERE referrer_id = u.id) as child_count
       FROM users u
       LEFT JOIN referral_friends rf ON u.id = rf.friend_user_id
@@ -436,10 +436,11 @@ exports.getTreeList = async (req, res) => {
     const tree = [];
 
     rows.forEach((user) => {
+      const isMember = user.role === "user";
       userMap[user.userIdx] = { 
         ...user, 
-        roleType: user.role === 'user' ? 'member' : 'partner',
-        roleLevel: user.role === 'user' ? 1 : 2,
+        roleType: isMember ? "member" : "partner",
+        roleLevel: isMember ? 1 : (user.role === "super_admin" ? 1 : (user.agent_level || 1)),
         childBalance: 0,
         childPoints: 0,
         children: [] 

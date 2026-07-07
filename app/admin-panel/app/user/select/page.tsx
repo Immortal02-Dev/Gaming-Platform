@@ -19,6 +19,7 @@ function UserSelectContent() {
     const searchParams = useSearchParams();
     const onlyPartner = searchParams.get('onlyPartner') === 'true';
     const checkOne = searchParams.get('checkOne') === 'true';
+    const showCancel = searchParams.get('cancel') === 'true';
     const notUserIdx = searchParams.get('notUserIdx');
 
     const [treeData, setTreeData] = useState<UserNode[]>([]);
@@ -40,7 +41,9 @@ function UserSelectContent() {
             });
             if (response.ok) {
                 const result = await response.json();
-                setTreeData(result.data);
+                if (result.success) {
+                    setTreeData(result.data || []);
+                }
             }
         } catch (error) {
             console.error("Failed to fetch tree:", error);
@@ -63,9 +66,31 @@ function UserSelectContent() {
         setSelectedNode(node);
     };
 
+    const getRoleLabel = (roleType: string, roleLevel: number): string => {
+        if (roleType === "partner") {
+            return roleLevel === 1 ? "부본사" : "총판";
+        }
+        return "회원";
+    };
+
+    const getRoleBadgeClass = (roleType: string): string => {
+        return roleType === "partner" ? "bg-danger" : "bg-secondary";
+    };
+
+    const getRoleBadgeStyle = (roleType: string, roleLevel: number): React.CSSProperties => {
+        if (roleType === "partner") {
+            return {
+                fontSize: "10px",
+                backgroundColor: roleLevel === 1 ? "#f4a29c" : "#f4dc95",
+                color: "#000",
+            };
+        }
+        return { fontSize: "10px" };
+    };
+
     const handleFinish = () => {
         if (!selectedNode) {
-            alert("?? ? ??? ????.");
+            alert(checkOne ? "회원을 선택해 주세요." : "대상을 선택해 주세요.");
             return;
         }
         if (window.opener && (window.opener as any).fnSelectUser) {
@@ -146,10 +171,13 @@ function UserSelectContent() {
                     >
                         {hasChildren ? (isExpanded ? <i className="fa fa-chevron-down"></i> : <i className="fa fa-chevron-right"></i>) : <i className="fa fa-user opacity-25"></i>}
                     </span>
-                    <span className={`badge ${node.roleType === 'partner' ? 'bg-danger' : 'bg-gray-500'} me-2`} style={{ fontSize: '10px' }}>
-                        {node.roleType === 'partner' ? (node.roleLevel === 1 ? '???' : '??') : '??'}
+                    <span
+                        className={`badge ${getRoleBadgeClass(node.roleType)} me-2`}
+                        style={getRoleBadgeStyle(node.roleType, node.roleLevel)}
+                    >
+                        {getRoleLabel(node.roleType, node.roleLevel)}
                     </span>
-                    <span className="fw-bold" style={{ fontSize: '13px' }}>{node.userID} ({node.nickname})</span>
+                    <span className="fw-bold" style={{ fontSize: '13px' }}>{node.userID} ({node.nickname || "-"})</span>
                 </div>
                 {isExpanded && node.children && node.children.map(child => renderNode(child, depth + 1))}
             </div>
@@ -160,17 +188,17 @@ function UserSelectContent() {
         <div id="app" className="app" style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
             <div className="panel panel-inverse flex-grow-1 mb-0 d-flex flex-column">
                 <div className="panel-heading">
-                    <h4 className="panel-title"><i className="fas fa-users me-2"></i>?? ??</h4>
+                    <h4 className="panel-title"><i className="fas fa-users me-2"></i>회원 선택</h4>
                 </div>
                 <div className="panel-body bg-gray-200 flex-grow-1 overflow-hidden d-flex flex-column">
                     <div className="row mb-3 flex-shrink-0">
                         <div className="col">
                             <div className="input-group">
-                                <label className="input-group-text bg-dark text-white border-dark">??</label>
+                                <label className="input-group-text bg-dark text-white border-dark">검색</label>
                                 <input
                                     id="searchText"
                                     className="form-control"
-                                    placeholder="??? ?? ??? ??"
+                                    placeholder="아이디 또는 닉네임 입력"
                                     value={searchText}
                                     onChange={(e) => setSearchText(e.target.value)}
                                 />
@@ -180,23 +208,23 @@ function UserSelectContent() {
 
                     <ul className="nav nav-pills mb-2 flex-shrink-0">
                         <li className="nav-item">
-                            <a
-                                href="javascript:;"
+                            <button
+                                type="button"
                                 className={`nav-link ${activeTab === 'partner' ? 'active' : ''}`}
                                 onClick={() => setActiveTab('partner')}
                             >
-                                ???
-                            </a>
+                                파트너
+                            </button>
                         </li>
                         {!onlyPartner && (
                             <li className="nav-item">
-                                <a
-                                    href="javascript:;"
+                                <button
+                                    type="button"
                                     className={`nav-link ${activeTab === 'user' ? 'active' : ''}`}
                                     onClick={() => setActiveTab('user')}
                                 >
-                                    ??
-                                </a>
+                                    회원
+                                </button>
                             </li>
                         )}
                     </ul>
@@ -205,11 +233,11 @@ function UserSelectContent() {
                         {loading ? (
                             <div className="text-center p-5">
                                 <i className="fa fa-spinner fa-spin fa-2x text-muted mb-2"></i>
-                                <p className="text-muted">???? ???? ?...</p>
+                                <p className="text-muted">데이터 불러오는 중...</p>
                             </div>
                         ) : processedData.length === 0 ? (
                             <div className="text-center p-5">
-                                <p className="text-muted">?? ??? ????.</p>
+                                <p className="text-muted">표시할 데이터가 없습니다.</p>
                             </div>
                         ) : (
                             <div className="tree-container">
@@ -221,11 +249,13 @@ function UserSelectContent() {
                     <div className="row flex-shrink-0">
                         <div className="col text-center">
                             <button className="btn btn-success me-2 px-4" onClick={handleFinish}>
-                                <i className="fa fa-check me-2"></i>?? ??
+                                <i className="fa fa-check me-2"></i>선택 완료
                             </button>
-                            <button className="btn btn-secondary px-4" onClick={handleDeSelect}>
-                                <i className="fa-solid fa-xmark me-2"></i>?? ??
-                            </button>
+                            {showCancel && (
+                                <button className="btn btn-secondary px-4" onClick={handleDeSelect}>
+                                    <i className="fa-solid fa-xmark me-2"></i>선택 해제
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

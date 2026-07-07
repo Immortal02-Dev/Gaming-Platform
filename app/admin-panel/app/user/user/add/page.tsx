@@ -3,11 +3,16 @@
 import { useState, useEffect } from "react";
 
 export default function UserAddPage() {
+  // The backend API (`createUser`) requires: username, email_or_phone,
+  // and password. The original form used `userID` (instead of `username`)
+  // and `email` (instead of `email_or_phone`), which caused the API to
+  // reject the request with a “Username, email, and password are required”
+  // error. We now send `username` and `email_or_phone` correctly.
   const [formData, setFormData] = useState({
     parentUserID: "",
     parentUserIdx: "",
     userRoleIdx: "",
-    userID: "",
+    username: "", // renamed from userID
     nickName: "",
     password: "",
     passwordConfirm: "",
@@ -15,40 +20,55 @@ export default function UserAddPage() {
     bankIdx: "",
     bankerName: "",
     bankNumber: "",
+    // Backend expects `email_or_phone` (not `email`) for user creation
+    email_or_phone: "",
   });
 
-  // This would normally be fetched from an API
-  const [banks, setBanks] = useState<{ id: number; name: string }[]>([]);
+  // Mock bank data (would normally be fetched from an API)
+  const banks: { id: number; name: string }[] = [
+    { id: 1, name: "국민은행" },
+    { id: 2, name: "신한은행" },
+    { id: 3, name: "우리은행" },
+    { id: 4, name: "하나은행" },
+    { id: 5, name: "농협" },
+  ];
 
   useEffect(() => {
-    // Mock fetching banks
-    // fetch('/api/banks').then(res => res.json()).then(data => setBanks(data));
-    setBanks([
-      { id: 1, name: "국민은행" },
-      { id: 2, name: "신한은행" },
-      { id: 3, name: "우리은행" },
-      { id: 4, name: "하나은행" },
-      { id: 5, name: "농협" },
-      // Add more as needed
-    ]);
-
     // Handle window resize to match original popup size
     if (typeof window !== "undefined") {
       // window.resizeTo(750, 655); // Browsers often block this
     }
 
     // Expose function for popup callback
-    (window as any).fnSelectUser = (userIdx: string, text: string, child: any) => {
+    const fnSelectUser = (
+      userIdx: string | number,
+      text: string,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      _child: string,
+    ) => {
       setFormData((prev) => ({
         ...prev,
         parentUserID: text,
-        parentUserIdx: userIdx,
+        parentUserIdx: String(userIdx),
       }));
+    };
+
+    (
+      window as typeof window & { fnSelectUser?: typeof fnSelectUser }
+    ).fnSelectUser = fnSelectUser;
+
+    return () => {
+      // Cleanup: remove the global function when component unmounts
+      if (typeof window !== "undefined") {
+        delete (
+          window as typeof window & { fnSelectUser?: typeof fnSelectUser }
+        ).fnSelectUser;
+      }
     };
   }, []);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -68,7 +88,7 @@ export default function UserAddPage() {
     window.open(
       "/user/select?onlyPartner=true&checkOne=true",
       "userSelect",
-      `top=${nTop},left=${nLeft},width=${nWidth},height=${nHeight},status=no,menubar=no,toolbar=no`
+      `top=${nTop},left=${nLeft},width=${nWidth},height=${nHeight},status=no,menubar=no,toolbar=no`,
     );
   };
 
@@ -80,13 +100,25 @@ export default function UserAddPage() {
       return;
     }
 
+    // Map the form's `userRoleIdx` ("3" = partner, "4" = member) to the
+    // role value expected by the backend. The backend validates
+    // `username`, `email_or_phone` and `password`.
+    const role = formData.userRoleIdx === "3" ? "partner" : "user";
+
+    const payload = {
+      username: formData.username,
+      email_or_phone: formData.email_or_phone,
+      password: formData.password,
+      role,
+    };
+
     try {
-      const response = await fetch("/api/admin/user/add", {
+      const response = await fetch("/api/admin/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -96,8 +128,15 @@ export default function UserAddPage() {
         }
         window.close();
       } else {
-        const errorData = await response.json();
-        alert(errorData.message || "회원 등록에 실패했습니다.");
+        // Handle non-JSON responses (e.g., HTML error pages)
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+          alert(errorData.message || "회원 등록에 실패했습니다.");
+        } else {
+          // For non-JSON responses, show generic error with status
+          alert(`회원 등록에 실패했습니다. (상태 코드: ${response.status})`);
+        }
       }
     } catch (error) {
       console.error("Error adding user:", error);
@@ -169,11 +208,11 @@ export default function UserAddPage() {
               <div className="col col-9">
                 <input
                   type="text"
-                  name="userID"
+                  name="username"
                   id="userID"
                   className="form-control w-300px"
                   required
-                  value={formData.userID}
+                  value={formData.username}
                   onChange={handleChange}
                 />
               </div>
@@ -188,6 +227,20 @@ export default function UserAddPage() {
                   className="form-control w-300px"
                   required
                   value={formData.nickName}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div className="form-group row mb-2">
+              <label className="col-form-label col-3">이메일</label>
+              <div className="col col-9">
+                <input
+                  type="email"
+                  name="email_or_phone"
+                  id="email"
+                  className="form-control w-300px"
+                  required
+                  value={formData.email_or_phone}
                   onChange={handleChange}
                 />
               </div>
