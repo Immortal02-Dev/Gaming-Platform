@@ -60,7 +60,9 @@ export default function TabChangeLog({ userIdx }: TabChangeLogProps) {
     }, [userIdx, page, pageSize, startDate, endDate]);
 
     useEffect(() => {
-        fetchLogs();
+        setTimeout(() => {
+            fetchLogs();
+        }, 0);
     }, [fetchLogs]);
 
     const handleSearch = (e: React.FormEvent) => {

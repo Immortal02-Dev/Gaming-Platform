@@ -76,7 +76,9 @@ export default function TabCoupon({ userIdx }: TabCouponProps) {
     }, [userIdx, page, pageSize, startDate, endDate, searchDateType, searchText, searchType]);
 
     useEffect(() => {
-        fetchLogs();
+        setTimeout(() => {
+            fetchLogs();
+        }, 0);
     }, [fetchLogs]);
 
     const handleSearch = (e: React.FormEvent) => {

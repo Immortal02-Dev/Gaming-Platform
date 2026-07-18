@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react";
 
+const BACKEND_URL = ""; // Use relative path for proxy
+
 interface UserData {
   userIdx?: number;
   id?: string;
@@ -80,7 +82,9 @@ export default function TabBasicInfo({ user, onSaved }: TabBasicInfoProps) {
   }
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -124,12 +128,15 @@ export default function TabBasicInfo({ user, onSaved }: TabBasicInfoProps) {
         body.password = formData.password;
       }
 
-      const res = await fetch(`/api/admin/users/${user.userIdx}`, {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+      const res = await fetch(
+        `${BACKEND_URL}/api/admin/users/${user.userIdx}`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        },
+      );
 
       const data = await res.json();
       if (data.success) {
@@ -148,7 +155,12 @@ export default function TabBasicInfo({ user, onSaved }: TabBasicInfoProps) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input type="hidden" name="userIdx" value={user?.userIdx || ""} readOnly />
+      <input
+        type="hidden"
+        name="userIdx"
+        value={user?.userIdx || ""}
+        readOnly
+      />
       <table className="table table-bordered table-responsive align-middle bg-white text-center fw-bold">
         <tbody>
           <tr>
@@ -163,7 +175,10 @@ export default function TabBasicInfo({ user, onSaved }: TabBasicInfoProps) {
                 >
                   {user?.role || "부본사"}
                 </span>
-                <label className="col-form-label w-auto" id="warningColorEnable">
+                <label
+                  className="col-form-label w-auto"
+                  id="warningColorEnable"
+                >
                   {user?.id || ""}
                 </label>
                 <select
@@ -172,10 +187,19 @@ export default function TabBasicInfo({ user, onSaved }: TabBasicInfoProps) {
                   id="warningColorIdx"
                   value={formData.warningColorIdx}
                   onChange={handleChange}
+                  style={{
+                    backgroundColor:
+                      formData.warningColorIdx === "1"
+                        ? "#6aa84f"
+                        : formData.warningColorIdx === "2"
+                          ? "#744700"
+                          : "#fff",
+                    color: formData.warningColorIdx ? "#fff" : "#000",
+                  }}
                 >
-                  <option value="" style={{ backgroundColor: "#fff" }} />
-                  <option value="1" style={{ backgroundColor: "#6aa84f" }} />
-                  <option value="2" style={{ backgroundColor: "#744700" }} />
+                  <option value="" style={{ backgroundColor: "#fff", color: "#000" }}>기본</option>
+                  <option value="1" style={{ backgroundColor: "#6aa84f", color: "#fff" }}>주의</option>
+                  <option value="2" style={{ backgroundColor: "#744700", color: "#fff" }}>경고</option>
                 </select>
               </div>
             </td>
@@ -324,7 +348,9 @@ export default function TabBasicInfo({ user, onSaved }: TabBasicInfoProps) {
                         name={`userGameGroupGrade[${idx + 1}]`}
                         className="form-select w-auto"
                         value={formData.gameLevel[idx + 1] ?? 1}
-                        onChange={(e) => handleGameLevelChange(idx + 1, e.target.value)}
+                        onChange={(e) =>
+                          handleGameLevelChange(idx + 1, e.target.value)
+                        }
                       >
                         {Array.from({ length: 15 }, (_, i) => i + 1).map(
                           (level) => (

@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 
-interface TabCommissionProps {
-    userIdx: string | null;
-}
-
-export default function TabCommission({ userIdx }: TabCommissionProps) {
+export default function TabCommission() {
     const [gameGroup, setGameGroup] = useState("0"); // 0: Common, 2: Casino/Slot, 5: Board, 4: Mini, 1: Sport
     const [boardGameTab, setBoardGameTab] = useState("play"); // play, papa, wild, ...
 

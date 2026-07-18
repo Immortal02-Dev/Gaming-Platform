@@ -51,7 +51,8 @@ export default function SettingPage() {
   const couponMemoRef = useRef<HTMLTextAreaElement>(null);
 
   // Initialise with defaults so every toggle shows an active state immediately
-  const [settings, setSettings] = useState<Record<string, string>>(DEFAULT_SETTINGS);
+  const [settings, setSettings] =
+    useState<Record<string, string>>(DEFAULT_SETTINGS);
 
   // The backend exposes: GET /api/admin/settings  and  PUT /api/admin/settings/:key
   // The proxy at /api/[...path] forwards /api/* → backend /api/*
@@ -121,6 +122,7 @@ export default function SettingPage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (typeof window === "undefined" || !(window as any).ClassicEditor) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const uploadPlugin = (window as any).CkUploadAdapterPlugin;
     if (!uploadPlugin) {
       console.error("CkUploadAdapterPlugin is not defined");

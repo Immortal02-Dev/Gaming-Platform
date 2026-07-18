@@ -70,8 +70,10 @@ export default function TabInquiry({ userIdx }: TabInquiryProps) {
   }, [userIdx, page, pageSize, searchText, searchType]);
 
   useEffect(() => {
-    fetchLogs();
-  }, [fetchLogs]);
+        setTimeout(() => {
+            fetchLogs();
+        }, 0);
+    }, [fetchLogs]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,10 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
-interface TabEmptyBetProps {
-    userIdx: string | null;
-}
-
-export default function TabEmptyBet({ userIdx }: TabEmptyBetProps) {
+export default function TabEmptyBet({}: { userIdx?: string | null }) {
     return (
         <div>
             {/* Casino Empty Bet Settings */}

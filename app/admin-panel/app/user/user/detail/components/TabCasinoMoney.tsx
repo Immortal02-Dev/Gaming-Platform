@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 
 interface TabCasinoMoneyProps {
-    userIdx: string | null;
 }
 
-export default function TabCasinoMoney({ userIdx }: TabCasinoMoneyProps) {
+export default function TabCasinoMoney({}: TabCasinoMoneyProps) {
     const [money, setMoney] = useState("");
 
     const handleAddAmount = (amount: number) => {

@@ -69,7 +69,9 @@ export default function TabPointLog({ userIdx }: TabPointLogProps) {
     }, [userIdx, page, pageSize, startDate, endDate, logTypeGroup, logType, searchText]);
 
     useEffect(() => {
-        fetchLogs();
+        setTimeout(() => {
+            fetchLogs();
+        }, 0);
     }, [fetchLogs]);
 
     // Mapping for dependent dropdowns

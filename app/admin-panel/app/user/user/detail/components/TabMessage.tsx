@@ -71,7 +71,9 @@ export default function TabMessage({ userIdx, onWriteMessage }: TabMessageProps)
     }, [userIdx, page, pageSize, searchText, searchType]);
 
     useEffect(() => {
-        fetchLogs();
+        setTimeout(() => {
+            fetchLogs();
+        }, 0);
     }, [fetchLogs]);
 
     return (

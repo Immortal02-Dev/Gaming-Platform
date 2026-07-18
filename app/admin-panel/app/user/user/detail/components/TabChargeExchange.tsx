@@ -75,7 +75,9 @@ export default function TabChargeExchange({ userIdx }: TabChargeExchangeProps) {
     }, [userIdx, moneyType, page, pageSize, startDate, endDate, status]);
 
     useEffect(() => {
-        fetchLogs();
+        setTimeout(() => {
+            fetchLogs();
+        }, 0);
     }, [fetchLogs]);
 
     return (

@@ -76,10 +76,12 @@ export default function TabBettingLog({ userIdx }: TabBettingLogProps) {
         } finally {
             setLoading(false);
         }
-    }, [userIdx, filterType, page, pageSize]);
+    }, [userIdx, filterType, page, pageSize, startDate, endDate, vendorIdx]);
 
     useEffect(() => {
-        fetchLogs();
+        setTimeout(() => {
+            fetchLogs();
+        }, 0);
     }, [fetchLogs]);
 
     return (

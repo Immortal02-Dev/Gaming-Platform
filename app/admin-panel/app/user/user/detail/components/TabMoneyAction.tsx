@@ -50,6 +50,17 @@ export default function TabMoneyAction({ user }: TabMoneyActionProps) {
                 }),
             });
 
+            if (!response.ok) {
+                const text = await response.text();
+                try {
+                    const data = JSON.parse(text);
+                    alert(data.error || data.message || "실패했습니다.");
+                } catch {
+                    alert(`서버 오류가 발생했습니다. (${response.status})`);
+                }
+                return;
+            }
+
             const result = await response.json();
             if (result.success) {
                 alert("저장되었습니다.");

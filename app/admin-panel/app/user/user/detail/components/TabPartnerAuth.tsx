@@ -1,10 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
-interface TabPartnerAuthProps {
-    userIdx: string | null;
-}
-
-export default function TabPartnerAuth({ userIdx }: TabPartnerAuthProps) {
+export default function TabPartnerAuth({}: { userIdx?: string | null }) {
     return (
         <form onSubmit={(e) => { e.preventDefault(); alert("Saved"); }}>
             <h5><i className="fa fa-cog me-1" />파트너 권한 설정</h5>
