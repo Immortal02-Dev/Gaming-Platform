@@ -1,7 +1,47 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Layout from "@/components/Layout";
+
+// ─── Sensible defaults for every toggle/select so buttons always show an active state ───
+const DEFAULT_SETTINGS: Record<string, string> = {
+  // Site status
+  userSiteStatus: "1",
+  partnerSiteStatus: "1",
+  // Site settings
+  partnerUserWebLoginYN: "1",
+  partnerUserWebInoutYN: "1",
+  moneyInoutTransferAuto: "0",
+  invalidBettingCommission: "0",
+  perfectPairWithdraw: "0",
+  isRegisterParentFollow: "0",
+  // User site settings
+  userSiteExchangePasswordUseYN: "0",
+  messageReadRequiredUse: "0",
+  userSiteCaptchaUseYN: "0",
+  userSitePasswordEditYN: "1",
+  isUserDuplicateLogin: "0",
+  // Partner site settings
+  partnerSiteExchangePasswordUseYN: "0",
+  partnerMessageReadRequiredUse: "0",
+  partnerSiteCaptchaUseYN: "0",
+  isPartnerDuplicateLogin: "0",
+  partnerBankCheck: "0",
+  // Registration
+  registerApproval: "0",
+  recommendUse: "0",
+  // Charge / exchange
+  chargeStatus: "1",
+  exchangeStatus: "1",
+  // Bonus selects
+  firstChargeBonus: "1",
+  everyChargeBonus: "1",
+  siteIntegrateChargeBonusUseYN: "",
+  partnerFirstChargeBonus: "1",
+  partnerFirstChargeExchange: "1",
+  partnerEveryChargeBonus: "1",
+  partnerEveryChargeExchange: "0",
+};
 
 export default function SettingPage() {
   // Refs for the textareas to be converted into CKEditor
@@ -10,102 +50,95 @@ export default function SettingPage() {
   const exchangeNoticeRef = useRef<HTMLTextAreaElement>(null);
   const couponMemoRef = useRef<HTMLTextAreaElement>(null);
 
-  const [settings, setSettings] = useState<Record<string, string>>({});
+  // Initialise with defaults so every toggle shows an active state immediately
+  const [settings, setSettings] = useState<Record<string, string>>(DEFAULT_SETTINGS);
 
-  const BACKEND_URL = ""; // Use relative path for proxy
+  // The backend exposes: GET /api/admin/settings  and  PUT /api/admin/settings/:key
+  // The proxy at /api/[...path] forwards /api/* → backend /api/*
+  const API_BASE = "/api/admin";
 
   const updateSetting = useCallback(
     async (key: string, value: string) => {
       try {
-        const res = await fetch(
-          `${BACKEND_URL}/api/admin/site-setting/${key}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ value }),
-            credentials: "include",
-          }
-        );
+        const res = await fetch(`${API_BASE}/settings/${key}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ value }),
+          credentials: "include",
+        });
         if (!res.ok) throw new Error("Update failed");
       } catch (error) {
         console.error(`Failed to update ${key}:`, error);
       }
     },
-    [BACKEND_URL]
+    [API_BASE],
   );
 
   const handleChange = useCallback(
     (
       e: React.ChangeEvent<
         HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-      >
+      >,
     ) => {
-      const id = e.target.id;
+      const id = e.target.id || e.target.name;
       const value = e.target.value;
       setSettings((prev) => ({ ...prev, [id]: value }));
       updateSetting(id, value);
     },
-    [updateSetting]
+    [updateSetting],
   );
 
+  /**
+   * Toggle button IDs use underscore as delimiter: `settingKey_value`
+   * e.g. id="chargeStatus_1"  →  key="chargeStatus", value="1"
+   * Falls back to last-hyphen-segment split for any legacy IDs.
+   */
   const handleToggle = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
-      const parts = e.currentTarget.id.split("-");
-      const key = parts[0];
-      const value = parts[1];
+      const rawId = e.currentTarget.id;
+      let key: string;
+      let value: string;
+      const lastUnderscore = rawId.lastIndexOf("_");
+      if (lastUnderscore !== -1) {
+        key = rawId.slice(0, lastUnderscore);
+        value = rawId.slice(lastUnderscore + 1);
+      } else {
+        const parts = rawId.split("-");
+        value = parts[parts.length - 1];
+        key = parts.slice(0, -1).join("-");
+      }
       setSettings((prev) => ({ ...prev, [key]: value }));
       updateSetting(key, value);
     },
-    [updateSetting]
+    [updateSetting],
   );
 
   const handleSave = useCallback(() => {
     alert("설정 저장되었습니다.");
   }, []);
 
-  const loadSettings = useCallback(async () => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/admin/site-setting`, {
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setSettings(data.data || {});
-        // Set CKEditor textarea values
-        if (chargeNoticeRef.current)
-          chargeNoticeRef.current.value = data.data?.chargeNotice || "";
-        if (paybackNoticeRef.current)
-          paybackNoticeRef.current.value = data.data?.paybackNotice || "";
-        if (exchangeNoticeRef.current)
-          exchangeNoticeRef.current.value = data.data?.exchangeNotice || "";
-        if (couponMemoRef.current)
-          couponMemoRef.current.value = data.data?.couponMemo || "";
-        // Re-init CKEditors
-        setTimeout(() => {
-          if (typeof window !== "undefined" && (window as any).ClassicEditor) {
-            initCKEditors();
-          }
-        }, 100);
-      }
-    } catch (error) {
-      console.error("Load settings failed:", error);
-    }
-  }, [BACKEND_URL]);
-
   const initCKEditors = useCallback(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (typeof window === "undefined" || !(window as any).ClassicEditor) return;
 
+    const uploadPlugin = (window as any).CkUploadAdapterPlugin;
+    if (!uploadPlugin) {
+      console.error("CkUploadAdapterPlugin is not defined");
+      return;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const commonConfig = {
-      extraPlugins: [(window as any).CkUploadAdapterPlugin],
+      extraPlugins: [uploadPlugin],
     };
 
     if (chargeNoticeRef.current) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).ClassicEditor.create(
         chargeNoticeRef.current,
-        commonConfig
+        commonConfig,
       )
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .then((editor: any) => {
           editor.model.document.on("change:data", () => {
             const data = editor.getData();
@@ -117,10 +150,12 @@ export default function SettingPage() {
     }
 
     if (paybackNoticeRef.current) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).ClassicEditor.create(
         paybackNoticeRef.current,
-        commonConfig
+        commonConfig,
       )
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .then((editor: any) => {
           editor.model.document.on("change:data", () => {
             const data = editor.getData();
@@ -132,10 +167,12 @@ export default function SettingPage() {
     }
 
     if (exchangeNoticeRef.current) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).ClassicEditor.create(
         exchangeNoticeRef.current,
-        commonConfig
+        commonConfig,
       )
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .then((editor: any) => {
           editor.model.document.on("change:data", () => {
             const data = editor.getData();
@@ -147,7 +184,9 @@ export default function SettingPage() {
     }
 
     if (couponMemoRef.current) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).ClassicEditor.create(couponMemoRef.current, commonConfig)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .then((editor: any) => {
           editor.model.document.on("change:data", () => {
             const data = editor.getData();
@@ -159,18 +198,54 @@ export default function SettingPage() {
     }
   }, [updateSetting]);
 
+  const loadSettings = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/settings`, {
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const loaded = data.data || {};
+        // Merge over defaults – keys missing from the backend keep their sensible default
+        setSettings({ ...DEFAULT_SETTINGS, ...loaded });
+        if (chargeNoticeRef.current)
+          chargeNoticeRef.current.value = loaded?.chargeNotice || "";
+        if (paybackNoticeRef.current)
+          paybackNoticeRef.current.value = loaded?.paybackNotice || "";
+        if (exchangeNoticeRef.current)
+          exchangeNoticeRef.current.value = loaded?.exchangeNotice || "";
+        if (couponMemoRef.current)
+          couponMemoRef.current.value = loaded?.couponMemo || "";
+        setTimeout(() => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if (typeof window !== "undefined" && (window as any).ClassicEditor) {
+            initCKEditors();
+          }
+        }, 100);
+      }
+    } catch (error) {
+      console.error("Load settings failed:", error);
+    }
+  }, [API_BASE, initCKEditors]);
+
   useEffect(() => {
-    loadSettings();
+    setTimeout(() => {
+      loadSettings();
+    }, 0);
   }, [loadSettings]);
+
+  /** Helper: active class for toggle buttons */
+  const activeClass = (
+    key: string,
+    val: string,
+    colorClass: string = "btn-green",
+  ) =>
+    String(settings[key] ?? "") === String(val)
+      ? ` ${colorClass} active`
+      : " btn-default";
+
   return (
     <Layout>
-      <style jsx>{`
-        .userDuplicateColor .sp-replacer,
-        .warningUserColor .sp-replacer {
-          height: 34px;
-          width: 50px;
-        }
-      `}</style>
       <h1 className="page-header">
         <a href="/setting/site">
           <i className="fa fa-cog me-2"></i>사이트 설정
@@ -179,7 +254,9 @@ export default function SettingPage() {
       </h1>
 
       <div className="row">
+        {/* ─────────────── Column 1 ─────────────── */}
         <div className="col-xl-3 col-lg-6 col-md-6">
+          {/* 사이트 점검 */}
           <div className="panel panel-inverse" data-sortable-id="form-1">
             <div className="panel-heading">
               <h4 className="panel-title">
@@ -193,7 +270,6 @@ export default function SettingPage() {
                   href="javascript:;"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
-                  data-tooltip-init="true"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
@@ -221,16 +297,16 @@ export default function SettingPage() {
                 <div className="btn-group">
                   <button
                     type="button"
-                    id="userSiteStatus-0"
-                    className="btn btn-default"
+                    id="userSiteStatus_0"
+                    className={`btn${activeClass("userSiteStatus", "0", "btn-danger")}`}
                     onClick={handleToggle}
                   >
                     점검중
                   </button>
                   <button
                     type="button"
-                    id="userSiteStatus-1"
-                    className="btn btn-default btn-green"
+                    id="userSiteStatus_1"
+                    className={`btn${activeClass("userSiteStatus", "1", "btn-green")}`}
                     onClick={handleToggle}
                   >
                     운영중
@@ -243,7 +319,11 @@ export default function SettingPage() {
                     rows={5}
                     className="w-100"
                     placeholder="점검 내용"
-                    defaultValue="<p>긴급서버점검중!!!</p><p>안녕하세요.&nbsp;</p><p>서버보안 및 속도 개선을 위한 점검으로 현재 이용이 불가합니다.</p><p>양해 부탁드리며, 최대한 빠른 점검 후 정상적인 이용이 가능하도록 최대한 노력하겠습니다.&nbsp;</p><p>서버 점검 시간 중 문의사항은 24시 실시간 텔레그램으로 연락 바랍니다.&nbsp;</p><p>감사합니다.</p>"
+                    value={
+                      settings.userSiteInspectionNotice ||
+                      "<p>긴급서버점검중!!!</p>"
+                    }
+                    onChange={handleChange}
                   />
                 </div>
               </div>
@@ -251,22 +331,19 @@ export default function SettingPage() {
                 <h6>
                   <i className="fa fa-genderless me-2"></i>파트너 웹사이트
                 </h6>
-                <div
-                  className="btn-group btn-group-toggle"
-                  data-toggle="buttons"
-                >
+                <div className="btn-group">
                   <button
                     type="button"
-                    id="partnerSiteStatus-0"
-                    className="btn btn-default"
+                    id="partnerSiteStatus_0"
+                    className={`btn${activeClass("partnerSiteStatus", "0", "btn-danger")}`}
                     onClick={handleToggle}
                   >
                     점검중
                   </button>
                   <button
                     type="button"
-                    id="partnerSiteStatus-1"
-                    className="btn btn-default btn-green"
+                    id="partnerSiteStatus_1"
+                    className={`btn${activeClass("partnerSiteStatus", "1", "btn-green")}`}
                     onClick={handleToggle}
                   >
                     운영중
@@ -279,7 +356,11 @@ export default function SettingPage() {
                     rows={5}
                     className="w-100"
                     placeholder="점검 내용"
-                    defaultValue="<p>파트너 사이트 점검중~!</p><p>서버보안 및 속도 개선을 위한 점검으로 현재 이용이 불가합니다.</p><p>&nbsp;</p>"
+                    value={
+                      settings.partnerSiteInspectionNotice ||
+                      "<p>파트너 사이트 점검중~!</p>"
+                    }
+                    onChange={handleChange}
                   />
                 </div>
               </div>
@@ -288,7 +369,7 @@ export default function SettingPage() {
                   <button
                     type="button"
                     className="btn btn-success"
-                    onClick={() => console.log("Save site inspection notice")}
+                    onClick={handleSave}
                   >
                     <i className="fa fa-save me-1"></i>저장
                   </button>
@@ -297,6 +378,7 @@ export default function SettingPage() {
             </div>
           </div>
 
+          {/* 사이트 설정 */}
           <div className="panel panel-inverse" data-sortable-id="form-7">
             <div className="panel-heading">
               <h4 className="panel-title">
@@ -310,7 +392,6 @@ export default function SettingPage() {
                   href="javascript:;"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
-                  data-tooltip-init="true"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
@@ -339,7 +420,7 @@ export default function SettingPage() {
                       type="text"
                       id="siteName"
                       className="form-control"
-                      value={settings.siteName || "샘플1"}
+                      value={settings.siteName || ""}
                       onChange={handleChange}
                     />
                   </div>
@@ -371,21 +452,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="partnerUserWebLoginYN-0"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle partner user web login to 0")
-                      }
+                      id="partnerUserWebLoginYN_0"
+                      className={`btn${activeClass("partnerUserWebLoginYN", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       허용 안함
                     </button>
                     <button
                       type="button"
-                      id="partnerUserWebLoginYN-1"
-                      className="btn btn-default btn-green"
-                      onClick={() =>
-                        console.log("Toggle partner user web login to 1")
-                      }
+                      id="partnerUserWebLoginYN_1"
+                      className={`btn${activeClass("partnerUserWebLoginYN", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       허용
                     </button>
@@ -401,21 +478,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="partnerUserWebInoutYN-0"
-                      className="btn btn-default btn-danger"
-                      onClick={() =>
-                        console.log("Toggle partner user web inout to 0")
-                      }
+                      id="partnerUserWebInoutYN_0"
+                      className={`btn${activeClass("partnerUserWebInoutYN", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       허용 안함
                     </button>
                     <button
                       type="button"
-                      id="partnerUserWebInoutYN-1"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle partner user web inout to 1")
-                      }
+                      id="partnerUserWebInoutYN_1"
+                      className={`btn${activeClass("partnerUserWebInoutYN", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       허용
                     </button>
@@ -431,21 +504,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="moneyInoutTransferAuto-0"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle money inout transfer auto to 0")
-                      }
+                      id="moneyInoutTransferAuto_0"
+                      className={`btn${activeClass("moneyInoutTransferAuto", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       사용 안함
                     </button>
                     <button
                       type="button"
-                      id="moneyInoutTransferAuto-1"
-                      className="btn btn-default btn-green"
-                      onClick={() =>
-                        console.log("Toggle money inout transfer auto to 1")
-                      }
+                      id="moneyInoutTransferAuto_1"
+                      className={`btn${activeClass("moneyInoutTransferAuto", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       사용
                     </button>
@@ -461,21 +530,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="invalidBettingCommission-0"
-                      className="btn btn-default btn-danger"
-                      onClick={() =>
-                        console.log("Toggle invalid betting commission to 0")
-                      }
+                      id="invalidBettingCommission_0"
+                      className={`btn${activeClass("invalidBettingCommission", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       미포함
                     </button>
                     <button
                       type="button"
-                      id="invalidBettingCommission-1"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle invalid betting commission to 1")
-                      }
+                      id="invalidBettingCommission_1"
+                      className={`btn${activeClass("invalidBettingCommission", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       포함
                     </button>
@@ -491,21 +556,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="perfectPairWithdraw-0"
-                      className="btn btn-default btn-danger"
-                      onClick={() =>
-                        console.log("Toggle perfect pair withdraw to 0")
-                      }
+                      id="perfectPairWithdraw_0"
+                      className={`btn${activeClass("perfectPairWithdraw", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       미사용
                     </button>
                     <button
                       type="button"
-                      id="perfectPairWithdraw-1"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle perfect pair withdraw to 1")
-                      }
+                      id="perfectPairWithdraw_1"
+                      className={`btn${activeClass("perfectPairWithdraw", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       사용
                     </button>
@@ -518,12 +579,12 @@ export default function SettingPage() {
                   중복정보 ID 색 지정
                 </label>
                 <div className="col-md-7">
-                  <div className="btn-group userDuplicateColor d-inline-flex">
+                  <div className="d-inline-flex">
                     <input
-                      type="text"
+                      type="color"
                       name="userDuplicateColor"
                       id="userDuplicateColor"
-                      className="color-picker mt-2"
+                      className="form-control form-control-color mt-2"
                       value={settings.userDuplicateColor || "#f44336"}
                       onChange={handleChange}
                     />
@@ -539,12 +600,12 @@ export default function SettingPage() {
                   주의회원 색 지정
                 </label>
                 <div className="col-md-7">
-                  <div className="btn-group warningUserColor d-inline-flex">
+                  <div className="d-inline-flex">
                     <input
-                      type="text"
+                      type="color"
                       name="warningUserColor"
                       id="warningUserColor"
-                      className="color-picker mt-2"
+                      className="form-control form-control-color mt-2"
                       value={settings.warningUserColor || "#6aa84f"}
                       onChange={handleChange}
                     />
@@ -560,12 +621,12 @@ export default function SettingPage() {
                   주의회원2 색 지정
                 </label>
                 <div className="col-md-7">
-                  <div className="btn-group warningUserColor d-inline-flex">
+                  <div className="d-inline-flex">
                     <input
-                      type="text"
+                      type="color"
                       name="warningUserColor2"
                       id="warningUserColor2"
-                      className="color-picker mt-2"
+                      className="form-control form-control-color mt-2"
                       value={settings.warningUserColor2 || "#744700"}
                       onChange={handleChange}
                     />
@@ -584,21 +645,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="isRegisterParentFollow-0"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle register parent follow to 0")
-                      }
+                      id="isRegisterParentFollow_0"
+                      className={`btn${activeClass("isRegisterParentFollow", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       개별설정
                     </button>
                     <button
                       type="button"
-                      id="isRegisterParentFollow-1"
-                      className="btn btn-default btn-green"
-                      onClick={() =>
-                        console.log("Toggle register parent follow to 1")
-                      }
+                      id="isRegisterParentFollow_1"
+                      className={`btn${activeClass("isRegisterParentFollow", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       상부동일
                     </button>
@@ -616,7 +673,8 @@ export default function SettingPage() {
                       type="text"
                       id="kakaoQnaID"
                       className="form-control"
-                      defaultValue=""
+                      value={settings.kakaoQnaID || ""}
+                      onChange={handleChange}
                     />
                   </div>
                 </div>
@@ -632,7 +690,8 @@ export default function SettingPage() {
                       type="text"
                       id="telegramQnaID"
                       className="form-control"
-                      defaultValue=""
+                      value={settings.telegramQnaID || ""}
+                      onChange={handleChange}
                     />
                   </div>
                 </div>
@@ -643,7 +702,7 @@ export default function SettingPage() {
                   <button
                     type="button"
                     className="btn btn-success"
-                    onClick={() => console.log("Save default settings")}
+                    onClick={handleSave}
                   >
                     <i className="fa fa-save me-1"></i>저장
                   </button>
@@ -652,6 +711,7 @@ export default function SettingPage() {
             </div>
           </div>
 
+          {/* 롤링 공지 설정 */}
           <div className="panel panel-inverse" data-sortable-id="form-8">
             <div className="panel-heading">
               <h4 className="panel-title">
@@ -665,7 +725,6 @@ export default function SettingPage() {
                   href="javascript:;"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
-                  data-tooltip-init="true"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
@@ -690,30 +749,39 @@ export default function SettingPage() {
                 <div className="col d-inline-flex">
                   <div className="col-form-label w-auto py-1">
                     <input
-                      type="text"
+                      type="color"
+                      id="noticeRollingColor"
                       name="noticeRollingColor"
-                      className="color-picker mt-2"
+                      className="form-control form-control-color mt-2"
+                      value={settings.noticeRollingColor || "#000000"}
+                      onChange={handleChange}
                     />
                   </div>
                   <input
                     type="text"
+                    id="noticeRollingContent"
                     name="noticeRollingContent"
                     className="form-control ms-2"
                     placeholder="500자 까지 등록 가능"
+                    value={settings.noticeRollingContent || ""}
+                    onChange={handleChange}
                   />
-                  <a
-                    href="javascript:void(0);"
+                  <button
+                    type="button"
                     className="btn btn-success text-white text-nowrap ms-2"
-                    onClick={() => console.log("Add new rolling notice")}
+                    onClick={handleSave}
                   >
                     <i className="fa-solid fa-plus me-2"></i>추가
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* ─────────────── Column 2 ─────────────── */}
         <div className="col-xl-3 col-lg-6 col-md-6">
+          {/* 유저 사이트 설정 */}
           <div className="panel panel-inverse" data-sortable-id="form-9">
             <div className="panel-heading">
               <h4 className="panel-title">
@@ -727,7 +795,6 @@ export default function SettingPage() {
                   href="javascript:;"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
-                  data-tooltip-init="true"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
@@ -757,8 +824,9 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="pointTransformMin"
-                      className="form-control amount"
-                      defaultValue="1000"
+                      className="form-control"
+                      value={settings.pointTransformMin || "1000"}
+                      onChange={handleChange}
                     />
                     <label className="input-group-text col-form-label px-2">
                       P
@@ -766,6 +834,7 @@ export default function SettingPage() {
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-5">
                   포인트 전환 최소 단위
@@ -773,10 +842,11 @@ export default function SettingPage() {
                 <div className="col-md-7">
                   <div className="d-inline-flex">
                     <select
-                      name="pointTransformMinUnit"
                       id="pointTransformMinUnit"
+                      name="pointTransformMinUnit"
                       className="form-select w-auto"
-                      defaultValue=""
+                      value={settings.pointTransformMinUnit || ""}
+                      onChange={handleChange}
                     >
                       <option value="">선택 안함</option>
                       <option value="10">10 P</option>
@@ -786,6 +856,7 @@ export default function SettingPage() {
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-5">
                   충환전 최소 단위
@@ -796,10 +867,11 @@ export default function SettingPage() {
                       충전
                     </label>
                     <select
-                      name="chargeMinUnit"
                       id="chargeMinUnit"
+                      name="chargeMinUnit"
                       className="form-select"
-                      defaultValue=""
+                      value={settings.chargeMinUnit || ""}
+                      onChange={handleChange}
                     >
                       <option value="">선택 안함</option>
                       <option value="100">100원</option>
@@ -811,10 +883,11 @@ export default function SettingPage() {
                       환전
                     </label>
                     <select
-                      name="exchangeMinUnit"
                       id="exchangeMinUnit"
+                      name="exchangeMinUnit"
                       className="form-select"
-                      defaultValue=""
+                      value={settings.exchangeMinUnit || ""}
+                      onChange={handleChange}
                     >
                       <option value="">선택 안함</option>
                       <option value="100">100원</option>
@@ -825,6 +898,7 @@ export default function SettingPage() {
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-5">
                   충전 재신청 대기시간
@@ -834,8 +908,9 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="chargeRequestDelayTime"
-                      className="form-control amount"
-                      defaultValue="0"
+                      className="form-control"
+                      value={settings.chargeRequestDelayTime || "0"}
+                      onChange={handleChange}
                     />
                     <label className="input-group-text col-form-label">
                       분
@@ -843,6 +918,7 @@ export default function SettingPage() {
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-5">
                   환전 재신청 대기시간
@@ -852,8 +928,9 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="exchangeRequestDelayTime"
-                      className="form-control amount"
-                      defaultValue="0"
+                      className="form-control"
+                      value={settings.exchangeRequestDelayTime || "0"}
+                      onChange={handleChange}
                     />
                     <label className="input-group-text col-form-label">
                       분
@@ -868,21 +945,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="userSiteExchangePasswordUseYN-0"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle user site exchange password to 0")
-                      }
+                      id="userSiteExchangePasswordUseYN_0"
+                      className={`btn${activeClass("userSiteExchangePasswordUseYN", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       사용 안함
                     </button>
                     <button
                       type="button"
-                      id="userSiteExchangePasswordUseYN-1"
-                      className="btn btn-default btn-green"
-                      onClick={() =>
-                        console.log("Toggle user site exchange password to 1")
-                      }
+                      id="userSiteExchangePasswordUseYN_1"
+                      className={`btn${activeClass("userSiteExchangePasswordUseYN", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       사용
                     </button>
@@ -898,21 +971,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="messageReadRequiredUse-0"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle message read required to 0")
-                      }
+                      id="messageReadRequiredUse_0"
+                      className={`btn${activeClass("messageReadRequiredUse", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       사용 안함
                     </button>
                     <button
                       type="button"
-                      id="messageReadRequiredUse-1"
-                      className="btn btn-default btn-green"
-                      onClick={() =>
-                        console.log("Toggle message read required to 1")
-                      }
+                      id="messageReadRequiredUse_1"
+                      className={`btn${activeClass("messageReadRequiredUse", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       사용
                     </button>
@@ -928,21 +997,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="userSiteCaptchaUseYN-0"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle user site captcha to 0")
-                      }
+                      id="userSiteCaptchaUseYN_0"
+                      className={`btn${activeClass("userSiteCaptchaUseYN", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       사용 안함
                     </button>
                     <button
                       type="button"
-                      id="userSiteCaptchaUseYN-1"
-                      className="btn btn-default btn-green"
-                      onClick={() =>
-                        console.log("Toggle user site captcha to 1")
-                      }
+                      id="userSiteCaptchaUseYN_1"
+                      className={`btn${activeClass("userSiteCaptchaUseYN", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       사용
                     </button>
@@ -957,15 +1022,16 @@ export default function SettingPage() {
                 <div className="col-md-7">
                   <div className="d-inline-flex">
                     <select
-                      name="loginFailBlockCount"
                       id="loginFailBlockCount"
+                      name="loginFailBlockCount"
                       className="form-select w-auto"
-                      defaultValue=""
+                      value={settings.loginFailBlockCount || ""}
+                      onChange={handleChange}
                     >
                       <option value="">사용 안함</option>
                       <option value="3">3회 실패시 차단</option>
                       <option value="5">5회 실패시 차단</option>
-                      <option value="5">7회 실패시 차단</option>
+                      <option value="7">7회 실패시 차단</option>
                       <option value="10">10회 실패시 차단</option>
                     </select>
                   </div>
@@ -979,26 +1045,20 @@ export default function SettingPage() {
                 <div className="col-md-7">
                   <div className="d-inline-flex">
                     <select
-                      name="pointHistoryDay"
                       id="pointHistoryDay"
+                      name="pointHistoryDay"
                       className="form-select w-auto"
-                      defaultValue=""
+                      value={settings.pointHistoryDay || ""}
+                      onChange={handleChange}
                     >
                       <option value="">사용 안함</option>
-                      <option value="1">1일</option>
-                      <option value="2">2일</option>
-                      <option value="3">3일</option>
-                      <option value="4">4일</option>
-                      <option value="5">5일</option>
-                      <option value="6">6일</option>
-                      <option value="7">7일</option>
-                      <option value="8">8일</option>
-                      <option value="9">9일</option>
-                      <option value="10">10일</option>
-                      <option value="15">15일</option>
-                      <option value="20">20일</option>
-                      <option value="25">25일</option>
-                      <option value="30">30일</option>
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30].map(
+                        (d) => (
+                          <option key={d} value={String(d)}>
+                            {d}일
+                          </option>
+                        ),
+                      )}
                     </select>
                   </div>
                 </div>
@@ -1011,26 +1071,20 @@ export default function SettingPage() {
                 <div className="col-md-7">
                   <div className="d-inline-flex">
                     <select
-                      name="betHistoryDay"
                       id="betHistoryDay"
+                      name="betHistoryDay"
                       className="form-select w-auto"
-                      defaultValue=""
+                      value={settings.betHistoryDay || ""}
+                      onChange={handleChange}
                     >
                       <option value="">사용 안함</option>
-                      <option value="1">1일</option>
-                      <option value="2">2일</option>
-                      <option value="3">3일</option>
-                      <option value="4">4일</option>
-                      <option value="5">5일</option>
-                      <option value="6">6일</option>
-                      <option value="7">7일</option>
-                      <option value="8">8일</option>
-                      <option value="9">9일</option>
-                      <option value="10">10일</option>
-                      <option value="15">15일</option>
-                      <option value="20">20일</option>
-                      <option value="25">25일</option>
-                      <option value="30">30일</option>
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30].map(
+                        (d) => (
+                          <option key={d} value={String(d)}>
+                            {d}일
+                          </option>
+                        ),
+                      )}
                     </select>
                   </div>
                 </div>
@@ -1038,28 +1092,24 @@ export default function SettingPage() {
 
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-5">
-                  비밀번호 변경 사용여부
+                  비밀번호 변경 사용여부{" "}
                   <span className="text-red">(유저웹)</span>
                 </label>
                 <div className="col-md-7">
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="userSitePasswordEditYN-0"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle user site password edit to 0")
-                      }
+                      id="userSitePasswordEditYN_0"
+                      className={`btn${activeClass("userSitePasswordEditYN", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       사용 안함
                     </button>
                     <button
                       type="button"
-                      id="userSitePasswordEditYN-1"
-                      className="btn btn-default btn-green"
-                      onClick={() =>
-                        console.log("Toggle user site password edit to 1")
-                      }
+                      id="userSitePasswordEditYN_1"
+                      className={`btn${activeClass("userSitePasswordEditYN", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       사용
                     </button>
@@ -1078,7 +1128,8 @@ export default function SettingPage() {
                       id="sportBettingDeadlineMinute"
                       className="form-control px-0"
                       min="0"
-                      defaultValue=""
+                      value={settings.sportBettingDeadlineMinute || ""}
+                      onChange={handleChange}
                       style={{ textAlign: "right" }}
                     />
                     <label className="input-group-text col-form-label">
@@ -1090,7 +1141,7 @@ export default function SettingPage() {
 
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-5">
-                  스포츠 베팅내역 취소 제한
+                  스포츠 베팅내역 취소 제한{" "}
                   <span className="text-red">(유저웹)</span>
                 </label>
                 <div className="col-md-7">
@@ -1101,7 +1152,8 @@ export default function SettingPage() {
                       id="sportBettingCancelNum"
                       className="form-control w-50px ms-1 px-0"
                       min="0"
-                      defaultValue="10"
+                      value={settings.sportBettingCancelNum || "10"}
+                      onChange={handleChange}
                       style={{ textAlign: "right" }}
                     />
                     <label className="col-form-label ms-1">건,</label>
@@ -1113,7 +1165,8 @@ export default function SettingPage() {
                       id="sportBettingCancelLimitMinute"
                       className="form-control w-50px ms-1 px-0"
                       min="0"
-                      defaultValue="10"
+                      value={settings.sportBettingCancelLimitMinute || "10"}
+                      onChange={handleChange}
                       style={{ textAlign: "right" }}
                     />
                     <label className="col-form-label ms-1">분,</label>
@@ -1125,7 +1178,8 @@ export default function SettingPage() {
                       id="sportBettingDeadLineCancelMinute"
                       className="form-control w-50px ms-1 px-0"
                       min="0"
-                      defaultValue="1"
+                      value={settings.sportBettingDeadLineCancelMinute || "1"}
+                      onChange={handleChange}
                       style={{ textAlign: "right" }}
                     />
                     <label className="col-form-label ms-1">
@@ -1137,7 +1191,7 @@ export default function SettingPage() {
 
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-5">
-                  스포츠 라이브 대기 시간
+                  스포츠 라이브 대기 시간{" "}
                   <span className="text-red">(유저웹)</span>
                 </label>
                 <div className="col-md-7">
@@ -1148,7 +1202,8 @@ export default function SettingPage() {
                       className="form-control px-0 w-80px"
                       min="0"
                       max="255"
-                      defaultValue="24"
+                      value={settings.sportLiveWaitHour || "24"}
+                      onChange={handleChange}
                       style={{ textAlign: "right" }}
                       required
                     />
@@ -1167,21 +1222,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="isUserDuplicateLogin-0"
-                      className="btn btn-default btn-danger"
-                      onClick={() =>
-                        console.log("Toggle user duplicate login to 0")
-                      }
+                      id="isUserDuplicateLogin_0"
+                      className={`btn${activeClass("isUserDuplicateLogin", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       허용 안함
                     </button>
                     <button
                       type="button"
-                      id="isUserDuplicateLogin-1"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle user duplicate login to 1")
-                      }
+                      id="isUserDuplicateLogin_1"
+                      className={`btn${activeClass("isUserDuplicateLogin", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       허용
                     </button>
@@ -1201,7 +1252,8 @@ export default function SettingPage() {
                       className="form-control px-0 w-80px"
                       min="0"
                       max="255"
-                      defaultValue="3"
+                      value={settings.userSiteDuplicateLoginTime || "3"}
+                      onChange={handleChange}
                       style={{ textAlign: "right" }}
                       required
                     />
@@ -1217,7 +1269,7 @@ export default function SettingPage() {
                   <button
                     type="button"
                     className="btn btn-success"
-                    onClick={() => console.log("Save user site settings")}
+                    onClick={handleSave}
                   >
                     <i className="fa fa-save me-1"></i>저장
                   </button>
@@ -1226,6 +1278,7 @@ export default function SettingPage() {
             </div>
           </div>
 
+          {/* 파트너 사이트 설정 */}
           <div className="panel panel-inverse" data-sortable-id="form-10">
             <div className="panel-heading">
               <h4 className="panel-title">
@@ -1239,7 +1292,6 @@ export default function SettingPage() {
                   href="javascript:;"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
-                  data-tooltip-init="true"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
@@ -1269,8 +1321,9 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="partnerPointTransformMin"
-                      className="form-control amount"
-                      defaultValue="10"
+                      className="form-control"
+                      value={settings.partnerPointTransformMin || "10"}
+                      onChange={handleChange}
                     />
                     <label className="input-group-text col-form-label ms-1">
                       P
@@ -1278,6 +1331,7 @@ export default function SettingPage() {
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-5">
                   포인트 전환 최소 단위
@@ -1285,10 +1339,11 @@ export default function SettingPage() {
                 <div className="col-md-7">
                   <div className="d-inline-flex">
                     <select
-                      name="partnerPointTransformMinUnit"
                       id="partnerPointTransformMinUnit"
+                      name="partnerPointTransformMinUnit"
                       className="form-select w-auto"
-                      defaultValue=""
+                      value={settings.partnerPointTransformMinUnit || ""}
+                      onChange={handleChange}
                     >
                       <option value="">선택 안함</option>
                       <option value="10">10 P</option>
@@ -1298,6 +1353,7 @@ export default function SettingPage() {
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-5">
                   충환전 최소 단위
@@ -1308,10 +1364,11 @@ export default function SettingPage() {
                       충전
                     </label>
                     <select
-                      name="partnerChargeMinUnit"
                       id="partnerChargeMinUnit"
+                      name="partnerChargeMinUnit"
                       className="form-select"
-                      defaultValue=""
+                      value={settings.partnerChargeMinUnit || ""}
+                      onChange={handleChange}
                     >
                       <option value="">선택 안함</option>
                       <option value="100">100원</option>
@@ -1323,10 +1380,11 @@ export default function SettingPage() {
                       환전
                     </label>
                     <select
-                      name="partnerExchangeMinUnit"
                       id="partnerExchangeMinUnit"
+                      name="partnerExchangeMinUnit"
                       className="form-select"
-                      defaultValue=""
+                      value={settings.partnerExchangeMinUnit || ""}
+                      onChange={handleChange}
                     >
                       <option value="">선택 안함</option>
                       <option value="100">100원</option>
@@ -1337,6 +1395,7 @@ export default function SettingPage() {
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-5">
                   충전 재신청 대기시간
@@ -1346,8 +1405,9 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="partnerChargeRequestDelayTime"
-                      className="form-control amount"
-                      defaultValue="0"
+                      className="form-control"
+                      value={settings.partnerChargeRequestDelayTime || "0"}
+                      onChange={handleChange}
                     />
                     <label className="input-group-text col-form-label ms-1">
                       분
@@ -1365,8 +1425,9 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="partnerExchangeRequestDelayTime"
-                      className="form-control amount"
-                      defaultValue="0"
+                      className="form-control"
+                      value={settings.partnerExchangeRequestDelayTime || "0"}
+                      onChange={handleChange}
                     />
                     <label className="input-group-text col-form-label ms-1">
                       분
@@ -1381,25 +1442,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="partnerSiteExchangePasswordUseYN-0"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log(
-                          "Toggle partner site exchange password to 0"
-                        )
-                      }
+                      id="partnerSiteExchangePasswordUseYN_0"
+                      className={`btn${activeClass("partnerSiteExchangePasswordUseYN", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       사용 안함
                     </button>
                     <button
                       type="button"
-                      id="partnerSiteExchangePasswordUseYN-1"
-                      className="btn btn-default btn-green"
-                      onClick={() =>
-                        console.log(
-                          "Toggle partner site exchange password to 1"
-                        )
-                      }
+                      id="partnerSiteExchangePasswordUseYN_1"
+                      className={`btn${activeClass("partnerSiteExchangePasswordUseYN", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       사용
                     </button>
@@ -1415,21 +1468,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="partnerMessageReadRequiredUse-0"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle partner message read required to 0")
-                      }
+                      id="partnerMessageReadRequiredUse_0"
+                      className={`btn${activeClass("partnerMessageReadRequiredUse", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       사용 안함
                     </button>
                     <button
                       type="button"
-                      id="partnerMessageReadRequiredUse-1"
-                      className="btn btn-default btn-green"
-                      onClick={() =>
-                        console.log("Toggle partner message read required to 1")
-                      }
+                      id="partnerMessageReadRequiredUse_1"
+                      className={`btn${activeClass("partnerMessageReadRequiredUse", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       사용
                     </button>
@@ -1445,21 +1494,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="partnerSiteCaptchaUseYN-0"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle partner site captcha to 0")
-                      }
+                      id="partnerSiteCaptchaUseYN_0"
+                      className={`btn${activeClass("partnerSiteCaptchaUseYN", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       사용 안함
                     </button>
                     <button
                       type="button"
-                      id="partnerSiteCaptchaUseYN-1"
-                      className="btn btn-default btn-green"
-                      onClick={() =>
-                        console.log("Toggle partner site captcha to 1")
-                      }
+                      id="partnerSiteCaptchaUseYN_1"
+                      className={`btn${activeClass("partnerSiteCaptchaUseYN", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       사용
                     </button>
@@ -1474,15 +1519,16 @@ export default function SettingPage() {
                 <div className="col-md-7">
                   <div className="d-inline-flex">
                     <select
-                      name="partnerLoginFailBlockCount"
                       id="partnerLoginFailBlockCount"
+                      name="partnerLoginFailBlockCount"
                       className="form-select w-auto"
-                      defaultValue=""
+                      value={settings.partnerLoginFailBlockCount || ""}
+                      onChange={handleChange}
                     >
                       <option value="">사용 안함</option>
                       <option value="3">3회 실패시 차단</option>
                       <option value="5">5회 실패시 차단</option>
-                      <option value="5">7회 실패시 차단</option>
+                      <option value="7">7회 실패시 차단</option>
                       <option value="10">10회 실패시 차단</option>
                     </select>
                   </div>
@@ -1497,21 +1543,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="isPartnerDuplicateLogin-0"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle partner duplicate login to 0")
-                      }
+                      id="isPartnerDuplicateLogin_0"
+                      className={`btn${activeClass("isPartnerDuplicateLogin", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       허용 안함
                     </button>
                     <button
                       type="button"
-                      id="isPartnerDuplicateLogin-1"
-                      className="btn btn-default btn-green"
-                      onClick={() =>
-                        console.log("Toggle partner duplicate login to 1")
-                      }
+                      id="isPartnerDuplicateLogin_1"
+                      className={`btn${activeClass("isPartnerDuplicateLogin", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       허용
                     </button>
@@ -1531,7 +1573,8 @@ export default function SettingPage() {
                       className="form-control"
                       min="0"
                       max="255"
-                      defaultValue="3"
+                      value={settings.partnerSiteDuplicateLoginTime || "3"}
+                      onChange={handleChange}
                       style={{ textAlign: "right" }}
                       required
                     />
@@ -1550,21 +1593,17 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="partnerBankCheck-0"
-                      className="btn btn-default btn-danger"
-                      onClick={() =>
-                        console.log("Toggle partner bank check to 0")
-                      }
+                      id="partnerBankCheck_0"
+                      className={`btn${activeClass("partnerBankCheck", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       체크 안함
                     </button>
                     <button
                       type="button"
-                      id="partnerBankCheck-1"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle partner bank check to 1")
-                      }
+                      id="partnerBankCheck_1"
+                      className={`btn${activeClass("partnerBankCheck", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       체크함
                     </button>
@@ -1579,19 +1618,21 @@ export default function SettingPage() {
                 <div className="col-md-7">
                   <div className="input-group">
                     <select
-                      name="partnerEveryChargeBonus"
-                      id="partnerEveryChargeBonus"
+                      id="partnerFirstChargeBonus"
+                      name="partnerFirstChargeBonus"
                       className="form-select"
-                      defaultValue=""
+                      value={settings.partnerFirstChargeBonus || "1"}
+                      onChange={handleChange}
                     >
                       <option value="1">사용</option>
                       <option value="0">사용 안함</option>
                     </select>
                     <select
-                      name="partnerEveryChargeExchange"
-                      id="partnerEveryChargeExchange"
+                      id="partnerFirstChargeExchange"
+                      name="partnerFirstChargeExchange"
                       className="form-select"
-                      defaultValue=""
+                      value={settings.partnerFirstChargeExchange || "1"}
+                      onChange={handleChange}
                     >
                       <option value="1">금일환전 가능</option>
                       <option value="0">금일환전 불가</option>
@@ -1602,9 +1643,12 @@ export default function SettingPage() {
                       <div className="input-group pt-1">
                         <input
                           type="text"
-                          id="partnerEveryChargeBonusCommission"
-                          className="form-control commission"
-                          defaultValue="1.00"
+                          id="partnerFirstChargeBonusCommission"
+                          className="form-control"
+                          value={
+                            settings.partnerFirstChargeBonusCommission || "1.00"
+                          }
+                          onChange={handleChange}
                           style={{ textAlign: "right" }}
                         />
                         <label className="input-group-text col-form-label px-2">
@@ -1619,9 +1663,12 @@ export default function SettingPage() {
                         </label>
                         <input
                           type="text"
-                          id="partnerEveryChargeBonusLimit"
-                          className="form-control amount"
-                          defaultValue="5000"
+                          id="partnerFirstChargeBonusLimit"
+                          className="form-control"
+                          value={
+                            settings.partnerFirstChargeBonusLimit || "5000"
+                          }
+                          onChange={handleChange}
                           style={{ textAlign: "right" }}
                         />
                       </div>
@@ -1640,23 +1687,24 @@ export default function SettingPage() {
                 <div className="col-md-7">
                   <div className="input-group">
                     <select
+                      id="partnerEveryChargeBonus"
                       name="partnerEveryChargeBonus"
                       className="form-select"
+                      value={settings.partnerEveryChargeBonus || "1"}
+                      onChange={handleChange}
                     >
-                      <option value="1" selected>
-                        사용
-                      </option>
+                      <option value="1">사용</option>
                       <option value="0">사용 안함</option>
                     </select>
                     <select
-                      name="partnerEveryChargeExchange"
                       id="partnerEveryChargeExchange"
+                      name="partnerEveryChargeExchange"
                       className="form-select"
+                      value={settings.partnerEveryChargeExchange || "0"}
+                      onChange={handleChange}
                     >
                       <option value="1">금일환전 가능</option>
-                      <option value="0" selected>
-                        금일환전 불가
-                      </option>
+                      <option value="0">금일환전 불가</option>
                     </select>
                   </div>
                   <div className="row">
@@ -1665,8 +1713,11 @@ export default function SettingPage() {
                         <input
                           type="text"
                           id="partnerEveryChargeBonusCommission"
-                          className="form-control commission"
-                          value="1.00"
+                          className="form-control"
+                          value={
+                            settings.partnerEveryChargeBonusCommission || "1.00"
+                          }
+                          onChange={handleChange}
                           style={{ textAlign: "right" }}
                         />
                         <label className="input-group-text col-form-label px-2">
@@ -1682,8 +1733,11 @@ export default function SettingPage() {
                         <input
                           type="text"
                           id="partnerEveryChargeBonusLimit"
-                          className="form-control amount"
-                          value="5000"
+                          className="form-control"
+                          value={
+                            settings.partnerEveryChargeBonusLimit || "5000"
+                          }
+                          onChange={handleChange}
                           style={{ textAlign: "right" }}
                         />
                       </div>
@@ -1695,12 +1749,12 @@ export default function SettingPage() {
                 </div>
               </div>
 
-              <div className="row text-center">
+              <div className="row text-center mt-3">
                 <div className="col">
                   <button
                     type="button"
                     className="btn btn-success"
-                    onClick={() => console.log("Save partner site settings")}
+                    onClick={handleSave}
                   >
                     <i className="fa fa-save me-1"></i>저장
                   </button>
@@ -1709,6 +1763,7 @@ export default function SettingPage() {
             </div>
           </div>
 
+          {/* 회원가입 설정 */}
           <div className="panel panel-inverse" data-sortable-id="form-2">
             <div className="panel-heading">
               <h4 className="panel-title">
@@ -1722,7 +1777,6 @@ export default function SettingPage() {
                   href="javascript:;"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
-                  data-tooltip-init="true"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
@@ -1752,13 +1806,15 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="registerPoint"
-                      className="form-control amount"
-                      defaultValue="0"
+                      className="form-control"
+                      value={settings.registerPoint || "0"}
+                      onChange={handleChange}
                     />
                     <label className="input-group-text col-form-label">P</label>
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-5">
                   회원 가입 사용 여부
@@ -1767,27 +1823,24 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="registerApproval-0"
-                      className="btn btn-default"
-                      onClick={() =>
-                        console.log("Toggle register approval to 0")
-                      }
+                      id="registerApproval_0"
+                      className={`btn${activeClass("registerApproval", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       즉시 가입
                     </button>
                     <button
                       type="button"
-                      id="registerApproval-1"
-                      className="btn btn-default btn-green"
-                      onClick={() =>
-                        console.log("Toggle register approval to 1")
-                      }
+                      id="registerApproval_1"
+                      className={`btn${activeClass("registerApproval", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       관리자 승인
                     </button>
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-5">
                   추천인 사용 여부
@@ -1796,23 +1849,24 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="recommendUse-0"
-                      className="btn btn-default"
-                      onClick={() => console.log("Toggle recommend use to 0")}
+                      id="recommendUse_0"
+                      className={`btn${activeClass("recommendUse", "0", "btn-danger")}`}
+                      onClick={handleToggle}
                     >
                       사용 안함
                     </button>
                     <button
                       type="button"
-                      id="recommendUse-1"
-                      className="btn btn-default btn-green"
-                      onClick={() => console.log("Toggle recommend use to 1")}
+                      id="recommendUse_1"
+                      className={`btn${activeClass("recommendUse", "1", "btn-green")}`}
+                      onClick={handleToggle}
                     >
                       사용
                     </button>
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-12">
                   사용불가 ID / 닉네임
@@ -1822,10 +1876,12 @@ export default function SettingPage() {
                     type="text"
                     id="prohibitID"
                     className="form-control w-100"
-                    defaultValue="admin,관리자,test"
+                    value={settings.prohibitID || "admin,관리자,test"}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-12">
                   회원가입 축하 쪽지 내용
@@ -1834,16 +1890,19 @@ export default function SettingPage() {
                   <textarea
                     id="congratulationMessage"
                     className="form-control w-100"
-                    defaultValue="<p>회원님 안녕하세요.&nbsp;<br><br>가입을 진심으로 감사드립니다.</p><p>게시판 공지사항에 이용규정 및 이벤트 내용 필독 부탁드립니다.</p><p>국내 최대 카지노 슬롯 회사로 다양한 게임을 제공하고 있습니다.</p><p>이용시 불편사항이나 문의사항은 고객센터로 문의 부탁드립니다.</p><p>즐거운 시간 보내시기 바랍니다.</p><p>감사합니다.</p>"
+                    rows={5}
+                    value={settings.congratulationMessage || ""}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
+
               <div className="row text-center">
                 <div className="col">
                   <button
                     type="button"
                     className="btn btn-success"
-                    onClick={() => console.log("Save registration settings")}
+                    onClick={handleSave}
                   >
                     <i className="fa fa-save me-1"></i>저장
                   </button>
@@ -1853,9 +1912,10 @@ export default function SettingPage() {
           </div>
         </div>
 
+        {/* ─────────────── Column 3 ─────────────── */}
         <div className="col-xl-3 col-lg-3 col-md-6">
+          {/* 충전 설정 */}
           <div className="panel panel-inverse" data-sortable-id="form-3">
-            {/* 충전 설정 */}
             <div className="panel-heading">
               <h4 className="panel-title">
                 <span className="me-2 pull-left">
@@ -1868,7 +1928,6 @@ export default function SettingPage() {
                   href="javascript:;"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
-                  data-tooltip-init="true"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
@@ -1895,20 +1954,16 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="chargeStatus-0"
-                      className={`btn btn-default ${
-                        settings.chargeStatus === "0" ? "active" : ""
-                      }`}
+                      id="chargeStatus_0"
+                      className={`btn${activeClass("chargeStatus", "0", "btn-danger")}`}
                       onClick={handleToggle}
                     >
                       점검중
                     </button>
                     <button
                       type="button"
-                      id="chargeStatus-1"
-                      className={`btn btn-default btn-green ${
-                        settings.chargeStatus === "1" ? "active" : ""
-                      }`}
+                      id="chargeStatus_1"
+                      className={`btn${activeClass("chargeStatus", "1", "btn-green")}`}
                       onClick={handleToggle}
                     >
                       운영중
@@ -1916,6 +1971,7 @@ export default function SettingPage() {
                   </div>
                 </div>
               </div>
+
               <div className="mt-2">
                 <label className="col-form-label">점검내용</label>
                 <textarea
@@ -1923,12 +1979,14 @@ export default function SettingPage() {
                   name="chargeInspectionNotice"
                   rows={5}
                   className="w-100"
-                  placeholder="점검내용"
-                >
-                  죄송합니다. 잠시 점검 중입니다. 다른 기능은 정상 이용
-                  가능합니다.
-                </textarea>
+                  value={
+                    settings.chargeInspectionNotice ||
+                    "죄송합니다. 잠시 점검 중입니다."
+                  }
+                  onChange={handleChange}
+                />
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-4">
                   유저웹 충전 신청
@@ -1941,7 +1999,7 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="minChargeAmount"
-                      className="form-control amount"
+                      className="form-control"
                       value={settings.minChargeAmount || "1000"}
                       onChange={handleChange}
                     />
@@ -1953,12 +2011,14 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="maxChargeAmount"
-                      className="form-control amount"
-                      value="99000000"
+                      className="form-control"
+                      value={settings.maxChargeAmount || "99000000"}
+                      onChange={handleChange}
                     />
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-4">
                   파트너웹 충전 신청
@@ -1971,8 +2031,9 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="partnerMinChargeAmount"
-                      className="form-control amount"
-                      value=""
+                      className="form-control"
+                      value={settings.partnerMinChargeAmount || ""}
+                      onChange={handleChange}
                     />
                   </div>
                   <div className="input-group pt-1">
@@ -1982,12 +2043,14 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="partnerMaxChargeAmount"
-                      className="form-control amount"
-                      value=""
+                      className="form-control"
+                      value={settings.partnerMaxChargeAmount || ""}
+                      onChange={handleChange}
                     />
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-4">
                   가입 첫충 보너스
@@ -1997,13 +2060,15 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="registerFirstChargeCommission"
-                      className="form-control commission"
-                      value="3.00"
+                      className="form-control"
+                      value={settings.registerFirstChargeCommission || "3.00"}
+                      onChange={handleChange}
                     />
                     <label className="input-group-text col-form-label">%</label>
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-4">
                   가입 첫충 보너스 최대 금액
@@ -2013,13 +2078,15 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="registerFirstChargeBonusLimit"
-                      className="form-control amount"
-                      value="1000"
+                      className="form-control"
+                      value={settings.registerFirstChargeBonusLimit || "1000"}
+                      onChange={handleChange}
                     />
                     <label className="input-group-text col-form-label">P</label>
                   </div>
                 </div>
               </div>
+
               <div className="form-group row">
                 <label className="col-form-label col-md-4">
                   첫 충전 보너스
@@ -2030,186 +2097,71 @@ export default function SettingPage() {
                       <label className="col-form-label me-1">금일 환전</label>
                     </div>
                     <div className="col">
-                      <select id="firstChargeBonus" className="form-select">
-                        <option value="1" selected>
-                          가능
-                        </option>
+                      <select
+                        id="firstChargeBonus"
+                        name="firstChargeBonus"
+                        className="form-select"
+                        value={settings.firstChargeBonus || "1"}
+                        onChange={handleChange}
+                      >
+                        <option value="1">가능</option>
                         <option value="0">불가</option>
                       </select>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="form-group row mb-1">
-                <div className="col-md-5">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      스포츠
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_1_firstChargeCommission"
-                      className="form-control commission"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      %
-                    </label>
+
+              {[
+                { key: "1", label: "스포츠" },
+                { key: "2", label: "카지노" },
+                { key: "3", label: "슬롯" },
+                { key: "4", label: "미니게임" },
+                { key: "5", label: "보드게임" },
+              ].map(({ key, label }) => (
+                <div className="form-group row mb-1" key={key}>
+                  <div className="col-md-5">
+                    <div className="input-group">
+                      <label className="input-group-text col-form-label px-2">
+                        {label}
+                      </label>
+                      <input
+                        type="text"
+                        id={`gameGroup_${key}_firstChargeCommission`}
+                        className="form-control"
+                        value={
+                          settings[`gameGroup_${key}_firstChargeCommission`] ||
+                          ""
+                        }
+                        onChange={handleChange}
+                      />
+                      <label className="input-group-text col-form-label px-2">
+                        %
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-md-7">
+                    <div className="input-group">
+                      <label className="input-group-text col-form-label">
+                        최대 보너스 금액
+                      </label>
+                      <input
+                        type="text"
+                        id={`gameGroup_${key}_firstChargeBonusLimit`}
+                        className="form-control"
+                        value={
+                          settings[`gameGroup_${key}_firstChargeBonusLimit`] ||
+                          ""
+                        }
+                        onChange={handleChange}
+                      />
+                      <label className="input-group-text col-form-label px-2">
+                        P
+                      </label>
+                    </div>
                   </div>
                 </div>
-                <div className="col-md-7">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label">
-                      최대 보너스 금액
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_1_firstChargeBonusLimit"
-                      className="form-control amount"
-                      value="1"
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      P
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="form-group row mb-1">
-                <div className="col-md-5">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      카지노
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_2_firstChargeCommission"
-                      className="form-control commission"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      %
-                    </label>
-                  </div>
-                </div>
-                <div className="col-md-7">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label">
-                      최대 보너스 금액
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_2_firstChargeBonusLimit"
-                      className="form-control amount"
-                      value="1"
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      P
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="form-group row mb-1">
-                <div className="col-md-5">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      슬롯
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_3_firstChargeCommission"
-                      className="form-control commission"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      %
-                    </label>
-                  </div>
-                </div>
-                <div className="col-md-7">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label">
-                      최대 보너스 금액
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_3_firstChargeBonusLimit"
-                      className="form-control amount"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      P
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="form-group row mb-1">
-                <div className="col-md-5">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      미니게임
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_4_firstChargeCommission"
-                      className="form-control commission"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      %
-                    </label>
-                  </div>
-                </div>
-                <div className="col-md-7">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label">
-                      최대 보너스 금액
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_4_firstChargeBonusLimit"
-                      className="form-control amount"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      P
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="form-group row mb-1">
-                <div className="col-md-5">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      보드게임
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_5_firstChargeCommission"
-                      className="form-control commission"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      %
-                    </label>
-                  </div>
-                </div>
-                <div className="col-md-7">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label">
-                      최대 보너스 금액
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_5_firstChargeBonusLimit"
-                      className="form-control amount"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      P
-                    </label>
-                  </div>
-                </div>
-              </div>
+              ))}
 
               <div className="form-group row mt-3">
                 <label className="col-form-label col-md-4">
@@ -2221,10 +2173,14 @@ export default function SettingPage() {
                       <label className="col-form-label me-2">금일 환전</label>
                     </div>
                     <div className="col">
-                      <select id="everyChargeBonus" className="form-select">
-                        <option value="1" selected={true}>
-                          가능
-                        </option>
+                      <select
+                        id="everyChargeBonus"
+                        name="everyChargeBonus"
+                        className="form-select"
+                        value={settings.everyChargeBonus || "1"}
+                        onChange={handleChange}
+                      >
+                        <option value="1">가능</option>
                         <option value="0">불가</option>
                       </select>
                     </div>
@@ -2232,175 +2188,56 @@ export default function SettingPage() {
                 </div>
               </div>
 
-              <div className="form-group row mb-1">
-                <div className="col-md-5">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      스포츠
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_1_everyChargeCommission"
-                      className="form-control commission"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      %
-                    </label>
+              {[
+                { key: "1", label: "스포츠" },
+                { key: "2", label: "카지노" },
+                { key: "3", label: "슬롯" },
+                { key: "4", label: "미니게임" },
+                { key: "5", label: "보드게임" },
+              ].map(({ key, label }) => (
+                <div className="form-group row mb-1" key={key}>
+                  <div className="col-md-5">
+                    <div className="input-group">
+                      <label className="input-group-text col-form-label px-2">
+                        {label}
+                      </label>
+                      <input
+                        type="text"
+                        id={`gameGroup_${key}_everyChargeCommission`}
+                        className="form-control"
+                        value={
+                          settings[`gameGroup_${key}_everyChargeCommission`] ||
+                          ""
+                        }
+                        onChange={handleChange}
+                      />
+                      <label className="input-group-text col-form-label px-2">
+                        %
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-md-7">
+                    <div className="input-group">
+                      <label className="input-group-text col-form-label px-2">
+                        최대 보너스 금액
+                      </label>
+                      <input
+                        type="text"
+                        id={`gameGroup_${key}_everyChargeBonusLimit`}
+                        className="form-control"
+                        value={
+                          settings[`gameGroup_${key}_everyChargeBonusLimit`] ||
+                          ""
+                        }
+                        onChange={handleChange}
+                      />
+                      <label className="input-group-text col-form-label px-2">
+                        P
+                      </label>
+                    </div>
                   </div>
                 </div>
-                <div className="col-md-7">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      최대 보너스 금액
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_1_everyChargeBonusLimit"
-                      className="form-control amount"
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      P
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="form-group row mb-1">
-                <div className="col-md-5">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      카지노
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_2_everyChargeCommission"
-                      className="form-control commission"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      %
-                    </label>
-                  </div>
-                </div>
-                <div className="col-md-7">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      최대 보너스 금액
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_2_everyChargeBonusLimit"
-                      className="form-control amount"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      P
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="form-group row mb-1">
-                <div className="col-md-5">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      슬롯
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_3_everyChargeCommission"
-                      className="form-control commission"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      %
-                    </label>
-                  </div>
-                </div>
-                <div className="col-md-7">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      최대 보너스 금액
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_3_everyChargeBonusLimit"
-                      className="form-control amount"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      P
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="form-group row mb-1">
-                <div className="col-md-5">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      미니게임
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_4_everyChargeCommission"
-                      className="form-control commission"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      %
-                    </label>
-                  </div>
-                </div>
-                <div className="col-md-7">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      최대 보너스 금액
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_4_everyChargeBonusLimit"
-                      className="form-control amount"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      P
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="form-group row mb-1">
-                <div className="col-md-5">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      보드게임
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_5_everyChargeCommission"
-                      className="form-control commission"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      %
-                    </label>
-                  </div>
-                </div>
-                <div className="col-md-7">
-                  <div className="input-group">
-                    <label className="input-group-text col-form-label px-2">
-                      최대 보너스 금액
-                    </label>
-                    <input
-                      type="text"
-                      id="gameGroup_5_everyChargeBonusLimit"
-                      className="form-control amount"
-                      value=""
-                    />
-                    <label className="input-group-text col-form-label px-2">
-                      P
-                    </label>
-                  </div>
-                </div>
-              </div>
+              ))}
 
               <div className="form-group row mt-4">
                 <label className="col-form-label col-md-4">
@@ -2414,179 +2251,82 @@ export default function SettingPage() {
                     <div className="col">
                       <select
                         id="siteIntegrateChargeBonusUseYN"
+                        name="siteIntegrateChargeBonusUseYN"
                         className="form-select"
+                        value={settings.siteIntegrateChargeBonusUseYN || ""}
+                        onChange={handleChange}
                       >
                         <option value="1">사용</option>
-                        <option value="" selected={false}>
-                          사용 안함
-                        </option>
+                        <option value="">사용 안함</option>
                       </select>
                     </div>
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mt-1">
                 <table className="table table-bordered table-responsive align-middle bg-white text-center fw-bold">
                   <tbody>
-                    <tr>
-                      <td rowSpan={2} className="bg-gray-300">
-                        통합충전1
-                      </td>
-                      <td className="py-1">
-                        <input
-                          type="text"
-                          id="siteIntegrateChargeBonusText_1"
-                          maxLength={100}
-                          className="form-control"
-                          placeholder="텍스트 문구 지정"
-                          value=""
-                        />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">
-                        <div className="d-flex">
-                          <input
-                            type="text"
-                            id="siteIntegrateChargeBonus_1"
-                            className="form-control commission w-60px me-1"
-                            value=""
-                          />
-                          <label className="col-form-label w-auto me-3">
-                            %
-                          </label>
-                          <label className="col-form-label w-auto me-1">
-                            최대
-                          </label>
-                          <input
-                            type="text"
-                            id="siteIntegrateChargeBonusMax_1"
-                            className="form-control amount w-80px"
-                            value=""
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td rowSpan={2} className="bg-gray-300">
-                        통합충전2
-                      </td>
-                      <td className="py-1">
-                        <input
-                          type="text"
-                          id="siteIntegrateChargeBonusText_2"
-                          maxLength={100}
-                          className="form-control"
-                          placeholder="텍스트 문구 지정"
-                          value=""
-                        />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">
-                        <div className="d-flex">
-                          <input
-                            type="text"
-                            id="siteIntegrateChargeBonus_2"
-                            className="form-control commission w-60px me-1"
-                            value=""
-                          />
-                          <label className="col-form-label w-auto me-3">
-                            %
-                          </label>
-                          <label className="col-form-label w-auto me-1">
-                            최대
-                          </label>
-                          <input
-                            type="text"
-                            id="siteIntegrateChargeBonusMax_2"
-                            className="form-control amount w-80px"
-                            value=""
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td rowSpan={2} className="bg-gray-300">
-                        통합충전3
-                      </td>
-                      <td className="py-1">
-                        <input
-                          type="text"
-                          id="siteIntegrateChargeBonusText_3"
-                          maxLength={100}
-                          className="form-control"
-                          placeholder="텍스트 문구 지정"
-                          value=""
-                        />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">
-                        <div className="d-flex">
-                          <input
-                            type="text"
-                            id="siteIntegrateChargeBonus_3"
-                            className="form-control commission w-60px me-1"
-                            value=""
-                          />
-                          <label className="col-form-label w-auto me-3">
-                            %
-                          </label>
-                          <label className="col-form-label w-auto me-1">
-                            최대
-                          </label>
-                          <input
-                            type="text"
-                            id="siteIntegrateChargeBonusMax_3"
-                            className="form-control amount w-80px"
-                            value=""
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td rowSpan={2} className="bg-gray-300">
-                        통합충전4
-                      </td>
-                      <td className="py-1">
-                        <input
-                          type="text"
-                          id="siteIntegrateChargeBonusText_4"
-                          maxLength={100}
-                          className="form-control"
-                          placeholder="텍스트 문구 지정"
-                          value=""
-                        />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="py-1">
-                        <div className="d-flex">
-                          <input
-                            type="text"
-                            id="siteIntegrateChargeBonus_4"
-                            className="form-control commission w-60px me-1"
-                            value=""
-                          />
-                          <label className="col-form-label w-auto me-3">
-                            %
-                          </label>
-                          <label className="col-form-label w-auto me-1">
-                            최대
-                          </label>
-                          <input
-                            type="text"
-                            id="siteIntegrateChargeBonusMax_4"
-                            className="form-control amount w-80px"
-                            value=""
-                          />
-                        </div>
-                      </td>
-                    </tr>
+                    {[1, 2, 3, 4].map((n) => (
+                      <>
+                        <tr key={`text-${n}`}>
+                          <td rowSpan={2} className="bg-gray-300">
+                            통합충전{n}
+                          </td>
+                          <td className="py-1">
+                            <input
+                              type="text"
+                              id={`siteIntegrateChargeBonusText_${n}`}
+                              maxLength={100}
+                              className="form-control"
+                              placeholder="텍스트 문구 지정"
+                              value={
+                                settings[`siteIntegrateChargeBonusText_${n}`] ||
+                                ""
+                              }
+                              onChange={handleChange}
+                            />
+                          </td>
+                        </tr>
+                        <tr key={`val-${n}`}>
+                          <td className="py-1">
+                            <div className="d-flex">
+                              <input
+                                type="text"
+                                id={`siteIntegrateChargeBonus_${n}`}
+                                className="form-control w-60px me-1"
+                                value={
+                                  settings[`siteIntegrateChargeBonus_${n}`] ||
+                                  ""
+                                }
+                                onChange={handleChange}
+                              />
+                              <label className="col-form-label w-auto me-3">
+                                %
+                              </label>
+                              <label className="col-form-label w-auto me-1">
+                                최대
+                              </label>
+                              <input
+                                type="text"
+                                id={`siteIntegrateChargeBonusMax_${n}`}
+                                className="form-control w-80px"
+                                value={
+                                  settings[
+                                    `siteIntegrateChargeBonusMax_${n}`
+                                  ] || ""
+                                }
+                                onChange={handleChange}
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      </>
+                    ))}
                   </tbody>
                 </table>
               </div>
+
               <div className="row text-center">
                 <div className="col">
                   <button
@@ -2601,9 +2341,9 @@ export default function SettingPage() {
             </div>
           </div>
 
-          <div className="panel panel-inverse" data-sortable-id="form-4">
-            {/* 충전 안내 문구 설정  */}
-            <div className="panel-heading ui-sortable-handle">
+          {/* 충전 안내 문구 설정 */}
+          <div className="panel panel-inverse" data-sortable-id="form-4a">
+            <div className="panel-heading">
               <h4 className="panel-title">
                 <span className="me-2 pull-left">
                   <i className="fa fa-won-sign"></i>
@@ -2615,7 +2355,6 @@ export default function SettingPage() {
                   href="javascript:;"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
-                  data-tooltip-init="true"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
@@ -2637,19 +2376,12 @@ export default function SettingPage() {
             </div>
             <div className="panel-body p-0 pb-3">
               <textarea
+                ref={chargeNoticeRef}
                 className="ckeditor"
                 id="chargeNotice"
                 name="chargeNotice"
                 rows={20}
-              >
-                &lt;p&gt;- 입금자명과 통장 예금주가 일치하지 않을 경우 처리가
-                불가능 합니다.&lt;/p&gt;&lt;p&gt;- 계좌번호 및 예금자명 등을
-                변경하셔야 할 경우 고객센터로 문의 바랍니다.&lt;/p&gt;&lt;p&gt;-
-                은행 점검시간(23:30~00:30)에는 신청을 피해 주시기
-                바랍니다.&lt;/p&gt;&lt;p&gt;- 1회 최대 입금 금액은 500만원
-                이하로 부탁드립니다.&lt;/p&gt;&lt;p&gt;- 동일계좌로 재 입금 요청
-                시 5~10분의 간격을 두어야 합니다.&lt;/p&gt;
-              </textarea>
+              />
               <div className="row text-center mt-3">
                 <div className="col">
                   <button
@@ -2663,9 +2395,9 @@ export default function SettingPage() {
               </div>
             </div>
           </div>
-          {/* end panel */}
-          <div className="panel panel-inverse" data-sortable-id="form-4">
-            {/* 페이백 안내 문구 설정 */}
+
+          {/* 페이백 안내 문구 설정 */}
+          <div className="panel panel-inverse" data-sortable-id="form-4b">
             <div className="panel-heading">
               <h4 className="panel-title">
                 <span className="me-2 pull-left">
@@ -2678,7 +2410,6 @@ export default function SettingPage() {
                   href="javascript:;"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
-                  data-tooltip-init="true"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
@@ -2704,12 +2435,7 @@ export default function SettingPage() {
                 id="paybackNotice"
                 name="paybackNotice"
                 rows={20}
-              >
-                &lt;p&gt;&lt;span className=&quot;text-big&quot;&gt;-
-                테스트&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span
-                className=&quot;text-big&quot;&gt;- 준거 또 주고 또 주고 또 준다
-                !!&lt;/span&gt;&lt;/p&gt;
-              </textarea>
+              />
               <div className="row text-center mt-3">
                 <div className="col">
                   <button
@@ -2725,10 +2451,11 @@ export default function SettingPage() {
           </div>
         </div>
 
-        <div className="col-xl-3 col-lg-3 col-md-6 ">
+        {/* ─────────────── Column 4 ─────────────── */}
+        <div className="col-xl-3 col-lg-3 col-md-6">
+          {/* 환전 설정 */}
           <div className="panel panel-inverse" data-sortable-id="form-5">
-            {/* 환전 설정  */}
-            <div className="panel-heading ui-sortable-handle">
+            <div className="panel-heading">
               <h4 className="panel-title">
                 <span className="me-2 pull-left">
                   <i className="fa fa-won-sign"></i>
@@ -2740,7 +2467,6 @@ export default function SettingPage() {
                   href="javascript:;"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
-                  data-tooltip-init="true"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
@@ -2767,16 +2493,16 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="exchangeStatus-0"
-                      className="btn btn-default"
+                      id="exchangeStatus_0"
+                      className={`btn${activeClass("exchangeStatus", "0", "btn-danger")}`}
                       onClick={handleToggle}
                     >
                       점검중
                     </button>
                     <button
                       type="button"
-                      id="exchangeStatus-1"
-                      className="btn btn-default btn-green"
+                      id="exchangeStatus_1"
+                      className={`btn${activeClass("exchangeStatus", "1", "btn-green")}`}
                       onClick={handleToggle}
                     >
                       운영중
@@ -2784,6 +2510,7 @@ export default function SettingPage() {
                   </div>
                 </div>
               </div>
+
               <div className="mt-2">
                 <label className="col-form-label">점검내용</label>
                 <textarea
@@ -2791,11 +2518,14 @@ export default function SettingPage() {
                   name="exchangeInspectionNotice"
                   rows={5}
                   className="w-100"
-                >
-                  죄송합니다. 잠시 점검 중입니다. 다른 기능은 정상 이용
-                  가능합니다.
-                </textarea>
+                  value={
+                    settings.exchangeInspectionNotice ||
+                    "죄송합니다. 잠시 점검 중입니다."
+                  }
+                  onChange={handleChange}
+                />
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-4">
                   환전 점검 시간
@@ -2807,7 +2537,8 @@ export default function SettingPage() {
                         type="time"
                         id="exchangeDenyStartTime"
                         className="form-control"
-                        value="23:59"
+                        value={settings.exchangeDenyStartTime || "23:59"}
+                        onChange={handleChange}
                       />
                     </div>
                     <div className="col p-1 flex-grow-0">~</div>
@@ -2816,12 +2547,14 @@ export default function SettingPage() {
                         type="time"
                         id="exchangeDenyEndTime"
                         className="form-control"
-                        value="00:01"
+                        value={settings.exchangeDenyEndTime || "00:01"}
+                        onChange={handleChange}
                       />
                     </div>
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-4">
                   유저웹 환전 신청
@@ -2834,8 +2567,9 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="minExchangeAmount"
-                      className="form-control amount"
-                      value="1000"
+                      className="form-control"
+                      value={settings.minExchangeAmount || "1000"}
+                      onChange={handleChange}
                       style={{ textAlign: "right" }}
                     />
                   </div>
@@ -2846,13 +2580,15 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="maxExchangeAmount"
-                      className="form-control amount"
-                      value="30000000"
+                      className="form-control"
+                      value={settings.maxExchangeAmount || "30000000"}
+                      onChange={handleChange}
                       style={{ textAlign: "right" }}
                     />
                   </div>
                 </div>
               </div>
+
               <div className="form-group row mb-3">
                 <label className="col-form-label col-md-4">
                   파트너웹 환전 신청
@@ -2865,8 +2601,9 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="partnerMinExchangeAmount"
-                      className="form-control amount"
-                      value=""
+                      className="form-control"
+                      value={settings.partnerMinExchangeAmount || ""}
+                      onChange={handleChange}
                       style={{ textAlign: "right" }}
                     />
                   </div>
@@ -2877,8 +2614,9 @@ export default function SettingPage() {
                     <input
                       type="text"
                       id="partnerMaxExchangeAmount"
-                      className="form-control amount"
-                      value=""
+                      className="form-control"
+                      value={settings.partnerMaxExchangeAmount || ""}
+                      onChange={handleChange}
                       style={{ textAlign: "right" }}
                     />
                   </div>
@@ -2893,16 +2631,16 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="userSiteExchangePasswordUseYN-0"
-                      className="btn btn-default"
+                      id="userSiteExchangePasswordUseYN_0"
+                      className={`btn${activeClass("userSiteExchangePasswordUseYN", "0", "btn-danger")}`}
                       onClick={handleToggle}
                     >
                       사용안함
                     </button>
                     <button
                       type="button"
-                      id="userSiteExchangePasswordUseYN-1"
-                      className="btn btn-default btn-green"
+                      id="userSiteExchangePasswordUseYN_1"
+                      className={`btn${activeClass("userSiteExchangePasswordUseYN", "1", "btn-green")}`}
                       onClick={handleToggle}
                     >
                       사용
@@ -2919,16 +2657,16 @@ export default function SettingPage() {
                   <div className="btn-group">
                     <button
                       type="button"
-                      id="partnerSiteExchangePasswordUseYN-0"
-                      className="btn btn-default"
+                      id="partnerSiteExchangePasswordUseYN_0"
+                      className={`btn${activeClass("partnerSiteExchangePasswordUseYN", "0", "btn-danger")}`}
                       onClick={handleToggle}
                     >
                       사용안함
                     </button>
                     <button
                       type="button"
-                      id="partnerSiteExchangePasswordUseYN-1"
-                      className="btn btn-default btn-green"
+                      id="partnerSiteExchangePasswordUseYN_1"
+                      className={`btn${activeClass("partnerSiteExchangePasswordUseYN", "1", "btn-green")}`}
                       onClick={handleToggle}
                     >
                       사용
@@ -2936,6 +2674,7 @@ export default function SettingPage() {
                   </div>
                 </div>
               </div>
+
               <div className="row text-center">
                 <div className="col">
                   <button
@@ -2950,9 +2689,9 @@ export default function SettingPage() {
             </div>
           </div>
 
-          <div className="panel panel-inverse" data-sortable-id="form-6">
-            {/* 환전 안내 문구 설정 */}
-            <div className="panel-heading ui-sortable-handle">
+          {/* 환전 안내 문구 설정 */}
+          <div className="panel panel-inverse" data-sortable-id="form-6a">
+            <div className="panel-heading">
               <h4 className="panel-title">
                 <span className="me-2 pull-left">
                   <i className="fa fa-won-sign"></i>
@@ -2964,7 +2703,6 @@ export default function SettingPage() {
                   href="javascript:;"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
-                  data-tooltip-init="true"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
@@ -2985,20 +2723,18 @@ export default function SettingPage() {
               </div>
             </div>
             <div className="panel-body p-0 pb-3">
-              <textarea id="exchangeNotice" name="exchangeNotice" rows={20}>
-                &lt;p&gt;- 환전 신청 후 계좌 입금까지 3-5분 소요되며, 보유머니는
-                환전 신청 즉시 차감됩니다.&lt;/p&gt;&lt;p&gt;- 10분 이상 입금이
-                지연되는 경우 및 계좌번호, 예금주의 변경 등은 고객센터에 문의해
-                주세요.&lt;/p&gt;&lt;p&gt;- 은행 점검시간(23:30~00:30)에는
-                신청을 피해 주시기 바랍니다.&lt;/p&gt;&lt;p&gt;- 30분 단위로만
-                재 신청 가능합니다.&lt;/p&gt;
-              </textarea>
+              <textarea
+                ref={exchangeNoticeRef}
+                id="exchangeNotice"
+                name="exchangeNotice"
+                rows={20}
+              />
               <div className="row text-center mt-3">
                 <div className="col">
                   <button
                     type="button"
                     className="btn btn-success"
-                    // onClick={{ handleSave }}
+                    onClick={handleSave}
                   >
                     <i className="fa fa-save me-1"></i>저장
                   </button>
@@ -3007,9 +2743,9 @@ export default function SettingPage() {
             </div>
           </div>
 
-          <div className="panel panel-inverse" data-sortable-id="form-6">
-            {/* 쿠폰 기본 문구 설정 */}
-            <div className="panel-heading ui-sortable-handle">
+          {/* 쿠폰 기본 문구 설정 */}
+          <div className="panel panel-inverse" data-sortable-id="form-6b">
+            <div className="panel-heading">
               <h4 className="panel-title">
                 <span className="me-2 pull-left">
                   <i className="fa fa-won-sign"></i>
@@ -3021,7 +2757,6 @@ export default function SettingPage() {
                   href="javascript:;"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
-                  data-tooltip-init="true"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
@@ -3042,18 +2777,18 @@ export default function SettingPage() {
               </div>
             </div>
             <div className="panel-body p-0 pb-3">
-              <textarea id="couponMemo" name="couponMemo" rows={20}>
-                &lt;p&gt;닉네임님,&lt;/p&gt;&lt;p&gt;‘쿠폰제목’ 쿠폰이
-                발급되었습니다.&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;/p&gt;&lt;p&gt;&lt;span
-                style="color:hsl(226,100%,49%);"&gt;쿠폰함&lt;/span&gt;에서
-                확인해주세요.&lt;/p&gt;
-              </textarea>
+              <textarea
+                ref={couponMemoRef}
+                id="couponMemo"
+                name="couponMemo"
+                rows={20}
+              />
               <div className="row text-center mt-3">
                 <div className="col">
                   <button
                     type="button"
                     className="btn btn-success"
-                    // onClick="fnCouponMemo();"
+                    onClick={handleSave}
                   >
                     <i className="fa fa-save me-1"></i>저장
                   </button>

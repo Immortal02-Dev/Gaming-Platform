@@ -69,23 +69,23 @@ interface ChargeResponse {
 const API_BASE_URL = ""; // Use relative path for proxy
 
 const dropdownLinks = [
-  { label: "????", tabType: 1, className: "bg-gray-700" },
-  { label: "????", tabType: 17, className: "bg-gray-700" },
-  { label: "????/??", tabType: 3, className: "bg-gray-700" },
-  { label: "?????/??", tabType: 6, className: "bg-gray-700" },
-  { label: "?????", isMessage: true, className: "bg-gray-700" },
-  { label: "????", tabType: 8 },
-  { label: "?????", tabType: 4 },
-  { label: "??????", tabType: 5 },
-  { label: "???????", tabType: 7 },
-  { label: "?? ??", tabType: 15 },
+  { label: "정보수정", tabType: 1, className: "bg-gray-700" },
+  { label: "수수료율", tabType: 17, className: "bg-gray-700" },
+  { label: "머니지급/차감", tabType: 3, className: "bg-gray-700" },
+  { label: "포인트지급/차감", tabType: 6, className: "bg-gray-700" },
+  { label: "쪽지보내기", isMessage: true, className: "bg-gray-700" },
+  { label: "베팅내역", tabType: 8 },
+  { label: "충환전내역", tabType: 4 },
+  { label: "머니거래내역", tabType: 5 },
+  { label: "포인트거래내역", tabType: 7 },
+  { label: "쿠폰 현황", tabType: 15 },
 ];
 
 const statusSequence: { key: ChargeStatus; label: string }[] = [
-  { key: "requested", label: "??" },
-  { key: "pending", label: "??" },
-  { key: "approved", label: "??" },
-  { key: "cancelled", label: "??" },
+  { key: "requested", label: "신청" },
+  { key: "pending", label: "대기" },
+  { key: "approved", label: "승인" },
+  { key: "cancelled", label: "취소" },
 ];
 
 const statusValueMap: Record<ChargeStatus, number> = {
@@ -104,25 +104,30 @@ const badgeVariantMap: Record<ChargeStatus, string> = {
 
 const selectConfig: Record<
   2 | 3 | 4,
-  { label: string; status: ChargeStatus; allowedStatuses: ChargeStatus[]; error: string }
+  {
+    label: string;
+    status: ChargeStatus;
+    allowedStatuses: ChargeStatus[];
+    error: string;
+  }
 > = {
   2: {
-    label: "??",
+    label: "대기",
     status: "pending",
     allowedStatuses: ["requested"],
-    error: "?? ??? ?? ??? ?? ???????.",
+    error: "신청 상태가 아닌 내역이 선택 해제되었습니다.",
   },
   3: {
-    label: "??",
+    label: "승인",
     status: "approved",
     allowedStatuses: ["requested", "pending"],
-    error: "??·?? ??? ?? ??? ?? ???????.",
+    error: "신청·대기 상태가 아닌 내역이 선택 해제되었습니다.",
   },
   4: {
-    label: "??",
+    label: "취소",
     status: "cancelled",
     allowedStatuses: ["requested", "pending"],
-    error: "??·?? ??? ?? ??? ?? ???????.",
+    error: "신청·대기 상태가 아닌 내역이 선택 해제되었습니다.",
   },
 };
 
@@ -142,8 +147,8 @@ const defaultPagination = {
 };
 
 const requestTypeLabelMap: Record<ChargeRequestRow["requestType"], string> = {
-  user: "??",
-  partner: "???",
+  user: "유저",
+  partner: "파트너",
 };
 
 const formatNumber = (value: number | null | undefined) => {
@@ -195,12 +200,24 @@ function ChargePageInner() {
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
 
-  const [pageSize, setPageSize] = useState(searchParams.get("pageSize") || "50");
-  const [moneyRequestType, setMoneyRequestType] = useState(searchParams.get("moneyRequestType") || "");
-  const [moneyStatusIdx, setMoneyStatusIdx] = useState(searchParams.get("moneyStatusIdx") || "");
-  const [searchType, setSearchType] = useState(searchParams.get("searchType") || "");
-  const [searchText, setSearchText] = useState(searchParams.get("searchText") || "");
-  const [startDate, setStartDate] = useState(searchParams.get("startDate") || "");
+  const [pageSize, setPageSize] = useState(
+    searchParams.get("pageSize") || "50",
+  );
+  const [moneyRequestType, setMoneyRequestType] = useState(
+    searchParams.get("moneyRequestType") || "",
+  );
+  const [moneyStatusIdx, setMoneyStatusIdx] = useState(
+    searchParams.get("moneyStatusIdx") || "",
+  );
+  const [searchType, setSearchType] = useState(
+    searchParams.get("searchType") || "",
+  );
+  const [searchText, setSearchText] = useState(
+    searchParams.get("searchText") || "",
+  );
+  const [startDate, setStartDate] = useState(
+    searchParams.get("startDate") || "",
+  );
   const [endDate, setEndDate] = useState(searchParams.get("endDate") || "");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
@@ -222,38 +239,51 @@ function ChargePageInner() {
         });
         if (startDate) params.append("startDate", startDate);
         if (endDate) params.append("endDate", endDate);
-        if (moneyRequestType) params.append("moneyRequestType", moneyRequestType);
+        if (moneyRequestType)
+          params.append("moneyRequestType", moneyRequestType);
         if (moneyStatusIdx) params.append("moneyStatusIdx", moneyStatusIdx);
         if (searchType) params.append("searchType", searchType);
         if (searchText) params.append("searchText", searchText.trim());
 
-        const response = await fetch(`${API_BASE_URL}/api/admin/charges?${params.toString()}`, {
-          credentials: "include",
-        });
+        const response = await fetch(
+          `${API_BASE_URL}/api/admin/charges?${params.toString()}`,
+          {
+            credentials: "include",
+          },
+        );
 
-        if (!response.ok) {
-          const errorBody = await response.json().catch(() => ({}));
-          throw new Error(errorBody?.message || "?? ?? ??? ???? ?????.");
-        }
+if (!response.ok) {
+           const errorBody = await response.json().catch(() => ({}));
+           throw new Error(errorBody?.message || "충전 신청 내역을 불러오지 못했습니다.");
+         }
 
-        const data: ChargeResponse = await response.json();
-        if (!data.success) {
-          throw new Error(data.error || "?? ?? ??? ???? ?????.");
-        }
+         const data: ChargeResponse = await response.json();
+         if (!data.success) {
+           throw new Error(data.error || "충전 신청 내역을 불러오지 못했습니다.");
+         }
 
         setRows(data.data);
         setSummary(data.summary || defaultSummary);
         setPagination(data.pagination || defaultPagination);
       } catch (error) {
         console.error("Failed to fetch charge requests:", error);
-        alert(error instanceof Error ? error.message : "?? ?? ??? ???? ?????.");
+        alert(error instanceof Error ? error.message : "충전 신청 내역을 불러오지 못했습니다.");
       } finally {
         if (showSpinner) {
           setLoading(false);
         }
       }
     },
-    [currentPage, endDate, moneyRequestType, moneyStatusIdx, pageSize, searchText, searchType, startDate]
+    [
+      currentPage,
+      endDate,
+      moneyRequestType,
+      moneyStatusIdx,
+      pageSize,
+      searchText,
+      searchType,
+      startDate,
+    ],
   );
 
   useEffect(() => {
@@ -289,17 +319,27 @@ function ChargePageInner() {
 
   useEffect(() => {
     setSelectedIds((prev) =>
-      prev.filter((id) => rows.some((row) => row.id === id && statusValueMap[row.status] < statusValueMap.approved))
+      prev.filter((id) =>
+        rows.some(
+          (row) =>
+            row.id === id &&
+            statusValueMap[row.status] < statusValueMap.approved,
+        ),
+      ),
     );
   }, [rows]);
 
   const selectableRows = useMemo(
-    () => rows.filter((row) => statusValueMap[row.status] < statusValueMap.approved),
-    [rows]
+    () =>
+      rows.filter(
+        (row) => statusValueMap[row.status] < statusValueMap.approved,
+      ),
+    [rows],
   );
 
   const isAllChecked =
-    selectableRows.length > 0 && selectableRows.every((row) => selectedIds.includes(row.id));
+    selectableRows.length > 0 &&
+    selectableRows.every((row) => selectedIds.includes(row.id));
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = e.target;
@@ -335,7 +375,15 @@ function ChargePageInner() {
       if (searchText) params.set("searchText", searchText.trim());
       return params;
     },
-    [endDate, moneyRequestType, moneyStatusIdx, pageSize, searchText, searchType, startDate]
+    [
+      endDate,
+      moneyRequestType,
+      moneyStatusIdx,
+      pageSize,
+      searchText,
+      searchType,
+      startDate,
+    ],
   );
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
@@ -352,13 +400,15 @@ function ChargePageInner() {
 
   const handleSelectAction = async (statusIdx: 2 | 3 | 4) => {
     if (selectedIds.length === 0) {
-      alert("?? ?? ????????.");
+      alert("하나 이상 선택하여주십시오.");
       return;
     }
 
     const config = selectConfig[statusIdx];
     const invalidRows = rows.filter(
-      (row) => selectedIds.includes(row.id) && !config.allowedStatuses.includes(row.status)
+      (row) =>
+        selectedIds.includes(row.id) &&
+        !config.allowedStatuses.includes(row.status),
     );
 
     if (invalidRows.length > 0) {
@@ -368,35 +418,40 @@ function ChargePageInner() {
       return;
     }
 
-    if (!window.confirm(`???? ??? ${config.label} ?????????`)) {
+    if (!window.confirm(`선택하신 내역을 ${config.label} 처리하시겠습니까?`)) {
       return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/charges/status/bulk`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/charges/status/bulk`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            ids: selectedIds,
+            moneyStatusIdx: String(statusIdx),
+          }),
         },
-        credentials: "include",
-        body: JSON.stringify({
-          ids: selectedIds,
-          moneyStatusIdx: String(statusIdx),
-        }),
-      });
+      );
 
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.success) {
-        throw new Error(result?.message || result?.error || "?? ??? ??????.");
+        throw new Error(result?.message || result?.error || "상태 변경에 실패했습니다.");
       }
 
-      alert(result.message || `${selectedIds.length}?? ${config.label} ???????.`);
+      alert(
+        result.message || `${selectedIds.length}건이 ${config.label} 처리되었습니다.`,
+      );
       setSelectedIds([]);
       await fetchCharges({ showSpinner: false });
     } catch (error) {
       console.error("Failed to update charge statuses:", error);
-      alert(error instanceof Error ? error.message : "?? ??? ??????.");
+      alert(error instanceof Error ? error.message : "상태 변경에 실패했습니다.");
     } finally {
       setLoading(false);
     }
@@ -450,7 +505,7 @@ function ChargePageInner() {
 
       <h1 className="page-header">
         <a href="/charge">
-          <i className="fa fa-won-sign me-2"></i>?? ????
+          <i className="fa fa-won-sign me-2"></i>충전 신청내역
         </a>
         <small></small>
       </h1>
@@ -459,14 +514,38 @@ function ChargePageInner() {
         <div className="col">
           <div className="d-flex bg-white p-2">
             <div className="input-group">
-              <div className="input-group-text bg-primary text-white">?????</div>
-              <input type="text" className="form-control" value={formatNumber(summary.totalAmount)} readOnly />
-              <div className="input-group-text bg-success text-white">?????</div>
-              <input type="text" className="form-control" value={formatNumber(summary.approvedAmount)} readOnly />
-              <div className="input-group-text bg-info text-white">????</div>
-              <input type="text" className="form-control" value={formatNumber(summary.pendingAmount)} readOnly />
-              <div className="input-group-text bg-danger text-white">????</div>
-              <input type="text" className="form-control" value={formatNumber(summary.cancelledAmount)} readOnly />
+              <div className="input-group-text bg-primary text-white">
+                총신청금액
+              </div>
+              <input
+                type="text"
+                className="form-control"
+                value={formatNumber(summary.totalAmount)}
+                readOnly
+              />
+              <div className="input-group-text bg-success text-white">
+                총승인금액
+              </div>
+              <input
+                type="text"
+                className="form-control"
+                value={formatNumber(summary.approvedAmount)}
+                readOnly
+              />
+              <div className="input-group-text bg-info text-white">대기금액</div>
+              <input
+                type="text"
+                className="form-control"
+                value={formatNumber(summary.pendingAmount)}
+                readOnly
+              />
+              <div className="input-group-text bg-danger text-white">취소금액</div>
+              <input
+                type="text"
+                className="form-control"
+                value={formatNumber(summary.cancelledAmount)}
+                readOnly
+              />
             </div>
           </div>
         </div>
@@ -475,7 +554,12 @@ function ChargePageInner() {
       <div className="row mb-2">
         <div className="col">
           <div className="d-flex bg-white p-2">
-            <form action="charge" method="get" className="w-100" onSubmit={handleSearch}>
+            <form
+              action="charge"
+              method="get"
+              className="w-100"
+              onSubmit={handleSearch}
+            >
               <div className="d-flex">
                 <select
                   name="pageSize"
@@ -521,9 +605,9 @@ function ChargePageInner() {
                   value={moneyRequestType}
                   onChange={(e) => setMoneyRequestType(e.target.value)}
                 >
-                  <option value="">????</option>
-                  <option value="user">??</option>
-                  <option value="partner">???</option>
+                  <option value="">전체</option>
+                  <option value="user">유저</option>
+                  <option value="partner">파트너</option>
                 </select>
 
                 <select
@@ -532,11 +616,11 @@ function ChargePageInner() {
                   value={moneyStatusIdx}
                   onChange={(e) => setMoneyStatusIdx(e.target.value)}
                 >
-                  <option value="">????</option>
-                  <option value="1">??</option>
-                  <option value="2">??</option>
-                  <option value="3">??</option>
-                  <option value="4">??</option>
+                  <option value="">선택</option>
+                  <option value="1">신청</option>
+                  <option value="2">대기</option>
+                  <option value="3">승인</option>
+                  <option value="4">취소</option>
                 </select>
 
                 <select
@@ -545,11 +629,11 @@ function ChargePageInner() {
                   value={searchType}
                   onChange={(e) => setSearchType(e.target.value)}
                 >
-                  <option value="">??</option>
+                  <option value="">전체</option>
                   <option value="id">ID</option>
-                  <option value="nick">???</option>
-                  <option value="parent">??ID</option>
-                  <option value="bankerName">????</option>
+                  <option value="nick">닉네임</option>
+                  <option value="parent">소속ID</option>
+                  <option value="bankerName">입금자명</option>
                 </select>
 
                 <input
@@ -562,7 +646,7 @@ function ChargePageInner() {
                 />
 
                 <button className="btn btn-lime" id="btnSearch" type="submit">
-                  <i className="fa-solid fa-magnifying-glass me-2"></i>??
+                  <i className="fa-solid fa-magnifying-glass me-2"></i>검색
                 </button>
                 <button
                   type="button"
@@ -570,7 +654,7 @@ function ChargePageInner() {
                   data-status="2"
                   onClick={() => handleSelectAction(2)}
                 >
-                  ????
+                  선택대기
                 </button>
                 <button
                   type="button"
@@ -578,7 +662,7 @@ function ChargePageInner() {
                   data-status="3"
                   onClick={() => handleSelectAction(3)}
                 >
-                  ????
+                  선택승인
                 </button>
                 <button
                   type="button"
@@ -586,7 +670,7 @@ function ChargePageInner() {
                   data-status="4"
                   onClick={() => handleSelectAction(4)}
                 >
-                  ????
+                  선택취소
                 </button>
               </div>
             </form>
@@ -615,27 +699,27 @@ function ChargePageInner() {
                     />
                   </th>
                   <th className="w-80px">No.</th>
-                  <th>????</th>
-                  <th>?? API</th>
-                  <th>??</th>
-                  <th>????</th>
-                  <th>????</th>
-                  <th>????</th>
-                  <th>????</th>
-                  <th>?? ???</th>
-                  <th className="w-200px">??? ??(??/??)</th>
-                  <th style={{ width: "220px" }}>????</th>
-                  <th className="w-150px">???</th>
-                  <th className="w-150px">??IP</th>
-                  <th className="w-150px">????</th>
-                  <th className="w-150px">????</th>
-                  <th className="w-150px">????</th>
+                  <th>신청구분</th>
+                  <th>충전 API</th>
+                  <th>소속</th>
+                  <th>입금자명</th>
+                  <th>신청금액</th>
+                  <th>이후금액</th>
+                  <th>보너스금액</th>
+                  <th>보너스</th>
+                  <th className="w-200px">보너스(첫충/매충)</th>
+                  <th style={{ width: "220px" }}>처리상태</th>
+                  <th className="w-150px">처리자</th>
+                  <th className="w-150px">신청IP</th>
+                  <th className="w-150px">신청일자</th>
+                  <th className="w-150px">확인일자</th>
+                  <th className="w-150px">처리일자</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.length === 0 ? (
                   <tr>
-                    <td colSpan={17}>??? ?? ?? ??? ????.</td>
+                    <td colSpan={16}>조회된 충전 신청 내역이 없습니다.</td>
                   </tr>
                 ) : (
                   rows.map((row, index) => {
@@ -644,15 +728,19 @@ function ChargePageInner() {
                     const isChecked = selectedIds.includes(row.id);
                     const parentColor = row.parent?.color || "#6c757d";
                     const userDisplay = row.user?.display || "";
-                    const warningClass = getWarningClass(row.user?.warningLevel);
+                    const warningClass = getWarningClass(
+                      row.user?.warningLevel,
+                    );
                     const bonusDetail =
                       row.bonusFirstRate || row.bonusEveryRate ? (
                         <>
-                          <span className="text-red">{formatRate(row.bonusFirstRate)}</span> /{" "}
-                          <span>{formatRate(row.bonusEveryRate)}</span>
+                          <span className="text-red">
+                            {formatRate(row.bonusFirstRate)}
+                          </span>{" "}
+                          / <span>{formatRate(row.bonusEveryRate)}</span>
                         </>
                       ) : (
-                        <>?? ??</>
+                        <>없음</>
                       );
 
                     return (
@@ -664,7 +752,9 @@ function ChargePageInner() {
                             value={row.id}
                             disabled={!isSelectable}
                             checked={isChecked}
-                            onChange={(e) => handleRowCheckboxChange(row, e.target.checked)}
+                            onChange={(e) =>
+                              handleRowCheckboxChange(row, e.target.checked)
+                            }
                           />
                         </td>
                         <td>{row.rowNumber ?? pagination.total - index}</td>
@@ -700,16 +790,25 @@ function ChargePageInner() {
                                   {row.parent.display}
                                 </li>
                                 {dropdownLinks.map((link, linkIndex) => (
-                                  <li key={`${row.id}-parent-${linkIndex}`} className={link.className}>
+                                  <li
+                                    key={`${row.id}-parent-${linkIndex}`}
+                                    className={link.className}
+                                  >
                                     <a
                                       className="dropdown-item"
                                       href="javascript:void(0);"
                                       onClick={() => {
-                                        const userIdx = row.parent?.userIdx || 0;
+                                        const userIdx =
+                                          row.parent?.userIdx || 0;
                                         if ((link as any).isMessage) {
-                                          (window as any).messageWrite?.(userIdx);
+                                          (window as any).messageWrite?.(
+                                            userIdx,
+                                          );
                                         } else {
-                                          (window as any).userDetail?.(userIdx, (link as any).tabType);
+                                          (window as any).userDetail?.(
+                                            userIdx,
+                                            (link as any).tabType,
+                                          );
                                         }
                                       }}
                                     >
@@ -746,16 +845,24 @@ function ChargePageInner() {
                                   {userDisplay}
                                 </li>
                                 {dropdownLinks.map((link, linkIndex) => (
-                                  <li key={`${row.id}-user-${linkIndex}`} className={link.className}>
+                                  <li
+                                    key={`${row.id}-user-${linkIndex}`}
+                                    className={link.className}
+                                  >
                                     <a
                                       className="dropdown-item"
                                       href="javascript:void(0);"
                                       onClick={() => {
                                         const userIdx = row.user?.userIdx || 0;
                                         if ((link as any).isMessage) {
-                                          (window as any).messageWrite?.(userIdx);
+                                          (window as any).messageWrite?.(
+                                            userIdx,
+                                          );
                                         } else {
-                                          (window as any).userDetail?.(userIdx, (link as any).tabType);
+                                          (window as any).userDetail?.(
+                                            userIdx,
+                                            (link as any).tabType,
+                                          );
                                         }
                                       }}
                                     >
@@ -771,13 +878,27 @@ function ChargePageInner() {
                         </td>
                         <td>{row.depositor || <>&nbsp;</>}</td>
                         <td>{formatNumber(row.requestAmount)}</td>
-                        <td>{row.afterAmount !== null ? formatNumber(row.afterAmount) : <>&nbsp;</>}</td>
-                        <td>{row.bonusAmount !== null ? formatNumber(row.bonusAmount) : <>&nbsp;</>}</td>
+                        <td>
+                          {row.afterAmount !== null ? (
+                            formatNumber(row.afterAmount)
+                          ) : (
+                            <>&nbsp;</>
+                          )}
+                        </td>
+                        <td>
+                          {row.bonusAmount !== null ? (
+                            formatNumber(row.bonusAmount)
+                          ) : (
+                            <>&nbsp;</>
+                          )}
+                        </td>
                         <td>{bonusDetail}</td>
                         <td>
                           {statusSequence.map(({ key, label }, badgeIndex) => {
                             const active = row.status === key;
-                            const badgeClass = active ? badgeVariantMap[key] : "bg-secondary";
+                            const badgeClass = active
+                              ? badgeVariantMap[key]
+                              : "bg-secondary";
                             return (
                               <span
                                 key={`${row.id}-${key}`}
@@ -790,7 +911,9 @@ function ChargePageInner() {
                         </td>
                         <td>{row.processor || <>&nbsp;</>}</td>
                         <td>{row.requestIp || <>&nbsp;</>}</td>
-                        <td>{formatDateTime(row.requestedAt) || <>&nbsp;</>}</td>
+                        <td>
+                          {formatDateTime(row.requestedAt) || <>&nbsp;</>}
+                        </td>
                         <td>{formatDateTime(row.confirmedAt)}</td>
                         <td>{formatDateTime(row.processedAt)}</td>
                       </tr>
@@ -806,7 +929,7 @@ function ChargePageInner() {
       <div className="row mt-3">
         <div className="col d-flex justify-content-between align-items-center">
           <div>
-            ? {pagination.total.toLocaleString("ko-KR")}? / {pagination.page}???
+            총 {pagination.total.toLocaleString("ko-KR")}건 / {pagination.page}페이지
           </div>
           <div className="btn-group">
             <button
@@ -815,7 +938,7 @@ function ChargePageInner() {
               disabled={pagination.page <= 1}
               onClick={() => handlePageChange(pagination.page - 1)}
             >
-              ??
+              이전
             </button>
             <button
               type="button"
@@ -823,7 +946,7 @@ function ChargePageInner() {
               disabled={pagination.page >= pagination.totalPages}
               onClick={() => handlePageChange(pagination.page + 1)}
             >
-              ??
+              다음
             </button>
           </div>
         </div>
@@ -842,8 +965,12 @@ function ChargePageInner() {
       >
         <div className="modal-dialog d-flex justify-content-center modal-dialog-centered">
           <button className="btn btn-primary" type="button" disabled>
-            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            ??????. ?? ???????.
+            <span
+              className="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            처리중입니다. 잠시 기다려주십시오.
           </button>
         </div>
       </div>

@@ -6,16 +6,36 @@ import Layout from "@/components/Layout";
 import { useSearchParams, useRouter } from "next/navigation";
 
 const dropdownLinks = [
-  { label: "????", href: (id) => `javascript:userDetail(${id}, 1);`, className: "bg-gray-700" },
-  { label: "????", href: (id) => `javascript:userDetail(${id}, 17);`, className: "bg-gray-700" },
-  { label: "????/??", href: (id) => `javascript:userDetail(${id}, 3);`, className: "bg-gray-700" },
-  { label: "?????/??", href: (id) => `javascript:userDetail(${id}, 6);`, className: "bg-gray-700" },
-  { label: "?????", href: (id) => `javascript:messageWrite(${id});`, className: "bg-gray-700" },
-  { label: "????", href: (id) => `javascript:userDetail(${id}, 8);` },
-  { label: "?????", href: (id) => `javascript:userDetail(${id}, 4);` },
-  { label: "??????", href: (id) => `javascript:userDetail(${id}, 5);` },
-  { label: "???????", href: (id) => `javascript:userDetail(${id}, 7);` },
-  { label: "?? ??", href: (id) => `javascript:userDetail(${id}, 15);` },
+  {
+    label: "정보수정",
+    href: (id) => `javascript:userDetail(${id}, 1);`,
+    className: "bg-gray-700",
+  },
+  {
+    label: "수수료율",
+    href: (id) => `javascript:userDetail(${id}, 17);`,
+    className: "bg-gray-700",
+  },
+  {
+    label: "머니지급/차감",
+    href: (id) => `javascript:userDetail(${id}, 3);`,
+    className: "bg-gray-700",
+  },
+  {
+    label: "포인트지급/차감",
+    href: (id) => `javascript:userDetail(${id}, 6);`,
+    className: "bg-gray-700",
+  },
+  {
+    label: "쪽지보내기",
+    href: (id) => `javascript:messageWrite(${id});`,
+    className: "bg-gray-700",
+  },
+  { label: "베팅내역", href: (id) => `javascript:userDetail(${id}, 8);` },
+  { label: "충환전내역", href: (id) => `javascript:userDetail(${id}, 4);` },
+  { label: "머니거래내역", href: (id) => `javascript:userDetail(${id}, 5);` },
+  { label: "포인트거래내역", href: (id) => `javascript:userDetail(${id}, 7);` },
+  { label: "쿠폰 현황", href: (id) => `javascript:userDetail(${id}, 15);` },
 ];
 
 function MoneyLogListPageInner() {
@@ -27,14 +47,31 @@ function MoneyLogListPageInner() {
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
 
-  const [pageSize, setPageSize] = useState(searchParams.get("pageSize") || "50");
-  const [startDate, setStartDate] = useState(searchParams.get("startDate") || new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split("T")[0]);
-  const [endDate, setEndDate] = useState(searchParams.get("endDate") || new Date().toISOString().split("T")[0]);
-  const [logTypeGroupIdx, setLogTypeGroupIdx] = useState(searchParams.get("logTypeGroupIdx") || "");
-  const [logTypeIdx, setLogTypeIdx] = useState(searchParams.get("logTypeIdx") || "");
-  const [searchType, setSearchType] = useState(searchParams.get("searchType") || "");
-  const [searchText, setSearchText] = useState(searchParams.get("searchText") || "");
-  
+  const [pageSize, setPageSize] = useState(
+    searchParams.get("pageSize") || "50",
+  );
+  const [startDate, setStartDate] = useState(
+    searchParams.get("startDate") ||
+      new Date(new Date().setMonth(new Date().getMonth() - 1))
+        .toISOString()
+        .split("T")[0],
+  );
+  const [endDate, setEndDate] = useState(
+    searchParams.get("endDate") || new Date().toISOString().split("T")[0],
+  );
+  const [logTypeGroupIdx, setLogTypeGroupIdx] = useState(
+    searchParams.get("logTypeGroupIdx") || "",
+  );
+  const [logTypeIdx, setLogTypeIdx] = useState(
+    searchParams.get("logTypeIdx") || "",
+  );
+  const [searchType, setSearchType] = useState(
+    searchParams.get("searchType") || "",
+  );
+  const [searchText, setSearchText] = useState(
+    searchParams.get("searchText") || "",
+  );
+
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
@@ -49,12 +86,12 @@ function MoneyLogListPageInner() {
 
   const fnChangeMoneylogTypeGroup = useCallback(() => {
     if (!moneyLogTypeIdxRef.current) return;
-    
+
     const options = moneyLogTypeIdxRef.current.options;
     for (let i = 0; i < options.length; i++) {
       const option = options[i];
       const optionGroupIdx = option.getAttribute("data-logtypegroupidx");
-      
+
       if (logTypeGroupIdx === "") {
         option.style.display = "";
       } else {
@@ -70,7 +107,9 @@ function MoneyLogListPageInner() {
 
     if (moneyLogTypeIdxRef.current.selectedOptions.length > 0) {
       const selectedOption = moneyLogTypeIdxRef.current.selectedOptions[0];
-      const selectedGroupIdx = selectedOption.getAttribute("data-logtypegroupidx");
+      const selectedGroupIdx = selectedOption.getAttribute(
+        "data-logtypegroupidx",
+      );
       if (selectedGroupIdx !== logTypeGroupIdx) {
         setLogTypeIdx("");
       }
@@ -94,9 +133,12 @@ function MoneyLogListPageInner() {
       if (searchType) params.set("searchType", searchType);
       if (searchText) params.set("searchText", searchText);
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/money-logs?${params.toString()}`, {
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/money-logs?${params.toString()}`,
+        {
+          credentials: "include",
+        },
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch money logs");
@@ -109,11 +151,21 @@ function MoneyLogListPageInner() {
       }
     } catch (error) {
       console.error("Error fetching money logs:", error);
-      alert("?? ??? ????? ??????.");
+      alert("머니 로그를 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
     }
-  }, [searchParams, pageSize, startDate, endDate, logTypeGroupIdx, logTypeIdx, searchType, searchText, API_BASE_URL]);
+  }, [
+    searchParams,
+    pageSize,
+    startDate,
+    endDate,
+    logTypeGroupIdx,
+    logTypeIdx,
+    searchType,
+    searchText,
+    API_BASE_URL,
+  ]);
 
   useEffect(() => {
     fetchLogs();
@@ -138,7 +190,12 @@ function MoneyLogListPageInner() {
   }, []);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.flatpickr && startDate && endDate) {
+    if (
+      typeof window !== "undefined" &&
+      window.flatpickr &&
+      startDate &&
+      endDate
+    ) {
       const startPicker = window.flatpickr(startDateRef.current, {
         locale: "ko",
         dateFormat: "Y-m-d",
@@ -206,7 +263,7 @@ function MoneyLogListPageInner() {
       >
         {currentPage === 1 ? (
           <span className="page-link" aria-hidden="true">
-            �
+            ‹
           </span>
         ) : (
           <a
@@ -219,10 +276,10 @@ function MoneyLogListPageInner() {
               router.push(`/money/log/list?${params.toString()}`);
             }}
           >
-            �
+            ‹
           </a>
         )}
-      </li>
+      </li>,
     );
 
     // Page numbers
@@ -249,7 +306,7 @@ function MoneyLogListPageInner() {
               {i}
             </a>
           )}
-        </li>
+        </li>,
       );
     }
 
@@ -262,7 +319,7 @@ function MoneyLogListPageInner() {
       >
         {!pagination.hasMore ? (
           <span className="page-link" aria-hidden="true">
-            �
+            ›
           </span>
         ) : (
           <a
@@ -276,10 +333,10 @@ function MoneyLogListPageInner() {
             }}
             rel="next"
           >
-            �
+            ›
           </a>
         )}
-      </li>
+      </li>,
     );
 
     return pages;
@@ -328,7 +385,7 @@ function MoneyLogListPageInner() {
 
       <h1 className="page-header">
         <a href="/money/log/list">
-          <i className="fa fa-file-medical-alt me-2"></i>?? ?? ??
+          <i className="fa fa-file-medical-alt me-2"></i>머니 로그 리스트
         </a>
         <small></small>
       </h1>
@@ -336,7 +393,12 @@ function MoneyLogListPageInner() {
       <div className="row mb-2">
         <div className="col">
           <div className="d-flex bg-white p-2">
-            <form id="moneyLogList" ref={formSearchRef} className="w-100" onSubmit={handleSearch}>
+            <form
+              id="moneyLogList"
+              ref={formSearchRef}
+              className="w-100"
+              onSubmit={handleSearch}
+            >
               <div className="row">
                 <div className="col">
                   <div className="d-flex">
@@ -353,7 +415,10 @@ function MoneyLogListPageInner() {
                       <option value="500">500</option>
                       <option value="1000">1,000</option>
                     </select>
-                    <div className="input-group me-2" style={{ width: "250px" }}>
+                    <div
+                      className="input-group me-2"
+                      style={{ width: "250px" }}
+                    >
                       <input
                         type="text"
                         id="startDate"
@@ -389,16 +454,16 @@ function MoneyLogListPageInner() {
                         fnChangeMoneylogTypeGroup();
                       }}
                     >
-                      <option value="">??</option>
-                      <option value="1">??</option>
-                      <option value="2">??</option>
-                      <option value="3">??</option>
-                      <option value="4">??</option>
-                      <option value="5">?? ??</option>
-                      <option value="6">???</option>
-                      <option value="7">??? ??</option>
-                      <option value="8">???</option>
-                      <option value="13">?? ??</option>
+                      <option value="">전체</option>
+                      <option value="1">충전</option>
+                      <option value="2">환전</option>
+                      <option value="3">포인트</option>
+                      <option value="4">머니</option>
+                      <option value="5">포인트</option>
+                      <option value="6">포인트 환산</option>
+                      <option value="7">포인트 환산</option>
+                      <option value="8">포인트 환산</option>
+                      <option value="13">포인트 환산</option>
                     </select>
 
                     <select
@@ -409,69 +474,69 @@ function MoneyLogListPageInner() {
                       value={logTypeIdx}
                       onChange={(e) => setLogTypeIdx(e.target.value)}
                     >
-                      <option value="">?? ??</option>
+                      <option value="">전체 선택</option>
                       <option data-logtypegroupidx="1" value="1">
-                        ??
+                        충전
                       </option>
                       <option data-logtypegroupidx="1" value="2">
-                        ?? ??
+                        충전 요청
                       </option>
                       <option data-logtypegroupidx="2" value="3">
-                        ??
+                        환전
                       </option>
                       <option data-logtypegroupidx="2" value="4">
-                        ?? ??
+                        환전 요청
                       </option>
                       <option data-logtypegroupidx="3" value="5">
-                        ??
+                        포인트
                       </option>
                       <option data-logtypegroupidx="4" value="6">
-                        ??
+                        머니
                       </option>
                       <option data-logtypegroupidx="4" value="7">
-                        ?? ??
+                        머니 요청
                       </option>
                       <option data-logtypegroupidx="5" value="8">
-                        ???? ??
+                        포인트 충전
                       </option>
                       <option data-logtypegroupidx="5" value="9">
-                        ???? ??
+                        포인트 충전 요청
                       </option>
                       <option data-logtypegroupidx="6" value="10">
-                        ??? ??
+                        포인트 충전
                       </option>
                       <option data-logtypegroupidx="6" value="11">
-                        ??? ??
+                        포인트 충전 요청
                       </option>
                       <option data-logtypegroupidx="7" value="12">
-                        ??? ??? ??
+                        포인트 충전 요청
                       </option>
                       <option data-logtypegroupidx="8" value="13">
-                        ??? ??
+                        포인트 충전
                       </option>
                       <option data-logtypegroupidx="8" value="14">
-                        ??? ??
+                        포인트 충전 요청
                       </option>
                       <option data-logtypegroupidx="3" value="34">
-                        ??? ??
+                        포인트 충전
                       </option>
                       <option data-logtypegroupidx="4" value="35">
-                        ??? ??
+                        포인트 충전
                       </option>
                       <option data-logtypegroupidx="4" value="36">
-                        ??? ?? ??
+                        포인트 충전 요청
                       </option>
                       <option data-logtypegroupidx="7" value="37">
-                        ???? ??? ??
+                        포인트 충전 요청
                       </option>
                       <option data-logtypegroupidx="5" value="39">
-                        ???? ??
+                        포인트 충전
                       </option>
                       <option data-logtypegroupidx="5" value="40">
-                        ???? ??(??)
+                        포인트 충전 요청(첫충)
                       </option>
                       <option data-logtypegroupidx="13" value="41">
-                        ?? ??
+                        포인트 충전 요청
                       </option>
                     </select>
 
@@ -481,11 +546,11 @@ function MoneyLogListPageInner() {
                       value={searchType}
                       onChange={(e) => setSearchType(e.target.value)}
                     >
-                      <option value="">??</option>
+                      <option value="">전체</option>
                       <option value="id">ID</option>
-                      <option value="nick">???</option>
-                      <option value="parent">??ID</option>
-                      <option value="logmemo">?? ??</option>
+                      <option value="nick">닉네임</option>
+                      <option value="parent">소속ID</option>
+                      <option value="logmemo">메모 내용</option>
                     </select>
 
                     <input
@@ -496,8 +561,12 @@ function MoneyLogListPageInner() {
                       value={searchText}
                       onChange={(e) => setSearchText(e.target.value)}
                     />
-                    <button className="btn btn-lime" id="btnSearch" type="submit">
-                      <i className="fa-solid fa-magnifying-glass me-2"></i>??
+                    <button
+                      className="btn btn-lime"
+                      id="btnSearch"
+                      type="submit"
+                    >
+                      <i className="fa-solid fa-magnifying-glass me-2"></i>검색
                     </button>
                   </div>
                 </div>
@@ -513,15 +582,15 @@ function MoneyLogListPageInner() {
             <thead className="bg-dark bg-gradient text-white">
               <tr>
                 <th>No.</th>
-                <th>??</th>
-                <th>???(???)</th>
-                <th>??</th>
-                <th>?? ??</th>
-                <th>?? ??</th>
-                <th>?? ??</th>
-                <th>?? ??</th>
-                <th>??</th>
-                <th>????</th>
+                <th>소속</th>
+                <th>회원(ID)</th>
+                <th>구분</th>
+                <th>전 금액</th>
+                <th>입금 액</th>
+                <th>출금 액</th>
+                <th>잔액</th>
+                <th>내용</th>
+                <th>일시</th>
               </tr>
             </thead>
             <tbody>
@@ -529,13 +598,13 @@ function MoneyLogListPageInner() {
                 <tr>
                   <td colSpan={10} className="text-center py-4">
                     <span className="spinner-border spinner-border-sm me-2"></span>
-                    ?? ?...
+                    로딩 중...
                   </td>
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="text-center py-4">
-                    ???? ????.
+                    데이터가 없습니다.
                   </td>
                 </tr>
               ) : (
@@ -550,7 +619,9 @@ function MoneyLogListPageInner() {
                         {log.affiliation && (
                           <div
                             className="input-group-text p-1 d-inline"
-                            style={{ backgroundColor: log.affiliation.backgroundColor }}
+                            style={{
+                              backgroundColor: log.affiliation.backgroundColor,
+                            }}
                           >
                             {log.affiliation.role}
                           </div>
@@ -564,20 +635,26 @@ function MoneyLogListPageInner() {
                         >
                           <div
                             className="input-group-text p-1 cursor-pointer d-inline"
-                            style={{ backgroundColor: log.user.backgroundColor }}
+                            style={{
+                              backgroundColor: log.user.backgroundColor,
+                            }}
                           >
                             {log.user.role}
                           </div>
-                          <label className="form-control p-1 cursor-pointer">{displayName}</label>
+                          <label className="form-control p-1 cursor-pointer">
+                            {displayName}
+                          </label>
                         </div>
                         <ul className="dropdown-menu dropdown-menu-dark py-0">
                           <li
                             className="fw-600 text-white"
                             style={{
-                              padding: "var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)",
+                              padding:
+                                "var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)",
                             }}
                           >
-                            <i className="fa fa-user me-2"></i>{displayName}
+                            <i className="fa fa-user me-2"></i>
+                            {displayName}
                           </li>
                           {dropdownLinks.map((link, idx) => (
                             <li key={idx} className={link.className || ""}>
@@ -586,16 +663,56 @@ function MoneyLogListPageInner() {
                                 href="javascript:void(0);"
                                 onClick={(e) => {
                                   e.preventDefault();
-                                  if (link.label === "????" && window.userDetail) window.userDetail(log.user.userIdx, 1);
-                                  else if (link.label === "????" && window.userDetail) window.userDetail(log.user.userIdx, 17);
-                                  else if (link.label === "????/??" && window.userDetail) window.userDetail(log.user.userIdx, 3);
-                                  else if (link.label === "?????/??" && window.userDetail) window.userDetail(log.user.userIdx, 6);
-                                  else if (link.label === "?????" && window.messageWrite) window.messageWrite(log.user.userIdx);
-                                  else if (link.label === "????" && window.userDetail) window.userDetail(log.user.userIdx, 8);
-                                  else if (link.label === "?????" && window.userDetail) window.userDetail(log.user.userIdx, 4);
-                                  else if (link.label === "??????" && window.userDetail) window.userDetail(log.user.userIdx, 5);
-                                  else if (link.label === "???????" && window.userDetail) window.userDetail(log.user.userIdx, 7);
-                                  else if (link.label === "?? ??" && window.userDetail) window.userDetail(log.user.userIdx, 15);
+                                  if (
+                                    link.label === "정보수정" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(log.user.userIdx, 1);
+                                  else if (
+                                    link.label === "수수료율" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(log.user.userIdx, 17);
+                                  else if (
+                                    link.label === "머니지급/차감" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(log.user.userIdx, 3);
+                                  else if (
+                                    link.label === "포인트지급/차감" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(log.user.userIdx, 6);
+                                  else if (
+                                    link.label === "쪽지보내기" &&
+                                    window.messageWrite
+                                  )
+                                    window.messageWrite(log.user.userIdx);
+                                  else if (
+                                    link.label === "베팅내역" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(log.user.userIdx, 8);
+                                  else if (
+                                    link.label === "충환전내역" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(log.user.userIdx, 4);
+                                  else if (
+                                    link.label === "머니거래내역" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(log.user.userIdx, 5);
+                                  else if (
+                                    link.label === "포인트거래내역" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(log.user.userIdx, 7);
+                                  else if (
+                                    link.label === "쿠폰 현황" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(log.user.userIdx, 15);
                                 }}
                               >
                                 {link.label}
@@ -624,9 +741,7 @@ function MoneyLogListPageInner() {
         <div className="row justify-content-center">
           <div className="col" style={{ display: "contents" }}>
             <nav>
-              <ul className="pagination d-inline-flex">
-                {renderPagination()}
-              </ul>
+              <ul className="pagination d-inline-flex">{renderPagination()}</ul>
             </nav>
           </div>
         </div>
@@ -638,7 +753,10 @@ function MoneyLogListPageInner() {
         data-bs-backdrop="static"
         tabIndex={-1}
         aria-hidden={!loading}
-        style={{ backgroundColor: "rgba(0, 0, 0, 0.4)", display: loading ? "block" : "none" }}
+        style={{
+          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          display: loading ? "block" : "none",
+        }}
       >
         <div className="modal-dialog d-flex justify-content-center modal-dialog-centered">
           <button className="btn btn-primary" type="button" disabled>
@@ -647,7 +765,7 @@ function MoneyLogListPageInner() {
               role="status"
               aria-hidden="true"
             ></span>
-            ??????. ?? ???????.
+            처리중입니다. 잠시 기다려주십시오.
           </button>
         </div>
       </div>

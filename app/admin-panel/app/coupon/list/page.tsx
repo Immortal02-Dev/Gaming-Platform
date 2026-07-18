@@ -1,15 +1,14 @@
 "use client";
 
 import { Suspense } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Layout from "@/components/Layout";
 import { useSearchParams, useRouter } from "next/navigation";
 
 declare global {
   interface Window {
     couponAdd?: (userIdx?: number) => void;
-    flatpickr?: any;
-    resizeContent?: (tableId: string, height: number) => void;
+    // flatpickr and resizeContent are defined as any in the original
   }
 }
 
@@ -54,28 +53,35 @@ const formatNumber = (num: number) => {
 const formatDate = (dateString: string | null) => {
   if (!dateString) return "-";
   const date = new Date(dateString);
-  return date.toLocaleDateString("ko-KR").replace(/\./g, "-").replace(/\s/g, "");
+  return date
+    .toLocaleDateString("ko-KR")
+    .replace(/\./g, "-")
+    .replace(/\s/g, "");
 };
 
 const formatDateTime = (dateString: string | null) => {
   if (!dateString) return "-";
   const date = new Date(dateString);
-  return date.toLocaleString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).replace(/\./g, "-").replace(/,/g, "").replace(/\s+/g, " ");
+  return date
+    .toLocaleString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })
+    .replace(/\./g, "-")
+    .replace(/,/g, "")
+    .replace(/\s+/g, " ");
 };
 
 const getStatusLabel = (status: string) => {
   const statusMap: { [key: string]: string } = {
-    "0": "??",
-    "1": "??",
-    "2": "??",
-    "3": "??",
+    "0": "대기",
+    "1": "사용",
+    "2": "취소",
+    "3": "만료",
   };
   return statusMap[status] || status;
 };
@@ -103,15 +109,30 @@ function CouponListPageInner() {
     totalPages: 1,
     hasMore: false,
   });
-  const [pageSize, setPageSize] = useState(searchParams.get("pageSize") || "50");
-  const [searchDateType, setSearchDateType] = useState(searchParams.get("searchDateType") || "register");
-  const [startDate, setStartDate] = useState(searchParams.get("startDate") || "");
+  const [pageSize, setPageSize] = useState(
+    searchParams.get("pageSize") || "50",
+  );
+  const [searchDateType, setSearchDateType] = useState(
+    searchParams.get("searchDateType") || "register",
+  );
+  const [startDate, setStartDate] = useState(
+    searchParams.get("startDate") || "",
+  );
   const [endDate, setEndDate] = useState(searchParams.get("endDate") || "");
-  const [searchStatus, setSearchStatus] = useState(searchParams.get("searchStatus") || "");
-  const [searchType, setSearchType] = useState(searchParams.get("searchType") || "");
-  const [searchText, setSearchText] = useState(searchParams.get("searchText") || "");
+  const [searchStatus, setSearchStatus] = useState(
+    searchParams.get("searchStatus") || "",
+  );
+  const [searchType, setSearchType] = useState(
+    searchParams.get("searchType") || "",
+  );
+  const [searchText, setSearchText] = useState(
+    searchParams.get("searchText") || "",
+  );
 
-  const fetchCoupons = async () => {
+  const isMountedRef = useRef(true);
+
+  const fetchCoupons = useCallback(async () => {
+    if (!isMountedRef.current) return;
     setLoading(true);
     try {
       const params = new URLSearchParams({
@@ -126,31 +147,64 @@ function CouponListPageInner() {
       if (searchType) params.append("searchType", searchType);
       if (searchText) params.append("searchText", searchText);
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/coupons?${params.toString()}`, {
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/coupons?${params.toString()}`,
+        {
+          credentials: "include",
+        },
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch coupons");
       }
 
       const data: CouponsResponse = await response.json();
-      if (data.success) {
+      if (data.success && isMountedRef.current) {
         setCoupons(data.data);
         setSummary(data.summary);
         setPagination(data.pagination);
       }
     } catch (error) {
       console.error("Error fetching coupons:", error);
-      alert("?? ??? ????? ??????.");
+      alert("쿠폰 목록을 불러오는데 실패했습니다.");
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, [
+    searchParams,
+    pageSize,
+    searchDateType,
+    startDate,
+    endDate,
+    searchStatus,
+    searchType,
+    searchText,
+  ]);
 
   useEffect(() => {
-    fetchCoupons();
-  }, [searchParams, pageSize, searchDateType, startDate, endDate, searchStatus, searchType, searchText]);
+    isMountedRef.current = true;
+
+    // Use setTimeout to ensure setState is called asynchronously
+    const timer = setTimeout(() => {
+      fetchCoupons();
+    }, 0);
+
+    return () => {
+      isMountedRef.current = false;
+      clearTimeout(timer);
+    };
+  }, [
+    searchParams,
+    pageSize,
+    searchDateType,
+    startDate,
+    endDate,
+    searchStatus,
+    searchType,
+    searchText,
+  ]);
 
   useEffect(() => {
     // Initialize flatpickr for date inputs if available
@@ -240,7 +294,7 @@ function CouponListPageInner() {
     const checked = e.target.checked;
     setCheckAllChecked(checked);
     const checkboxes = document.querySelectorAll(
-      "#couponTable tbody input[type='checkbox']"
+      "#couponTable tbody input[type='checkbox']",
     ) as NodeListOf<HTMLInputElement>;
     checkboxes.forEach((checkbox) => {
       checkbox.checked = checked;
@@ -248,11 +302,11 @@ function CouponListPageInner() {
   };
 
   const couponCancel = async (type: string, couponIdx: number | null) => {
-    let msg = "?? ";
+    let msg = "쿠폰을 ";
     const data: any = {};
 
     if (type === "all") {
-      msg = "??? ??? ? ?? ??? ?? ";
+      msg = "검색된 조건의 쿠폰을 ";
       data.type = "all";
       data.searchDateType = searchDateType;
       if (startDate) data.startDate = startDate;
@@ -261,13 +315,13 @@ function CouponListPageInner() {
       if (searchType) data.searchType = searchType;
       if (searchText) data.searchText = searchText;
     } else if (type === "sel") {
-      msg = "???? ";
+      msg = "선택된 쿠폰을 ";
       const checkedBoxes = document.querySelectorAll(
-        "#couponTable tbody input[type='checkbox']:checked"
+        "#couponTable tbody input[type='checkbox']:checked",
       ) as NodeListOf<HTMLInputElement>;
 
       if (checkedBoxes.length < 1) {
-        alert("? ? ??? ??? ???? ????.");
+        alert("하나 이상 선택해 주세요.");
         return;
       }
 
@@ -282,7 +336,7 @@ function CouponListPageInner() {
           const idx = row.getAttribute("data-idx");
 
           if (status !== "0") {
-            alert(num + "? ??? ????? ????.");
+            alert(num + "번 쿠폰은 취소할 수 없습니다.");
             checkbox.checked = false;
             isValid = false;
             return;
@@ -305,27 +359,30 @@ function CouponListPageInner() {
       }
     }
 
-    if (confirm(msg + "??? ?????????")) {
+    if (confirm(msg + "취소하시겠습니까?")) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/coupons/cancel`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        const response = await fetch(
+          `${API_BASE_URL}/api/admin/coupons/cancel`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify(data),
           },
-          credentials: "include",
-          body: JSON.stringify(data),
-        });
+        );
 
         const ret = await response.json();
         if (ret.success) {
-          alert(ret.message || "??? ???????.");
+          alert(ret.message || "취소되었습니다.");
           fetchCoupons();
         } else {
-          alert(ret.error || "?? ??? ??????.");
+          alert(ret.error || "쿠폰 취소에 실패했습니다.");
         }
       } catch (error) {
         console.error("Error canceling coupons:", error);
-        alert("??? ??????.");
+        alert("오류가 발생했습니다.");
       }
     }
   };
@@ -340,7 +397,7 @@ function CouponListPageInner() {
     <Layout>
       <h1 className="page-header">
         <a href="/coupon/list">
-          <i className="fa fa-credit-card me-2"></i>?? ??
+          <i className="fa fa-credit-card me-2"></i>쿠폰 목록
         </a>
         <small></small>
       </h1>
@@ -350,7 +407,7 @@ function CouponListPageInner() {
           <div className="d-flex bg-white p-2">
             <div className="input-group">
               <div className="input-group-text bg-success text-white">
-                ????
+                대기금액
               </div>
               <input
                 type="text"
@@ -358,7 +415,9 @@ function CouponListPageInner() {
                 value={formatNumber(summary.waitAmount)}
                 readOnly
               />
-              <div className="input-group-text bg-info text-white">????</div>
+              <div className="input-group-text bg-info text-white">
+                사용금액
+              </div>
               <input
                 type="text"
                 className="form-control"
@@ -366,7 +425,7 @@ function CouponListPageInner() {
                 readOnly
               />
               <div className="input-group-text bg-danger text-white">
-                ????
+                취소금액
               </div>
               <input
                 type="text"
@@ -375,7 +434,7 @@ function CouponListPageInner() {
                 readOnly
               />
               <div className="input-group-text bg-warning text-white">
-                ????
+                만료금액
               </div>
               <input
                 type="text"
@@ -391,11 +450,7 @@ function CouponListPageInner() {
       <div className="row mb-2">
         <div className="col-12">
           <div className="d-flex bg-white p-2">
-            <form
-              id="formSearch"
-              ref={formSearchRef}
-              onSubmit={handleSearch}
-            >
+            <form id="formSearch" ref={formSearchRef} onSubmit={handleSearch}>
               <div className="d-flex">
                 <select
                   name="pageSize"
@@ -418,9 +473,9 @@ function CouponListPageInner() {
                     value={searchDateType}
                     onChange={(e) => setSearchDateType(e.target.value)}
                   >
-                    <option value="register">???</option>
-                    <option value="use">???</option>
-                    <option value="expire">???</option>
+                    <option value="register">등록일</option>
+                    <option value="use">사용일</option>
+                    <option value="expire">만료일</option>
                   </select>
                   <input
                     type="text"
@@ -453,11 +508,11 @@ function CouponListPageInner() {
                   value={searchStatus}
                   onChange={(e) => setSearchStatus(e.target.value)}
                 >
-                  <option value="">??</option>
-                  <option value="0">??</option>
-                  <option value="1">??</option>
-                  <option value="2">??</option>
-                  <option value="3">??</option>
+                  <option value="">전체</option>
+                  <option value="0">대기</option>
+                  <option value="1">사용</option>
+                  <option value="2">취소</option>
+                  <option value="3">만료</option>
                 </select>
                 <select
                   name="searchType"
@@ -467,10 +522,10 @@ function CouponListPageInner() {
                   value={searchType}
                   onChange={(e) => setSearchType(e.target.value)}
                 >
-                  <option value="">??</option>
-                  <option value="receiver_id">?? ??</option>
-                  <option value="subject">?? ??</option>
-                  <option value="register_id">???</option>
+                  <option value="">전체</option>
+                  <option value="receiver_id">받는사람</option>
+                  <option value="subject">쿠폰제목</option>
+                  <option value="register_id">등록자</option>
                 </select>
                 <input
                   type="text"
@@ -479,17 +534,21 @@ function CouponListPageInner() {
                   className="form-control w-150px me-2"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
-                  placeholder="??"
+                  placeholder="검색어"
                 />
-                <button className="btn btn-lime me-2" id="btnSearch" type="submit">
-                  <i className="fa-solid fa-magnifying-glass me-2"></i>??
+                <button
+                  className="btn btn-lime me-2"
+                  id="btnSearch"
+                  type="submit"
+                >
+                  <i className="fa-solid fa-magnifying-glass me-2"></i>검색
                 </button>
                 <button
                   type="button"
                   className="btn btn-secondary me-2"
                   onClick={fnReset}
                 >
-                  <i className="fa-solid fa-eraser me-2"></i>???
+                  <i className="fa-solid fa-eraser me-2"></i>초기화
                 </button>
                 <a
                   className="btn btn-primary me-2"
@@ -499,7 +558,7 @@ function CouponListPageInner() {
                     handleCouponAdd();
                   }}
                 >
-                  <i className="fa-solid fa-credit-card me-2"></i>????
+                  <i className="fa-solid fa-credit-card me-2"></i>쿠폰등록
                 </a>
               </div>
             </form>
@@ -512,7 +571,7 @@ function CouponListPageInner() {
                   couponCancel("sel", null);
                 }}
               >
-                <i className="fa-solid fa-check me-2"></i>????
+                <i className="fa-solid fa-check me-2"></i>선택취소
               </a>
               <a
                 className="btn btn-danger"
@@ -522,7 +581,7 @@ function CouponListPageInner() {
                   couponCancel("all", null);
                 }}
               >
-                <i className="fa-solid fa-check-all me-2"></i>????
+                <i className="fa-solid fa-check-all me-2"></i>전체취소
               </a>
             </div>
           </div>
@@ -552,14 +611,14 @@ function CouponListPageInner() {
                   />
                 </th>
                 <th>No.</th>
-                <th>?? ??</th>
-                <th>?? ??</th>
-                <th>?? ??</th>
-                <th>?? ??</th>
-                <th>??? ??</th>
-                <th>????</th>
-                <th>????</th>
-                <th>???</th>
+                <th>받는사람</th>
+                <th>쿠폰제목</th>
+                <th>쿠폰금액</th>
+                <th>상태</th>
+                <th>등록자</th>
+                <th>등록일시</th>
+                <th>사용일시</th>
+                <th>만료일</th>
               </tr>
             </thead>
             <tbody>
@@ -567,18 +626,21 @@ function CouponListPageInner() {
                 <tr>
                   <td colSpan={10} className="text-center py-4">
                     <span className="spinner-border spinner-border-sm me-2"></span>
-                    ?? ?...
+                    로딩 중...
                   </td>
                 </tr>
               ) : coupons.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="text-center py-4">
-                    ???? ????.
+                    검색 결과가 없습니다.
                   </td>
                 </tr>
               ) : (
                 coupons.map((coupon, index) => {
-                  const rowNumber = pagination.total - (pagination.page - 1) * pagination.pageSize - index;
+                  const rowNumber =
+                    pagination.total -
+                    (pagination.page - 1) * pagination.pageSize -
+                    index;
                   return (
                     <tr
                       key={coupon.id}
@@ -633,7 +695,7 @@ function CouponListPageInner() {
               role="status"
               aria-hidden="true"
             ></span>
-            ??????. ?? ???????.
+            처리중입니다. 잠시만 기다려주세요.
           </button>
         </div>
       </div>
