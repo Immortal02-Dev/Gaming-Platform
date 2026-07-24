@@ -368,8 +368,6 @@ function PaybackListPageInner() {
     return selectableRows.every((row) => selectedIds.includes(row.paybackIdx));
   }, [rows, selectedIds]);
 
-  // Use a ref to track the latest setCheckAll call for batching
-
   // Synchronize computed checkAll to state only when different
   useLayoutEffect(() => {
     if (checkAll !== checkAllComputed) {
