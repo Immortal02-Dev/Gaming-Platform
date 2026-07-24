@@ -1,7 +1,5 @@
 "use client";
-import React, { useState } from "react";
-
-const BACKEND_URL = ""; // Use relative path for proxy
+import React, { useState, useEffect, useRef } from "react";
 
 interface UserData {
   userIdx?: number;
@@ -31,55 +29,41 @@ interface TabBasicInfoProps {
   onSaved?: () => void;
 }
 
+function getInitialFormData(user: UserData | null) {
+  return {
+    nickname: user?.nickname || "",
+    recommendCode: user?.recommendCode || "",
+    password: "",
+    warningColorIdx: String(user?.warningColorIdx ?? ""),
+    userStatusIdx: String(user?.status ?? "2"),
+    userStatusIdxChangeType: "",
+    userRoleIdx: String(user?.roleIdx ?? "3"),
+    userGradeIdx: String(user?.level ?? "1"),
+    phoneNumber: user?.phoneNumber || "",
+    chargeBankIdx: String(user?.chargeBankIdx ?? ""),
+    bankIdx: String(user?.bankIdx ?? ""),
+    bankNumber: user?.bankNumber || "",
+    bankerName: user?.bankerName || "",
+    exchangePassword: "",
+    memo: user?.memo || "",
+    gameLevel: user?.gameLevel || {},
+  };
+}
+
 export default function TabBasicInfo({ user, onSaved }: TabBasicInfoProps) {
   const [saving, setSaving] = useState(false);
+  const prevUserRef = useRef<UserData | null>(null);
 
   // Controlled form state — initialized from user prop
-  const [formData, setFormData] = useState({
-    nickname: "",
-    recommendCode: "",
-    password: "",
-    warningColorIdx: "",
-    userStatusIdx: "2",
-    userStatusIdxChangeType: "",
-    userRoleIdx: "3",
-    userGradeIdx: "1",
-    phoneNumber: "",
-    chargeBankIdx: "",
-    bankIdx: "",
-    bankNumber: "",
-    bankerName: "",
-    exchangePassword: "",
-    memo: "",
-    gameLevel: {} as { [key: number]: number },
-  });
-
-  const [prevUser, setPrevUser] = useState<UserData | null>(null);
+  const [formData, setFormData] = useState(getInitialFormData(null));
 
   // Sync form when user data loads/changes
-  if (user !== prevUser) {
-    setPrevUser(user);
-    if (user) {
-      setFormData({
-        nickname: user.nickname || "",
-        recommendCode: user.recommendCode || "",
-        password: "",
-        warningColorIdx: String(user.warningColorIdx ?? ""),
-        userStatusIdx: String(user.status ?? "2"),
-        userStatusIdxChangeType: "",
-        userRoleIdx: String(user.roleIdx ?? "3"),
-        userGradeIdx: String(user.level ?? "1"),
-        phoneNumber: user.phoneNumber || "",
-        chargeBankIdx: String(user.chargeBankIdx ?? ""),
-        bankIdx: String(user.bankIdx ?? ""),
-        bankNumber: user.bankNumber || "",
-        bankerName: user.bankerName || "",
-        exchangePassword: "",
-        memo: user.memo || "",
-        gameLevel: user.gameLevel || {},
-      });
+  useEffect(() => {
+    if (user !== prevUserRef.current) {
+      prevUserRef.current = user;
+      setFormData(getInitialFormData(user));
     }
-  }
+  }, [user]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -128,8 +112,8 @@ export default function TabBasicInfo({ user, onSaved }: TabBasicInfoProps) {
         body.password = formData.password;
       }
 
-      const res = await fetch(
-        `${BACKEND_URL}/api/admin/users/${user.userIdx}`,
+const res = await fetch(
+          `/api/admin/users/${user.userIdx}`,
         {
           method: "PUT",
           credentials: "include",
@@ -197,9 +181,24 @@ export default function TabBasicInfo({ user, onSaved }: TabBasicInfoProps) {
                     color: formData.warningColorIdx ? "#fff" : "#000",
                   }}
                 >
-                  <option value="" style={{ backgroundColor: "#fff", color: "#000" }}>기본</option>
-                  <option value="1" style={{ backgroundColor: "#6aa84f", color: "#fff" }}>주의</option>
-                  <option value="2" style={{ backgroundColor: "#744700", color: "#fff" }}>경고</option>
+                  <option
+                    value=""
+                    style={{ backgroundColor: "#fff", color: "#000" }}
+                  >
+                    기본
+                  </option>
+                  <option
+                    value="1"
+                    style={{ backgroundColor: "#6aa84f", color: "#fff" }}
+                  >
+                    주의
+                  </option>
+                  <option
+                    value="2"
+                    style={{ backgroundColor: "#744700", color: "#fff" }}
+                  >
+                    경고
+                  </option>
                 </select>
               </div>
             </td>

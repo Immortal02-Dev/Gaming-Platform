@@ -4,19 +4,24 @@ const bcrypt = require("bcrypt");
 // ── User Management ──────────────────────────────────────────
 
 exports.getAllUsers = async (req, res) => {
-  const { 
-    page = 1, 
-    pageSize = 50, 
-    startDate, 
-    endDate, 
-    userRoleIdx, 
-    userLevel, 
-    userStatusIdx, 
-    searchType, 
-    searchText 
+  const {
+    page = 1,
+    pageSize = 50,
+    startDate,
+    endDate,
+    userRoleIdx,
+    userLevel,
+    userStatusIdx,
+    searchType,
+    searchText,
   } = req.query;
 
-  console.log("Fetching users with params:", { startDate, endDate, userRoleIdx, searchText });
+  console.log("Fetching users with params:", {
+    startDate,
+    endDate,
+    userRoleIdx,
+    searchText,
+  });
 
   try {
     const limit = parseInt(pageSize, 10) || 50;
@@ -27,7 +32,12 @@ exports.getAllUsers = async (req, res) => {
     let whereClause = "WHERE 1=1";
     const params = [];
 
-    if (startDate && endDate && startDate.trim() !== "" && endDate.trim() !== "") {
+    if (
+      startDate &&
+      endDate &&
+      startDate.trim() !== "" &&
+      endDate.trim() !== ""
+    ) {
       whereClause += " AND DATE(u.created_at) BETWEEN ? AND ?";
       params.push(startDate, endDate);
     }
@@ -180,44 +190,83 @@ exports.updateUser = async (req, res) => {
     const updates = [];
     const params = [];
 
-    if (username !== undefined)       { updates.push("username = ?");        params.push(username); }
-    if (email_or_phone !== undefined)  { updates.push("email_or_phone = ?");  params.push(email_or_phone); }
-    if (role !== undefined)            { updates.push("role = ?");             params.push(role); }
-    if (nickname !== undefined)        { updates.push("nickname = ?");         params.push(nickname); }
-    if (memo !== undefined)            { updates.push("admin_notes = ?");      params.push(memo); }
+    if (username !== undefined) {
+      updates.push("username = ?");
+      params.push(username);
+    }
+    if (email_or_phone !== undefined) {
+      updates.push("email_or_phone = ?");
+      params.push(email_or_phone);
+    }
+    if (role !== undefined) {
+      updates.push("role = ?");
+      params.push(role);
+    }
+    if (nickname !== undefined) {
+      updates.push("nickname = ?");
+      params.push(nickname);
+    }
+    if (memo !== undefined) {
+      updates.push("admin_notes = ?");
+      params.push(memo);
+    }
     if (admin_notes !== undefined && memo === undefined) {
       updates.push("admin_notes = ?");
       params.push(admin_notes);
     }
-    if (recommendCode !== undefined)   { updates.push("referral_code = ?");   params.push(recommendCode); }
-    if (phoneNumber !== undefined)     { updates.push("phone_number = ?");     params.push(phoneNumber || null); }
-    if (bankNumber !== undefined)      { updates.push("bank_account = ?");     params.push(bankNumber || null); }
-    if (bankerName !== undefined)      { updates.push("bank_depositor = ?");   params.push(bankerName || null); }
-    if (bankIdx !== undefined)         { updates.push("bank_idx = ?");         params.push(bankIdx || null); }
-    if (warningColorIdx !== undefined) { updates.push("warning_color_idx = ?"); params.push(warningColorIdx || null); }
-    if (chargeBankIdx !== undefined)   { updates.push("charge_bank_idx = ?");  params.push(chargeBankIdx || null); }
+    if (recommendCode !== undefined) {
+      updates.push("referral_code = ?");
+      params.push(recommendCode);
+    }
+    if (phoneNumber !== undefined) {
+      updates.push("phone_number = ?");
+      params.push(phoneNumber || null);
+    }
+    if (bankNumber !== undefined) {
+      updates.push("bank_account = ?");
+      params.push(bankNumber || null);
+    }
+    if (bankerName !== undefined) {
+      updates.push("bank_depositor = ?");
+      params.push(bankerName || null);
+    }
+    if (bankIdx !== undefined) {
+      updates.push("bank_idx = ?");
+      params.push(bankIdx || null);
+    }
+    if (warningColorIdx !== undefined) {
+      updates.push("warning_color_idx = ?");
+      params.push(warningColorIdx || null);
+    }
+    if (chargeBankIdx !== undefined) {
+      updates.push("charge_bank_idx = ?");
+      params.push(chargeBankIdx || null);
+    }
 
     // vip_level_id / level — level from form, vip_level_id from direct API calls
     const gradeValue = level !== undefined ? level : vip_level_id;
-    if (gradeValue !== undefined)      { updates.push("vip_level_id = ?");    params.push(gradeValue || null); }
+    if (gradeValue !== undefined) {
+      updates.push("vip_level_id = ?");
+      params.push(gradeValue || null);
+    }
 
     // Map status: the form sends numeric strings ("1"-"5"), DB stores ENUM('ACTIVE','BANNED','SUSPENDED')
     if (status !== undefined) {
       const statusMap = {
-        "1": "ACTIVE",       // 가입대기 → treat as ACTIVE (no PENDING in DB)
-        "2": "ACTIVE",       // 정상
-        "3": "SUSPENDED",    // 정지
-        "4": "BANNED",       // 탈퇴
-        "5": "ACTIVE",       // 테스터 → treat as ACTIVE
+        1: "ACTIVE", // 가입대기 → treat as ACTIVE (no PENDING in DB)
+        2: "ACTIVE", // 정상
+        3: "SUSPENDED", // 정지
+        4: "BANNED", // 탈퇴
+        5: "ACTIVE", // 테스터 → treat as ACTIVE
         // pass-through for existing DB values
-        "ACTIVE": "ACTIVE",
-        "BANNED": "BANNED",
-        "SUSPENDED": "SUSPENDED",
-        "active": "ACTIVE",
-        "suspended": "SUSPENDED",
-        "banned": "BANNED",
-        "pending": "ACTIVE",
-        "tester": "ACTIVE",
+        ACTIVE: "ACTIVE",
+        BANNED: "BANNED",
+        SUSPENDED: "SUSPENDED",
+        active: "ACTIVE",
+        suspended: "SUSPENDED",
+        banned: "BANNED",
+        pending: "ACTIVE",
+        tester: "ACTIVE",
       };
       const mappedStatus = statusMap[String(status)] || "ACTIVE";
       updates.push("status = ?");
@@ -232,25 +281,44 @@ exports.updateUser = async (req, res) => {
     }
 
     // Handle game levels
-    if (gameLevel !== undefined && typeof gameLevel === 'object') {
-      if (gameLevel[1] !== undefined) { updates.push("sport_level = ?"); params.push(gameLevel[1]); }
-      if (gameLevel[2] !== undefined) { updates.push("casino_level = ?"); params.push(gameLevel[2]); }
-      if (gameLevel[3] !== undefined) { updates.push("slot_level = ?"); params.push(gameLevel[3]); }
-      if (gameLevel[4] !== undefined) { updates.push("mini_game_level = ?"); params.push(gameLevel[4]); }
-      if (gameLevel[5] !== undefined) { updates.push("board_game_level = ?"); params.push(gameLevel[5]); }
+    if (gameLevel !== undefined && typeof gameLevel === "object") {
+      if (gameLevel[1] !== undefined) {
+        updates.push("sport_level = ?");
+        params.push(gameLevel[1]);
+      }
+      if (gameLevel[2] !== undefined) {
+        updates.push("casino_level = ?");
+        params.push(gameLevel[2]);
+      }
+      if (gameLevel[3] !== undefined) {
+        updates.push("slot_level = ?");
+        params.push(gameLevel[3]);
+      }
+      if (gameLevel[4] !== undefined) {
+        updates.push("mini_game_level = ?");
+        params.push(gameLevel[4]);
+      }
+      if (gameLevel[5] !== undefined) {
+        updates.push("board_game_level = ?");
+        params.push(gameLevel[5]);
+      }
     }
 
     if (updates.length === 0) {
-      return res.status(400).json({ success: false, message: "No fields to update" });
+      return res
+        .status(400)
+        .json({ success: false, message: "No fields to update" });
     }
 
     params.push(id);
-    const sql = `UPDATE users SET ${updates.join(', ')} WHERE id = ?`;
+    const sql = `UPDATE users SET ${updates.join(", ")} WHERE id = ?`;
     console.log("UPDATE USER SQL:", sql);
     console.log("UPDATE USER PARAMS:", params);
     await db.execute(sql, params);
 
-    res.status(200).json({ success: true, message: "User updated successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "User updated successfully" });
   } catch (error) {
     console.error("Error in updateUser:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -261,13 +329,15 @@ exports.updateKycStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status, notes } = req.body;
-    
+
     await db.execute(
       "UPDATE users SET kyc_status = ?, kyc_notes = ? WHERE id = ?",
-      [status, notes || null, id]
+      [status, notes || null, id],
     );
 
-    res.status(200).json({ success: true, message: `KYC status updated to ${status}` });
+    res
+      .status(200)
+      .json({ success: true, message: `KYC status updated to ${status}` });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -277,13 +347,18 @@ exports.toggleMute = async (req, res) => {
   try {
     const { id } = req.params;
     const { isMuted } = req.body;
-    
-    await db.execute(
-      "UPDATE users SET is_muted = ? WHERE id = ?",
-      [isMuted ? 1 : 0, id]
-    );
 
-    res.status(200).json({ success: true, message: `User ${isMuted ? 'muted' : 'unmuted'} successfully` });
+    await db.execute("UPDATE users SET is_muted = ? WHERE id = ?", [
+      isMuted ? 1 : 0,
+      id,
+    ]);
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: `User ${isMuted ? "muted" : "unmuted"} successfully`,
+      });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -294,7 +369,7 @@ exports.getLoginHistory = async (req, res) => {
     const { id } = req.params;
     const [rows] = await db.execute(
       "SELECT * FROM user_login_history WHERE user_id = ? ORDER BY created_at DESC LIMIT 50",
-      [id]
+      [id],
     );
     res.status(200).json({ success: true, data: rows });
   } catch (error) {
@@ -308,12 +383,10 @@ exports.createUser = async (req, res) => {
 
     // Basic validation
     if (!username || !email_or_phone || !password) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Username, email, and password are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Username, email, and password are required",
+      });
     }
 
     // Check if user already exists
@@ -322,12 +395,10 @@ exports.createUser = async (req, res) => {
       [username, email_or_phone],
     );
     if (existing.length > 0) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "User with this username or email already exists",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "User with this username or email already exists",
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -374,12 +445,10 @@ exports.updateAdminRole = async (req, res) => {
   const { role } = req.body;
 
   if (req.user.role !== "super_admin") {
-    return res
-      .status(403)
-      .json({
-        success: false,
-        message: "Only Super Admin can manage admin roles",
-      });
+    return res.status(403).json({
+      success: false,
+      message: "Only Super Admin can manage admin roles",
+    });
   }
 
   try {
@@ -404,7 +473,6 @@ exports.getAuditLogs = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 /**
  * GET /api/admin/user/tree/list
@@ -437,13 +505,17 @@ exports.getTreeList = async (req, res) => {
 
     rows.forEach((user) => {
       const isMember = user.role === "user";
-      userMap[user.userIdx] = { 
-        ...user, 
+      userMap[user.userIdx] = {
+        ...user,
         roleType: isMember ? "member" : "partner",
-        roleLevel: isMember ? 1 : (user.role === "super_admin" ? 1 : (user.agent_level || 1)),
+        roleLevel: isMember
+          ? 1
+          : user.role === "super_admin"
+            ? 1
+            : user.agent_level || 1,
         childBalance: 0,
         childPoints: 0,
-        children: [] 
+        children: [],
       };
     });
 
@@ -547,7 +619,12 @@ exports.getLoginLogs = async (req, res) => {
  */
 exports.getDuplicateUsers = async (req, res) => {
   try {
-    const { page = 1, pageSize = 50, searchType = 'ip', searchText } = req.query;
+    const {
+      page = 1,
+      pageSize = 50,
+      searchType = "ip",
+      searchText,
+    } = req.query;
     const limit = parseInt(pageSize, 10) || 50;
     const pageNum = parseInt(page, 10) || 1;
     const offset = (pageNum - 1) * limit;
@@ -556,14 +633,15 @@ exports.getDuplicateUsers = async (req, res) => {
     const params = [];
 
     if (searchText && searchText.trim() !== "") {
-      if (searchType === 'ip') {
+      if (searchType === "ip") {
         whereClause += " AND u.last_ip_address LIKE ?";
         params.push(`%${searchText}%`);
       }
     } else {
       // If no search text, find all users who have at least one duplicate IP
-      if (searchType === 'ip') {
-        whereClause += " AND u.last_ip_address IN (SELECT last_ip_address FROM users WHERE last_ip_address IS NOT NULL AND last_ip_address != '' GROUP BY last_ip_address HAVING COUNT(*) > 1)";
+      if (searchType === "ip") {
+        whereClause +=
+          " AND u.last_ip_address IN (SELECT last_ip_address FROM users WHERE last_ip_address IS NOT NULL AND last_ip_address != '' GROUP BY last_ip_address HAVING COUNT(*) > 1)";
       }
     }
 
@@ -603,9 +681,9 @@ exports.getDuplicateUsers = async (req, res) => {
     `;
     const [countRows] = await db.query(countQuery, params);
 
-    const data = rows.map(r => ({
+    const data = rows.map((r) => ({
       ...r,
-      totalInout: (r.totalCharge || 0) - (r.totalExchange || 0)
+      totalInout: (r.totalCharge || 0) - (r.totalExchange || 0),
     }));
 
     res.status(200).json({
@@ -615,8 +693,8 @@ exports.getDuplicateUsers = async (req, res) => {
         total: countRows[0].total,
         page: pageNum,
         pageSize: limit,
-        totalPages: Math.ceil(countRows[0].total / limit)
-      }
+        totalPages: Math.ceil(countRows[0].total / limit),
+      },
     });
   } catch (error) {
     console.error("Error in getDuplicateUsers:", error);
@@ -716,7 +794,10 @@ exports.getUserEditLogs = async (req, res) => {
 exports.getUserDetail = async (req, res) => {
   try {
     const { userIdx } = req.query;
-    if (!userIdx) return res.status(400).json({ success: false, message: "userIdx is required" });
+    if (!userIdx)
+      return res
+        .status(400)
+        .json({ success: false, message: "userIdx is required" });
 
     const query = `
       SELECT 
@@ -761,11 +842,15 @@ exports.getUserDetail = async (req, res) => {
     const [rows] = await db.query(query, [userIdx]);
 
     if (rows.length === 0) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     const userData = rows[0];
-    userData.chargeProfit = (Number(userData.totalCharge) || 0) - (Number(userData.totalExchange) || 0);
+    userData.chargeProfit =
+      (Number(userData.totalCharge) || 0) -
+      (Number(userData.totalExchange) || 0);
     userData.roleIdx = userData.role === "user" ? 4 : 3;
     const statusToForm = { ACTIVE: "2", SUSPENDED: "3", BANNED: "4" };
     userData.status = statusToForm[userData.status] || "2";
@@ -776,7 +861,7 @@ exports.getUserDetail = async (req, res) => {
       4: userData.mini_game_level || 1,
       5: userData.board_game_level || 1,
     };
-    
+
     // Remove the individual columns from the response payload to keep it clean
     delete userData.sport_level;
     delete userData.casino_level;
@@ -788,5 +873,141 @@ exports.getUserDetail = async (req, res) => {
   } catch (error) {
     console.error("Error in getUserDetail:", error);
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * POST /api/admin/user/point-action
+ * Add or deduct points from a user
+ */
+exports.pointAction = async (req, res) => {
+  const connection = await db.getConnection();
+  try {
+    const { userIdx, logTypeIdx, amount, memo } = req.body;
+
+    if (!userIdx || !logTypeIdx || !amount || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid parameters: userIdx, logTypeIdx, amount (positive), and memo are required",
+      });
+    }
+
+    await connection.beginTransaction();
+
+    // Check if user exists
+    const [users] = await connection.execute(
+      "SELECT id, username, nickname FROM users WHERE id = ?",
+      [userIdx],
+    );
+
+    if (users.length === 0) {
+      await connection.rollback();
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const user = users[0];
+
+    // Determine group_idx based on logTypeIdx (20 = 지급, 21 = 회수)
+    let groupIdx = 11; // 관리자
+    if (logTypeIdx === 20) {
+      // 지급 - 관리자 지급
+    } else if (logTypeIdx === 21) {
+      // 회수 - 관리자 회수
+      groupIdx = 11;
+    }
+
+    // Get current point balance
+    const [balances] = await connection.execute(
+      "SELECT amount FROM user_balances WHERE user_id = ? AND currency = 'POINT' FOR UPDATE",
+      [userIdx],
+    );
+
+    let beforeAmount = 0;
+    if (balances.length > 0) {
+      beforeAmount = parseFloat(balances[0].amount);
+    }
+
+    // Calculate new amount
+    let afterAmount;
+    if (logTypeIdx === 20) {
+      // 지급 - add points
+      afterAmount = beforeAmount + amount;
+    } else if (logTypeIdx === 21) {
+      // 회수 - deduct points
+      afterAmount = beforeAmount - amount;
+      if (afterAmount < 0) {
+        await connection.rollback();
+        return res
+          .status(400)
+          .json({ success: false, message: "Insufficient points" });
+      }
+    } else {
+      await connection.rollback();
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid logTypeIdx" });
+    }
+
+    // Update or create user balance
+    if (balances.length > 0) {
+      await connection.execute(
+        "UPDATE user_balances SET amount = ? WHERE user_id = ? AND currency = 'POINT'",
+        [afterAmount, userIdx],
+      );
+    } else {
+      await connection.execute(
+        "INSERT INTO user_balances (user_id, currency, amount) VALUES (?, 'POINT', ?)",
+        [userIdx, afterAmount],
+      );
+    }
+
+    // Insert point log
+    const [logResult] = await connection.execute(
+      `INSERT INTO point_logs (user_id, group_idx, type_idx, amount, before_amount, after_amount, memo, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [
+        userIdx,
+        groupIdx,
+        logTypeIdx,
+        logTypeIdx === 20 ? amount : -amount,
+        beforeAmount,
+        afterAmount,
+        memo || "",
+      ],
+    );
+
+    // Also log in wallet_transactions for audit trail
+    await connection.execute(
+      `INSERT INTO wallet_transactions (user_id, type, amount, currency, status, balance_after, description, created_at)
+       VALUES (?, 'admin_point_action', ?, 'POINT', 'completed', ?, ?, NOW())`,
+      [
+        userIdx,
+        logTypeIdx === 20 ? amount : -amount,
+        afterAmount,
+        memo || "관리자 포인트 지급/회수",
+      ],
+    );
+
+    await connection.commit();
+
+    res.status(200).json({
+      success: true,
+      message: "Point action completed successfully",
+      data: {
+        logId: logResult.insertId,
+        beforeAmount,
+        afterAmount,
+        actionAmount: logTypeIdx === 20 ? amount : -amount,
+      },
+    });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error in pointAction:", error);
+    res.status(500).json({ success: false, message: error.message });
+  } finally {
+    connection.release();
   }
 };

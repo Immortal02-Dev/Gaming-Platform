@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { useSearchParams, useRouter } from "next/navigation";
 
@@ -9,6 +9,7 @@ declare global {
   interface Window {
     userDetail?: (userIdx: string | number, tab: number) => void;
     messageWrite?: (userIdx: string | number) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     flatpickr?: any;
   }
 }
@@ -59,17 +60,27 @@ function UserAllEditLogListPageInner() {
     totalPages: 1,
     hasMore: false,
   });
-  const [pageSize, setPageSize] = useState(searchParams.get("pageSize") || "50");
-  const [startDate, setStartDate] = useState(searchParams.get("startDate") || "");
-  const [endDate, setEndDate] = useState(searchParams.get("endDate") || "");
-  const [searchType, setSearchType] = useState(searchParams.get("searchType") || "");
-  const [searchText, setSearchText] = useState(searchParams.get("searchText") || "");
+  const [pageSize, setPageSize] = useState(
+    () => searchParams.get("pageSize") || "50",
+  );
+  const [startDate, setStartDate] = useState(
+    () => searchParams.get("startDate") || "",
+  );
+  const [endDate, setEndDate] = useState(
+    () => searchParams.get("endDate") || "",
+  );
+  const [searchType, setSearchType] = useState(
+    () => searchParams.get("searchType") || "",
+  );
+  const [searchText, setSearchText] = useState(
+    () => searchParams.get("searchText") || "",
+  );
 
   useEffect(() => {
     // Initialize flatpickr for date inputs if available
-    if (typeof window !== "undefined" && (window as any).flatpickr) {
+    if (typeof window !== "undefined" && window.flatpickr) {
       if (startDateRef.current) {
-        (window as any).flatpickr(startDateRef.current, {
+        window.flatpickr(startDateRef.current, {
           locale: "ko",
           dateFormat: "Y-m-d",
           disableMobile: true,
@@ -79,7 +90,7 @@ function UserAllEditLogListPageInner() {
         });
       }
       if (endDateRef.current) {
-        (window as any).flatpickr(endDateRef.current, {
+        window.flatpickr(endDateRef.current, {
           locale: "ko",
           dateFormat: "Y-m-d",
           disableMobile: true,
@@ -107,22 +118,32 @@ function UserAllEditLogListPageInner() {
     }
   }, []);
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true);
     try {
+      const page = searchParams.get("page") || "1";
+      const currentPageSize = searchParams.get("pageSize") || "50";
+      const currentStartDate = searchParams.get("startDate") || "";
+      const currentEndDate = searchParams.get("endDate") || "";
+      const currentSearchType = searchParams.get("searchType") || "";
+      const currentSearchText = searchParams.get("searchText") || "";
+
       const params = new URLSearchParams({
-        page: searchParams.get("page") || "1",
-        pageSize,
+        page,
+        pageSize: currentPageSize,
       });
 
-      if (startDate) params.append("startDate", startDate);
-      if (endDate) params.append("endDate", endDate);
-      if (searchType) params.append("searchType", searchType);
-      if (searchText) params.append("searchText", searchText);
+      if (currentStartDate) params.append("startDate", currentStartDate);
+      if (currentEndDate) params.append("endDate", currentEndDate);
+      if (currentSearchType) params.append("searchType", currentSearchType);
+      if (currentSearchText) params.append("searchText", currentSearchText);
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/user-edit-logs?${params.toString()}`, {
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/user-edit-logs?${params.toString()}`,
+        {
+          credentials: "include",
+        },
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch user edit logs");
@@ -135,15 +156,18 @@ function UserAllEditLogListPageInner() {
       }
     } catch (error) {
       console.error("Error fetching user edit logs:", error);
-      alert("???? ??? ????? ??????.");
+      alert("로그 정보를 불러오지 못했습니다.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchParams]);
 
   useEffect(() => {
-    fetchLogs();
-  }, [searchParams, pageSize, startDate, endDate, searchType, searchText]);
+    const timer = setTimeout(() => {
+      fetchLogs();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [searchParams, fetchLogs]);
 
   const fnReset = () => {
     setPageSize("50");
@@ -170,14 +194,18 @@ function UserAllEditLogListPageInner() {
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    }).replace(/\./g, "-").replace(/,/g, "").replace(/\s+/g, " ");
+    return date
+      .toLocaleString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      })
+      .replace(/\./g, "-")
+      .replace(/,/g, "")
+      .replace(/\s+/g, " ");
   };
 
   const renderPagination = () => {
@@ -187,7 +215,7 @@ function UserAllEditLogListPageInner() {
     const maxPages = 10;
 
     let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
-    let endPage = Math.min(totalPages, startPage + maxPages - 1);
+    const endPage = Math.min(totalPages, startPage + maxPages - 1);
 
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(1, endPage - maxPages + 1);
@@ -198,8 +226,6 @@ function UserAllEditLogListPageInner() {
       <li
         key="prev"
         className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
-        aria-disabled={currentPage === 1}
-        aria-label="&laquo; Previous"
       >
         {currentPage === 1 ? (
           <span className="page-link" aria-hidden={true}>
@@ -219,7 +245,7 @@ function UserAllEditLogListPageInner() {
             &lsaquo;
           </a>
         )}
-      </li>
+      </li>,
     );
 
     // Page numbers
@@ -246,7 +272,7 @@ function UserAllEditLogListPageInner() {
               {i}
             </a>
           )}
-        </li>
+        </li>,
       );
     }
 
@@ -255,8 +281,6 @@ function UserAllEditLogListPageInner() {
       <li
         key="next"
         className={`page-item ${!pagination.hasMore ? "disabled" : ""}`}
-        aria-disabled={!pagination.hasMore}
-        aria-label="Next &raquo;"
       >
         {!pagination.hasMore ? (
           <span className="page-link" aria-hidden={true}>
@@ -277,7 +301,7 @@ function UserAllEditLogListPageInner() {
             &rsaquo;
           </a>
         )}
-      </li>
+      </li>,
     );
 
     return pages;
@@ -285,43 +309,55 @@ function UserAllEditLogListPageInner() {
 
   // Helper function to get user role color
   const getUserRoleColor = (log: UserEditLog): string => {
-    if (log.roleType === 'partner') {
-      return log.roleLevel === 1 ? '#f4a29c' : '#f4dc95';
+    if (log.roleType === "partner") {
+      return log.roleLevel === 1 ? "#f4a29c" : "#f4dc95";
     }
-    return '#ffffff';
+    return "#ffffff";
   };
 
   // Helper function to get user role label
   const getUserRoleLabel = (log: UserEditLog): string => {
-    if (log.roleType === 'partner') {
-      return log.roleLevel === 1 ? '???' : '??';
+    if (log.roleType === "partner") {
+      const levelMap: { [key: number]: string } = {
+        1: "부본사",
+        2: "총판",
+        3: "대리점1단계",
+        4: "대리점2단계",
+        5: "대리점3단계",
+        6: "대리점4단계",
+        7: "대리점5단계",
+      };
+      return levelMap[log.roleLevel ?? 1] || `${log.roleLevel}단계`;
     }
-    return '??';
+    return "회원";
   };
 
   return (
     <Layout>
       <h1 className="page-header">
         <a href="/user/all/edit/log/list">
-          <i className="fa fa-users me-2"></i>???? ??
+          <i className="fa fa-users me-2"></i>회원정보 변경 내역
         </a>
         <small></small>
       </h1>
 
       <div className="row mb-2">
         <div className="col">
-          <div className="d-flex bg-white p-2">
-            <form
-              id="formSearch"
-              ref={formSearchRef}
-              onSubmit={handleSearch}
-            >
+          <div className="d-flex bg-white p-2" key={searchParams.toString()}>
+            <form id="formSearch" ref={formSearchRef} onSubmit={handleSearch}>
               <div className="d-flex">
                 <select
                   name="pageSize"
                   className="form-select w-80px me-2"
                   value={pageSize}
-                  onChange={(e) => setPageSize(e.target.value)}
+                  onChange={(e) => {
+                    const newPageSize = e.target.value;
+                    setPageSize(newPageSize);
+                    const params = new URLSearchParams(searchParams.toString());
+                    params.set("page", "1");
+                    params.set("pageSize", newPageSize);
+                    router.push(`/user/all/edit/log/list?${params.toString()}`);
+                  }}
                 >
                   <option value="50">50</option>
                   <option value="100">100</option>
@@ -362,12 +398,12 @@ function UserAllEditLogListPageInner() {
                   value={searchType}
                   onChange={(e) => setSearchType(e.target.value)}
                 >
-                  <option value="">??</option>
+                  <option value="">전체</option>
                   <option value="id">ID</option>
-                  <option value="col">?? ??</option>
-                  <option value="nick">???</option>
+                  <option value="col">변경 항목</option>
+                  <option value="nick">닉네임</option>
                   <option value="ip">IP</option>
-                  <option value="register">???</option>
+                  <option value="register">처리자</option>
                 </select>
 
                 <input
@@ -380,14 +416,14 @@ function UserAllEditLogListPageInner() {
                 />
 
                 <button className="btn btn-lime" id="btnSearch" type="submit">
-                  <i className="fa-solid fa-magnifying-glass me-2"></i>??
+                  <i className="fa-solid fa-magnifying-glass me-2"></i>검색
                 </button>
                 <button
                   className="btn btn-secondary ms-2"
                   type="button"
                   onClick={fnReset}
                 >
-                  <i className="fa-solid fa-eraser me-2"></i>???
+                  <i className="fa-solid fa-eraser me-2"></i>초기화
                 </button>
               </div>
             </form>
@@ -404,13 +440,13 @@ function UserAllEditLogListPageInner() {
             <thead className="bg-dark bg-gradient text-white">
               <tr>
                 <th>No.</th>
-                <th>???(???)</th>
-                <th>?? ??</th>
-                <th>?? ??</th>
-                <th>?? ??</th>
-                <th>???</th>
-                <th>???</th>
-                <th>????</th>
+                <th>아이디(닉네임)</th>
+                <th>변경 항목</th>
+                <th>변경 전</th>
+                <th>변경 후</th>
+                <th>IP</th>
+                <th>처리자</th>
+                <th>변경일시</th>
               </tr>
             </thead>
             <tbody>
@@ -418,21 +454,25 @@ function UserAllEditLogListPageInner() {
                 <tr>
                   <td colSpan={8} className="text-center py-4">
                     <span className="spinner-border spinner-border-sm me-2"></span>
-                    ?? ?...
+                    로딩 중...
                   </td>
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center py-4">
-                    ???? ????.
+                    변경 내역이 없습니다.
                   </td>
                 </tr>
               ) : (
                 logs.map((log, index) => {
-                  const rowNumber = pagination.total - (pagination.page - 1) * pagination.pageSize - index;
-                  const displayName = log.user_id_display && log.nickname
-                    ? `${log.user_id_display} (${log.nickname})`
-                    : log.user_id_display || log.nickname || "-";
+                  const rowNumber =
+                    pagination.total -
+                    (pagination.page - 1) * pagination.pageSize -
+                    index;
+                  const displayName =
+                    log.user_id_display && log.nickname
+                      ? `${log.user_id_display} (${log.nickname})`
+                      : log.user_id_display || log.nickname || "-";
 
                   return (
                     <tr key={log.id}>
@@ -471,89 +511,110 @@ function UserAllEditLogListPageInner() {
                               <a
                                 className="dropdown-item"
                                 href="javascript:void(0);"
-                                onClick={() => (window as any).userDetail(log.user_id, 1)}
+                                onClick={() =>
+                                  window.userDetail?.(log.user_id, 1)
+                                }
                               >
-                                ????
+                                기본정보
                               </a>
                             </li>
                             <li className="bg-gray-700">
                               <a
                                 className="dropdown-item"
                                 href="javascript:void(0);"
-                                onClick={() => (window as any).userDetail(log.user_id, 17)}
+                                onClick={() =>
+                                  window.userDetail?.(log.user_id, 17)
+                                }
                               >
-                                ????
+                                수수료
                               </a>
                             </li>
                             <li className="bg-gray-700">
                               <a
                                 className="dropdown-item"
                                 href="javascript:void(0);"
-                                onClick={() => (window as any).userDetail(log.user_id, 3)}
+                                onClick={() =>
+                                  window.userDetail?.(log.user_id, 3)
+                                }
                               >
-                                ????/??
+                                머니 지급/차감
                               </a>
                             </li>
                             <li className="bg-gray-700">
                               <a
                                 className="dropdown-item"
                                 href="javascript:void(0);"
-                                onClick={() => (window as any).userDetail(log.user_id, 6)}
+                                onClick={() =>
+                                  window.userDetail?.(log.user_id, 6)
+                                }
                               >
-                                ?????/??
+                                포인트 지급/차감
                               </a>
                             </li>
                             <li className="bg-gray-700">
                               <a
                                 className="dropdown-item"
-                                href={`javascript:messageWrite(${log.user_id});`}
+                                href="javascript:void(0);"
+                                onClick={() =>
+                                  window.messageWrite?.(log.user_id)
+                                }
                               >
-                                ?????
+                                쪽지 발송
                               </a>
                             </li>
                             <li>
                               <a
                                 className="dropdown-item"
                                 href="javascript:void(0);"
-                                onClick={() => (window as any).userDetail(log.user_id, 8)}
+                                onClick={() =>
+                                  window.userDetail?.(log.user_id, 8)
+                                }
                               >
-                                ????
+                                베팅내역
                               </a>
                             </li>
                             <li>
                               <a
                                 className="dropdown-item"
                                 href="javascript:void(0);"
-                                onClick={() => (window as any).userDetail(log.user_id, 4)}
+                                onClick={() =>
+                                  window.userDetail?.(log.user_id, 4)
+                                }
                               >
-                                ?????
+                                충환전내역
                               </a>
                             </li>
                             <li>
                               <a
                                 className="dropdown-item"
                                 href="javascript:void(0);"
-                                onClick={() => (window as any).userDetail(log.user_id, 5)}
+                                onClick={() =>
+                                  window.userDetail?.(log.user_id, 5)
+                                }
                               >
-                                ??????
+                                머니 거래내역
                               </a>
                             </li>
                             <li>
                               <a
                                 className="dropdown-item"
                                 href="javascript:void(0);"
-                                onClick={() => (window as any).userDetail(log.user_id, 7)}
+                                onClick={() =>
+                                  window.userDetail?.(log.user_id, 7)
+                                }
                               >
-                                ???????
+                                포인트 거래내역
                               </a>
                             </li>
                             <li>
                               <a
                                 className="dropdown-item"
                                 href="javascript:void(0);"
-                                onClick={() => (window as any).userDetail(log.user_id, 15)}
+                                onClick={() =>
+                                  window.userDetail?.(log.user_id, 15)
+                                }
                               >
-                                ?? ??
+                                쿠폰 내역
                               </a>
                             </li>
                           </ul>
@@ -577,9 +638,7 @@ function UserAllEditLogListPageInner() {
       <div className="row justify-content-center mt-2">
         <div className="col" style={{ display: "contents" }}>
           <nav>
-            <ul className="pagination d-inline-flex">
-              {renderPagination()}
-            </ul>
+            <ul className="pagination d-inline-flex">{renderPagination()}</ul>
           </nav>
         </div>
       </div>
@@ -598,11 +657,11 @@ function UserAllEditLogListPageInner() {
         <div className="modal-dialog d-flex justify-content-center modal-dialog-centered">
           <button className="btn btn-primary" type="button" disabled>
             <span
-              className="spinner-border spinner-border-sm"
+              className="spinner-border spinner-border-sm me-2"
               role="status"
               aria-hidden="true"
             ></span>
-            ??????. ?? ???????.
+            처리중입니다. 잠시 기다려주십시오.
           </button>
         </div>
       </div>

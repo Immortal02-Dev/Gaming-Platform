@@ -50,6 +50,7 @@ const guideController = require("../controllers/admin/guideController");
 const messageTemplateController = require("../controllers/admin/messageTemplateController");
 const messageController = require("../controllers/admin/messageController");
 const faqController = require("../controllers/admin/faqController");
+const userBatchController = require("../controllers/admin/userBatchController");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const { auditMiddleware } = require("../middleware/auditMiddleware");
@@ -98,9 +99,15 @@ router.get("/analytics/financial-flow", analyticsController.getFinancialFlow);
 router.get("/analytics/security", analyticsController.getSecurityAlerts);
 
 // Statistics
-router.get("/statistics/partner/date-range", statisticsController.getPartnerStatisticsDateRange);
+router.get(
+  "/statistics/partner/date-range",
+  statisticsController.getPartnerStatisticsDateRange,
+);
 router.get("/statistics/partner", statisticsController.getPartnerStatistics);
-router.get("/statistics/date/date-range", statisticsController.getDateStatisticsDateRange);
+router.get(
+  "/statistics/date/date-range",
+  statisticsController.getDateStatisticsDateRange,
+);
 router.get("/statistics/date", statisticsController.getDateStatistics);
 router.get("/statistics/game-types", statisticsController.getGameTypes);
 
@@ -116,6 +123,49 @@ router.get("/user/tree/list", userController.getTreeList);
 router.get("/users/duplicate", userController.getDuplicateUsers);
 router.get("/user-edit-logs", userController.getUserEditLogs);
 router.get("/user/login/list", userController.getLoginLogs);
+
+// User Batch Operations
+router.post("/user/batch/chargeBank",            userBatchController.chargeBank);
+router.post("/user/batch/chargeApiIdx",           userBatchController.chargeApiIdx);
+router.post("/user/batch/firstCharge",            userBatchController.firstCharge);
+router.post("/user/batch/firstChargeCommission",  userBatchController.firstChargeCommission);
+router.post("/user/batch/everyCharge",            userBatchController.everyCharge);
+router.post("/user/batch/everyChargeCommission",  userBatchController.everyChargeCommission);
+router.post("/user/batch/userIntegrateChargeBonusUseYN", userBatchController.userIntegrateChargeBonusUseYN);
+router.post("/user/batch/userIntegrateChargeBonusAuth",  userBatchController.userIntegrateChargeBonusAuth);
+router.post("/user/batch/userIntegrateChargeBonus",      userBatchController.userIntegrateChargeBonus);
+router.post("/user/batch/comp",                   userBatchController.comp);
+router.post("/user/batch/partnerAddAuth",          userBatchController.partnerAddAuth);
+router.post("/user/batch/partnerAddAuthLock",      userBatchController.partnerAddAuthLock);
+router.post("/user/batch/partnerModifyAuth",       userBatchController.partnerModifyAuth);
+router.post("/user/batch/partnerModifyAuthLock",   userBatchController.partnerModifyAuthLock);
+router.post("/user/batch/partnerPasswordModifyAuth",     userBatchController.partnerPasswordModifyAuth);
+router.post("/user/batch/partnerPasswordModifyAuthLock", userBatchController.partnerPasswordModifyAuthLock);
+router.post("/user/batch/partnerCommissionAuth",   userBatchController.partnerCommissionAuth);
+router.post("/user/batch/partnerCommissionAuthLock", userBatchController.partnerCommissionAuthLock);
+router.post("/user/batch/userAddAuth",             userBatchController.userAddAuth);
+router.post("/user/batch/userAddAuthLock",         userBatchController.userAddAuthLock);
+router.post("/user/batch/userMultiRegisterAuth",   userBatchController.userMultiRegisterAuth);
+router.post("/user/batch/userModifyAuth",          userBatchController.userModifyAuth);
+router.post("/user/batch/userModifyAuthLock",      userBatchController.userModifyAuthLock);
+router.post("/user/batch/userPasswordModifyAuth",  userBatchController.userPasswordModifyAuth);
+router.post("/user/batch/userPasswordModifyAuthLock", userBatchController.userPasswordModifyAuthLock);
+router.post("/user/batch/userCommissionAuth",      userBatchController.userCommissionAuth);
+router.post("/user/batch/userCommissionAuthLock",  userBatchController.userCommissionAuthLock);
+router.post("/user/batch/userMoneyChargeAuth",     userBatchController.userMoneyChargeAuth);
+router.post("/user/batch/userMoneyChargeAuthLock", userBatchController.userMoneyChargeAuthLock);
+router.post("/user/batch/userCasinoMoneyChargeAuth",     userBatchController.userCasinoMoneyChargeAuth);
+router.post("/user/batch/userCasinoMoneyChargeAuthLock", userBatchController.userCasinoMoneyChargeAuthLock);
+router.post("/user/batch/pointChangeAuth",         userBatchController.pointChangeAuth);
+router.post("/user/batch/pointChangeAuthLock",     userBatchController.pointChangeAuthLock);
+router.post("/user/batch/pointChangeUserWebAuth",  userBatchController.pointChangeUserWebAuth);
+router.post("/user/batch/pointChangeUserWebAuthLock", userBatchController.pointChangeUserWebAuthLock);
+router.post("/user/batch/exchangePasswordUseYN",   userBatchController.exchangePasswordUseYN);
+router.post("/user/batch/isUseChargeBonus",        userBatchController.isUseChargeBonus);
+router.post("/user/batch/userSitePasswordEditYN",  userBatchController.userSitePasswordEditYN);
+router.post("/user/batch/userGradeModify",         userBatchController.userGradeModify);
+router.post("/user/batch/userGameGrade",           userBatchController.userGameGrade);
+router.post("/user/batch/userStatusIdx",           userBatchController.userStatusIdx);
 
 // Finance List Routes (for consistency)
 router.get("/finance/deposits", financeController.getDeposits);
@@ -179,6 +229,13 @@ router.put(
   userController.toggleMute,
 );
 router.get("/users/:id/login-history", userController.getLoginHistory);
+
+// Point Action (지급/회수)
+router.post(
+  "/user/point-action",
+  auditMiddleware("POINT_ACTION"),
+  userController.pointAction,
+);
 
 // Platform Stats
 router.get("/stats", financeController.getPlatformStats);
@@ -1016,7 +1073,10 @@ router.put("/kyc/submissions/:id/status", kycController.updateStatus);
 
 // ── Responsible Gambling ─────────────────────────────────────
 router.get("/responsible/exclusions", responsibleController.getAllExclusions);
-router.delete("/responsible/exclusions/:id", responsibleController.cancelExclusion);
+router.delete(
+  "/responsible/exclusions/:id",
+  responsibleController.cancelExclusion,
+);
 router.get("/responsible/limits", responsibleController.getAllLimits);
 
 // ── Audit Logs ──────────────────────────────────────────────
