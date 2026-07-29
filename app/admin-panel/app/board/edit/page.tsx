@@ -9,7 +9,7 @@ import dynamic from "next/dynamic";
 // Load RichTextEditor dynamically (client-side only)
 const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), {
   ssr: false,
-  loading: () => <p>Editor? ???? ?...</p>,
+  loading: () => <p>Editor를 불러오는 중...</p>,
 });
 
 const BACKEND_URL = ""; // Use relative path for proxy
@@ -31,9 +31,10 @@ function BoardEditPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const boardIdx = searchParams.get("boardIdx");
+  const boardTypeParam = searchParams.get("boardType");
 
   const [formData, setFormData] = useState<FormData>({
-    boardType: "",
+    boardType: boardTypeParam || "",
     boardTitle: "",
     boardTitleColor: "#000000",
     boardTitleWeight: "",
@@ -112,7 +113,7 @@ function BoardEditPageInner() {
         boardUserDel: data.isDisabled === "Y",
       });
     } catch (err: any) {
-      setError("???? ????? ??????.");
+      setError("게시글을 불러오는데 실패했습니다.");
       console.error("Error fetching board:", err);
     } finally {
       setFetching(false);
@@ -160,7 +161,7 @@ function BoardEditPageInner() {
     setError(null);
 
     if (!formData.boardTitle.trim()) {
-      setError("??? ??????.");
+      setError("제목을 입력해주세요.");
       return;
     }
 
@@ -200,15 +201,15 @@ function BoardEditPageInner() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "??? ??? ??????.");
+        throw new Error(data.message || "게시글 수정에 실패했습니다.");
       }
 
       if (typeof window !== "undefined" && window.alert) {
-        window.alert("???? ???????.");
+        window.alert("게시글이 수정되었습니다.");
       }
       router.push("/board");
     } catch (err: any) {
-      setError(err.message || "??? ?? ? ??? ??????.");
+      setError(err.message || "게시글 수정 중 오류가 발생했습니다.");
       console.error("Error updating board:", err);
     } finally {
       setLoading(false);
@@ -234,12 +235,12 @@ function BoardEditPageInner() {
       <div>
         <h1 className="page-header">
           <i className="fa fa-tasks me-2"></i>
-          ??? ??
+          게시판 수정
         </h1>
 
         {error && (
           <div className="alert alert-danger alert-dismissible fade show mb-3">
-            <strong>??!</strong> {error}
+            <strong>오류!</strong> {error}
             <button
               type="button"
               className="btn-close"
@@ -257,14 +258,14 @@ function BoardEditPageInner() {
                   <span className="me-2">
                     <i className="fas fa-edit"></i>
                   </span>
-                  ??? ??
+                  게시판 수정
                 </h4>
               </div>
               <div className="panel-body">
                 <form onSubmit={handleSubmit}>
                   <div className="form-group row mb-2">
                     <label className="col-form-label col-md-1 text-center">
-                      ???<span className="text-danger">*</span>
+                      게시판<span className="text-danger">*</span>
                     </label>
                     <div className="col-md-11">
                       <select
@@ -275,21 +276,21 @@ function BoardEditPageInner() {
                         onChange={handleInputChange}
                         required
                       >
-                        <option value="">??</option>
-                        <option value="notice">????</option>
-                        <option value="event">??????</option>
-                        <option value="partnerNotice">??? ??</option>
-                        <option value="free">?????</option>
-                        <option value="popup">??</option>
-                        <option value="qna">1:1??</option>
-                        <option value="reply">?? ???</option>
+                        <option value="">게시판 선택</option>
+                        <option value="notice">공지사항</option>
+                        <option value="event">이벤트게시판</option>
+                        <option value="partnerNotice">파트너 공지</option>
+                        <option value="free">자유게시판</option>
+                        <option value="popup">팝업</option>
+                        <option value="qna">1:1문의</option>
+                        <option value="reply">답변 템플릿</option>
                       </select>
                     </div>
                   </div>
 
                   <div className="form-group row mb-2">
                     <label className="col-form-label col-md-1 text-center">
-                      ??<span className="text-danger">*</span>
+                      제목 색상<span className="text-danger">*</span>
                     </label>
                     <div className="col-form-label w-auto py-1">
                       <input
@@ -298,7 +299,7 @@ function BoardEditPageInner() {
                         className="form-control form-control-color"
                         value={formData.boardTitleColor}
                         onChange={handleInputChange}
-                        title="?? ?? ??"
+                        title="제목 색상 선택"
                       />
                     </div>
                     <select
@@ -307,8 +308,8 @@ function BoardEditPageInner() {
                       value={formData.boardTitleWeight}
                       onChange={handleInputChange}
                     >
-                      <option value="">??</option>
-                      <option value="bold">??</option>
+                      <option value="">보통</option>
+                      <option value="bold">굵게</option>
                     </select>
                     <div className="col w-auto">
                       <input
@@ -317,7 +318,7 @@ function BoardEditPageInner() {
                         className="form-control"
                         value={formData.boardTitle}
                         onChange={handleInputChange}
-                        placeholder="??? ?????"
+                        placeholder="제목을 입력하세요"
                         required
                       />
                     </div>
@@ -327,7 +328,7 @@ function BoardEditPageInner() {
                     <React.Fragment>
                       <div className="form-group row mb-2">
                         <label className="col-form-label col-md-1 text-center">
-                          ?? ??
+                          상단고정
                         </label>
                         <div className="col-form-label col-md-11">
                           <div className="form-check-inline me-0 form-switch">
@@ -344,7 +345,7 @@ function BoardEditPageInner() {
 
                       <div className="form-group row mb-2">
                         <label className="col-form-label col-md-1 text-center">
-                          ?? ??
+                          순서
                         </label>
                         <div className="col w-auto">
                           <input
@@ -362,7 +363,7 @@ function BoardEditPageInner() {
 
                       <div className="form-group row mb-2">
                         <label className="col-form-label col-md-1 text-center">
-                          ????
+                          노출일시
                         </label>
                         <div className="col w-auto">
                           <input
@@ -378,7 +379,7 @@ function BoardEditPageInner() {
 
                       <div className="form-group row mb-2">
                         <label className="col-form-label col-md-1 text-center">
-                          ?? ??
+                          팝업
                         </label>
                         <div className="col-form-label w-auto">
                           <div className="form-check-inline me-0 form-switch">
@@ -391,7 +392,7 @@ function BoardEditPageInner() {
                             />
                           </div>
                           <label className="col-form-label ms-2">
-                            (????? ?? ???? ?????)
+                            (팝업으로 표시)
                           </label>
                         </div>
                       </div>
@@ -400,7 +401,7 @@ function BoardEditPageInner() {
 
                   <div className="form-group row mb-2">
                     <label className="col-form-label col-md-1 text-center">
-                      ?? ??
+                      사용안함
                     </label>
                     <div className="col-form-label col-md-11">
                       <div className="form-check-inline me-0 form-switch">
@@ -417,7 +418,7 @@ function BoardEditPageInner() {
 
                   <div className="form-group row mb-2">
                     <label className="col-form-label col-md-1 text-center">
-                      ??
+                      내용
                     </label>
                     <div className="col-md-11">
                       <RichTextEditor
@@ -447,12 +448,12 @@ function BoardEditPageInner() {
                               role="status"
                               aria-hidden="true"
                             ></span>
-                            ???...
+                            저장중...
                           </React.Fragment>
                         ) : (
                           <React.Fragment>
                             <i className="fas fa-save me-2"></i>
-                            ????
+                            저장
                           </React.Fragment>
                         )}
                       </button>
@@ -463,7 +464,7 @@ function BoardEditPageInner() {
                         disabled={loading}
                       >
                         <i className="fa-solid fa-xmark me-2"></i>
-                        ??
+                        취소
                       </button>
                     </div>
                   </div>

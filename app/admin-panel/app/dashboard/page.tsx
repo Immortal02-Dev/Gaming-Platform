@@ -84,12 +84,17 @@ export default function DashboardPage() {
 
         const result = await response.json();
         if (!response.ok || !result.success) {
-          throw new Error(result.message || result.error || "Failed to fetch dashboard stats");
+          throw new Error(
+            result.message || result.error || "Failed to fetch dashboard stats",
+          );
         }
 
         setData(result.data);
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Failed to fetch dashboard stats";
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Failed to fetch dashboard stats";
         console.error("Failed to fetch dashboard stats:", err);
         setError(message);
       } finally {
@@ -108,7 +113,8 @@ export default function DashboardPage() {
     profit: 0,
   };
 
-  const currentStats = (renderType === "1" ? data?.today : data?.month) || emptyStats;
+  const currentStats =
+    (renderType === "1" ? data?.today : data?.month) || emptyStats;
   const chartData = data?.history || [];
   const recentTransactions = data?.recent || [];
 
@@ -161,7 +167,7 @@ export default function DashboardPage() {
 
       <h1 className="page-header">
         <div className="mb-2">
-          <span className="text-muted fs-14px">반갑습니다, </span>
+          <span className="text-muted fs-14px">방갑습니다, </span>
           <span className="fw-bold text-dark fs-18px">{adminName}</span>
           <span className="text-muted fs-14px">님! 오늘의 현황입니다.</span>
         </div>

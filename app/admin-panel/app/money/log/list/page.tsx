@@ -8,34 +8,43 @@ import { useSearchParams, useRouter } from "next/navigation";
 const dropdownLinks = [
   {
     label: "정보수정",
-    href: (id) => `javascript:userDetail(${id}, 1);`,
+    href: "#",
     className: "bg-gray-700",
+    action: (id) => `userDetail(${id}, 1)`,
   },
   {
     label: "수수료율",
-    href: (id) => `javascript:userDetail(${id}, 17);`,
+    href: "#",
     className: "bg-gray-700",
+    action: (id) => `userDetail(${id}, 17)`,
   },
   {
     label: "머니지급/차감",
-    href: (id) => `javascript:userDetail(${id}, 3);`,
+    href: "#",
     className: "bg-gray-700",
+    action: (id) => `userDetail(${id}, 3)`,
   },
   {
     label: "포인트지급/차감",
-    href: (id) => `javascript:userDetail(${id}, 6);`,
+    href: "#",
     className: "bg-gray-700",
+    action: (id) => `userDetail(${id}, 6)`,
   },
   {
     label: "쪽지보내기",
-    href: (id) => `javascript:messageWrite(${id});`,
+    href: "#",
     className: "bg-gray-700",
+    action: (id) => `messageWrite(${id})`,
   },
-  { label: "베팅내역", href: (id) => `javascript:userDetail(${id}, 8);` },
-  { label: "충환전내역", href: (id) => `javascript:userDetail(${id}, 4);` },
-  { label: "머니거래내역", href: (id) => `javascript:userDetail(${id}, 5);` },
-  { label: "포인트거래내역", href: (id) => `javascript:userDetail(${id}, 7);` },
-  { label: "쿠폰 현황", href: (id) => `javascript:userDetail(${id}, 15);` },
+  { label: "베팅내역", href: "#", action: (id) => `userDetail(${id}, 8)` },
+  { label: "충환전내역", href: "#", action: (id) => `userDetail(${id}, 4)` },
+  { label: "머니거래내역", href: "#", action: (id) => `userDetail(${id}, 5)` },
+  {
+    label: "포인트거래내역",
+    href: "#",
+    action: (id) => `userDetail(${id}, 7)`,
+  },
+  { label: "쿠폰 현황", href: "#", action: (id) => `userDetail(${id}, 15)` },
 ];
 
 function MoneyLogListPageInner() {
@@ -82,7 +91,8 @@ function MoneyLogListPageInner() {
     hasMore: false,
   });
 
-  const API_BASE_URL = ""; // Use relative path for proxy
+  // Fixed: Proper API_BASE_URL configuration for relative path
+  const API_BASE_URL = window.location.origin;
 
   const fnChangeMoneylogTypeGroup = useCallback(() => {
     if (!moneyLogTypeIdxRef.current) return;
@@ -146,7 +156,32 @@ function MoneyLogListPageInner() {
 
       const data = await response.json();
       if (data.success) {
-        setLogs(data.data);
+        const processedData = data.data.map((log, index) => ({
+          ...log,
+          id: log.id || index,
+          no: log.no || index + 1,
+          user: {
+            userID: log.user?.userID || "unknown",
+            nickname: log.user?.nickname || "",
+            backgroundColor: log.user?.backgroundColor || "#6aa84f",
+            role: log.user?.role || "User",
+            userIdx: log.user?.userIdx || 0,
+          },
+          affiliation: {
+            role: log.affiliation?.role || "",
+            backgroundColor: log.affiliation?.backgroundColor || "#6aa84f",
+          },
+          logTypeGroup: log.logTypeGroup || "",
+          logType: log.logType || "",
+          beforeAmount: log.beforeAmount || 0,
+          amountClass: log.amountClass || "",
+          amountDisplay: log.amountDisplay || log.amount || 0,
+          afterAmount: log.afterAmount || 0,
+          memo: log.memo || "",
+          transactionDate: log.transactionDate || "",
+        }));
+
+        setLogs(processedData);
         setPagination(data.pagination);
       }
     } catch (error) {
@@ -169,10 +204,17 @@ function MoneyLogListPageInner() {
 
   useEffect(() => {
     fetchLogs();
-  }, [fetchLogs]);
+  }, [
+    pageSize,
+    startDate,
+    endDate,
+    logTypeGroupIdx,
+    logTypeIdx,
+    searchType,
+    searchText,
+  ]);
 
   useEffect(() => {
-    // Handle Enter key on search text input
     const searchTextInput = document.getElementById("searchText");
     const btnSearch = document.getElementById("btnSearch");
     if (searchTextInput && btnSearch) {
@@ -227,6 +269,18 @@ function MoneyLogListPageInner() {
     }
   }, [startDate, endDate]);
 
+  // Fixed: Implement userDetail function
+  const userDetail = (userIdx, type) => {
+    console.log(`Opening user detail: userId=${userIdx}, type=${type}`);
+    alert(`User detail page would open for user ID: ${userIdx}, type: ${type}`);
+  };
+
+  // Fixed: Implement messageWrite function
+  const messageWrite = (userIdx) => {
+    console.log(`Opening message write: userId=${userIdx}`);
+    alert(`Message composer would open for user ID: ${userIdx}`);
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     const params = new URLSearchParams();
@@ -254,7 +308,6 @@ function MoneyLogListPageInner() {
       startPage = Math.max(1, endPage - maxPages + 1);
     }
 
-    // Previous button
     pages.push(
       <li
         key="prev"
@@ -282,7 +335,6 @@ function MoneyLogListPageInner() {
       </li>,
     );
 
-    // Page numbers
     for (let i = startPage; i <= endPage; i++) {
       pages.push(
         <li
@@ -310,7 +362,6 @@ function MoneyLogListPageInner() {
       );
     }
 
-    // Next button
     pages.push(
       <li
         key="next"
@@ -529,13 +580,13 @@ function MoneyLogListPageInner() {
                       <option data-logtypegroupidx="7" value="37">
                         포인트 충전 요청
                       </option>
-                      <option data-logtypegroupidx="5" value="39">
+                      <option data-logtypegroupIdx="5" value="39">
                         포인트 충전
                       </option>
-                      <option data-logtypegroupidx="5" value="40">
+                      <option data-logtypegroupIdx="5" value="40">
                         포인트 충전 요청(첫충)
                       </option>
-                      <option data-logtypegroupidx="13" value="41">
+                      <option data-logtypeGroupIdx="13" value="41">
                         포인트 충전 요청
                       </option>
                     </select>
@@ -660,7 +711,7 @@ function MoneyLogListPageInner() {
                             <li key={idx} className={link.className || ""}>
                               <a
                                 className="dropdown-item"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   if (

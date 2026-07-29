@@ -1,7 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import Layout from "@/components/Layout";
+
+const defaultStartDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  .toISOString()
+  .split("T")[0];
+const defaultEndDate = new Date(Date.now() + 86400000)
+  .toISOString()
+  .split("T")[0];
 
 interface SportGame {
   id: number;
@@ -37,11 +45,10 @@ interface SportGame {
 export default function SportGameListPage() {
   const [games, setGames] = useState<SportGame[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
+  const getInitialFilters = () => ({
     pageSize: "50",
-  // default to 30 days ago so recently-seeded games aren't filtered out by today's date
-  startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-    endDate: new Date(Date.now() + 86400000).toISOString().split("T")[0],
+    startDate: defaultStartDate,
+    endDate: defaultEndDate,
     sportIdx: "",
     regionIdx: "",
     searchType: "",
@@ -49,6 +56,8 @@ export default function SportGameListPage() {
     prematchliveType: "1",
     gameStatus: "1",
   });
+
+  const [filters, setFilters] = useState(getInitialFilters);
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 50,
@@ -56,7 +65,7 @@ export default function SportGameListPage() {
     totalPages: 0,
   });
 
-  const fetchGames = async () => {
+  const fetchGames = useCallback(async () => {
     try {
       setLoading(true);
       const queryParams = new URLSearchParams({
@@ -75,13 +84,12 @@ export default function SportGameListPage() {
       console.info("[SportGameList] response status", response.status);
 
       if (!response.ok) {
-        // try to parse JSON error body for better diagnostics
         let errText = `HTTP ${response.status}`;
         try {
           const errJson = await response.json();
           console.warn("[SportGameList] error body:", errJson);
           errText += ` - ${JSON.stringify(errJson)}`;
-        } catch (e) {
+        } catch {
           // ignore
         }
         throw new Error(errText);
@@ -90,10 +98,9 @@ export default function SportGameListPage() {
       const data = await response.json();
       console.debug("[SportGameList] response json", data);
 
-      // backend may return either { data: { games, pagination } } or { games, pagination }
       const gamesData = data?.data?.games ?? data?.games ?? [];
-      const paginationData =
-        data?.data?.pagination ?? data?.pagination ?? {
+      const paginationData = data?.data?.pagination ??
+        data?.pagination ?? {
           page: pagination.page,
           pageSize: Number(filters.pageSize) || pagination.pageSize,
           total: 0,
@@ -108,16 +115,18 @@ export default function SportGameListPage() {
     } finally {
       setLoading(false);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.page, filters]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchGames();
-  }, [pagination.page, JSON.stringify(filters)]);
+  }, [fetchGames]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-  // set page to 1 and rely on the effect to trigger fetch (avoids using stale pagination state)
-  setPagination((prev) => ({ ...prev, page: 1 }));
+    // set page to 1 and rely on the effect to trigger fetch (avoids using stale pagination state)
+    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   const handleFilterChange = (name: string, value: string) => {
@@ -127,7 +136,7 @@ export default function SportGameListPage() {
   const handleStatusChange = (
     matchIdx: number,
     adminIsSuspended: number,
-    statusName: string
+    statusName: string,
   ) => {
     if (!confirm(`${statusName} 상태로 변경하시겠습니까?`)) return;
 
@@ -198,7 +207,7 @@ export default function SportGameListPage() {
     window.open(
       `/sport/game/list/market?matchIdx=${matchIdx}`,
       "_blank",
-      "width=" + screen.width + ",height=" + screen.height
+      "width=" + screen.width + ",height=" + screen.height,
     );
   };
 
@@ -439,183 +448,187 @@ export default function SportGameListPage() {
         ) : (
           <div className="row">
             <div className="col">
-              <table className="table table-striped table-bordered align-middle bg-white text-center fw-bold">
-                <thead
-                  className="bg-dark bg-gradient text-white"
-                  style={{ position: "sticky", top: "0px", zIndex: 1 }}
-                >
-                  <tr>
-                    <th>라이브대기</th>
-                    <th>게임번호</th>
-                    <th>종목</th>
-                    <th>국가</th>
-                    <th>리그</th>
-                    <th>매치</th>
-                    <th>매치상태</th>
-                    <th>베팅상태</th>
-                    <th>총 베팅금</th>
-                    <th>스코어</th>
-                    <th className="w-150px">게임시간</th>
-                    <th className="w-150px">업데이트시간</th>
-                    <th>관리</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {games.length === 0 ? (
+              <div style={{ overflowX: "auto" }}>
+                <table className="table table-striped table-bordered align-middle bg-white text-center fw-bold">
+                  <thead
+                    className="bg-dark bg-gradient text-white"
+                    style={{ position: "sticky", top: "0px", zIndex: 1 }}
+                  >
                     <tr>
-                      <td colSpan={13}>데이터가 없습니다.</td>
+                      <th>라이브대기</th>
+                      <th>게임번호</th>
+                      <th>종목</th>
+                      <th>국가</th>
+                      <th>리그</th>
+                      <th>매치</th>
+                      <th>매치상태</th>
+                      <th>베팅상태</th>
+                      <th>총 베팅금</th>
+                      <th>스코어</th>
+                      <th className="w-150px">게임시간</th>
+                      <th className="w-150px">업데이트시간</th>
+                      <th>관리</th>
                     </tr>
-                  ) : (
-                    games.map((game) => (
-                      <tr key={game.id}>
-                        <td>
-                          <div className="form-check-inline me-0 form-switch">
-                            <input
-                              className="form-check-input w-35px"
-                              type="checkbox"
-                              checked={game.waitLive === 1}
-                              onChange={() =>
-                                handleWaitLiveChange(game.id, game.waitLive)
-                              }
-                            />
-                          </div>
-                        </td>
-                        <td>{game.matchId}</td>
-                        <td className="text-start">
-                          {game.sportImage && (
-                            <img
-                              src={game.sportImage}
-                              className="sport_image"
-                              alt=""
-                            />
-                          )}
-                          {game.sportName}
-                        </td>
-                        <td className="text-start">
-                          {game.regionImage && (
-                            <img
-                              src={game.regionImage}
-                              className="sport_image"
-                              alt=""
-                            />
-                          )}
-                          {game.regionName}
-                        </td>
-                        <td className="text-start text-truncate">
-                          {game.leagueName}
-                        </td>
-                        <td>
-                          <a
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleGameDetail(game.id);
-                            }}
-                          >
-                            <div className="d-flex justify-content-between">
-                              <div className="member home">
-                                {game.teamHomeImage && (
-                                  <img
-                                    src={game.teamHomeImage}
-                                    className="sport_image"
-                                    onError={(e) => {
-                                      e.currentTarget.style.display = "none";
-                                    }}
-                                    alt=""
-                                  />
-                                )}
-                                <div className="txt">{game.teamHome}</div>
-                              </div>
-                              <div className="memberVS">VS</div>
-                              <div className="member away">
-                                <div className="txt">{game.teamAway}</div>
-                                {game.teamAwayImage && (
-                                  <img
-                                    src={game.teamAwayImage}
-                                    className="sport_image"
-                                    onError={(e) => {
-                                      e.currentTarget.style.display = "none";
-                                    }}
-                                    alt=""
-                                  />
-                                )}
-                              </div>
+                  </thead>
+                  <tbody>
+                    {games.length === 0 ? (
+                      <tr>
+                        <td colSpan={13}>데이터가 없습니다.</td>
+                      </tr>
+                    ) : (
+                      games.map((game) => (
+                        <tr key={game.id}>
+                          <td>
+                            <div className="form-check-inline me-0 form-switch">
+                              <input
+                                className="form-check-input w-35px"
+                                type="checkbox"
+                                checked={game.waitLive === 1}
+                                onChange={() =>
+                                  handleWaitLiveChange(game.id, game.waitLive)
+                                }
+                              />
                             </div>
-                          </a>
-                        </td>
-                        <td>{game.matchStatusDisplay}</td>
-                        <td>
-                          <span
-                            className={
-                              game.bettingStatus === "available"
-                                ? "text-blue"
-                                : "text-danger"
-                            }
-                          >
-                            {game.bettingStatusDisplay}
-                          </span>
-                        </td>
-                        <td>{game.totalBetMoney.toLocaleString()}</td>
-                        <td>
-                          {game.scoreHome !== null && game.scoreAway !== null
-                            ? `${game.scoreHome} : ${game.scoreAway}`
-                            : "-"}
-                        </td>
-                        <td>
-                          {new Date(game.gameStartTime).toLocaleString("ko-KR")}
-                        </td>
-                        <td>
-                          {new Date(game.updatedAt).toLocaleString("ko-KR")}
-                        </td>
-                        <td className="p-1">
-                          <div className="d-flex flex-column gap-1">
+                          </td>
+                          <td>{game.matchId}</td>
+                          <td className="text-start">
+                            {game.sportImage && (
+                              <img
+                                src={game.sportImage}
+                                className="sport_image"
+                                alt=""
+                              />
+                            )}
+                            {game.sportName}
+                          </td>
+                          <td className="text-start">
+                            {game.regionImage && (
+                              <img
+                                src={game.regionImage}
+                                className="sport_image"
+                                alt=""
+                              />
+                            )}
+                            {game.regionName}
+                          </td>
+                          <td className="text-start text-truncate">
+                            {game.leagueName}
+                          </td>
+                          <td>
                             <a
                               href="#"
-                              className="btn btn-success btn-sm text-white"
                               onClick={(e) => {
                                 e.preventDefault();
                                 handleGameDetail(game.id);
                               }}
                             >
-                              상세내역
+                              <div className="d-flex justify-content-between">
+                                <div className="member home">
+                                  {game.teamHomeImage && (
+                                    <img
+                                      src={game.teamHomeImage}
+                                      className="sport_image"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                      }}
+                                      alt=""
+                                    />
+                                  )}
+                                  <div className="txt">{game.teamHome}</div>
+                                </div>
+                                <div className="memberVS">VS</div>
+                                <div className="member away">
+                                  <div className="txt">{game.teamAway}</div>
+                                  {game.teamAwayImage && (
+                                    <img
+                                      src={game.teamAwayImage}
+                                      className="sport_image"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                      }}
+                                      alt=""
+                                    />
+                                  )}
+                                </div>
+                              </div>
                             </a>
-                            <div className="btn-group">
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-info"
-                                onClick={() =>
-                                  handleStatusChange(game.id, 0, "이용가능")
-                                }
-                                disabled={game.adminIsSuspended === 0}
+                          </td>
+                          <td>{game.matchStatusDisplay}</td>
+                          <td>
+                            <span
+                              className={
+                                game.bettingStatus === "available"
+                                  ? "text-blue"
+                                  : "text-danger"
+                              }
+                            >
+                              {game.bettingStatusDisplay}
+                            </span>
+                          </td>
+                          <td>{game.totalBetMoney.toLocaleString()}</td>
+                          <td>
+                            {game.scoreHome !== null && game.scoreAway !== null
+                              ? `${game.scoreHome} : ${game.scoreAway}`
+                              : "-"}
+                          </td>
+                          <td>
+                            {new Date(game.gameStartTime).toLocaleString(
+                              "ko-KR",
+                            )}
+                          </td>
+                          <td>
+                            {new Date(game.updatedAt).toLocaleString("ko-KR")}
+                          </td>
+                          <td className="p-1">
+                            <div className="d-flex flex-column gap-1">
+                              <a
+                                href="#"
+                                className="btn btn-success btn-sm text-white"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleGameDetail(game.id);
+                                }}
                               >
-                                이용가능
-                              </button>
+                                상세내역
+                              </a>
+                              <div className="btn-group">
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-info"
+                                  onClick={() =>
+                                    handleStatusChange(game.id, 0, "이용가능")
+                                  }
+                                  disabled={game.adminIsSuspended === 0}
+                                >
+                                  이용가능
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-secondary"
+                                  onClick={() =>
+                                    handleStatusChange(game.id, 1, "이용중지")
+                                  }
+                                  disabled={game.adminIsSuspended === 1}
+                                >
+                                  이용중지
+                                </button>
+                              </div>
                               <button
+                                className="btn btn-sm btn-danger"
                                 type="button"
-                                className="btn btn-sm btn-secondary"
-                                onClick={() =>
-                                  handleStatusChange(game.id, 1, "이용중지")
-                                }
-                                disabled={game.adminIsSuspended === 1}
+                                onClick={() => handleCancelGame(game.id)}
+                                disabled={game.matchStatus === "cancelled"}
                               >
-                                이용중지
+                                경기취소
                               </button>
                             </div>
-                            <button
-                              className="btn btn-sm btn-danger"
-                              type="button"
-                              onClick={() => handleCancelGame(game.id)}
-                              disabled={game.matchStatus === "cancelled"}
-                            >
-                              경기취소
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
               {/* Pagination */}
               {pagination.totalPages > 1 && (
@@ -657,7 +670,7 @@ export default function SportGameListPage() {
                             </button>
                           </li>
                         );
-                      }
+                      },
                     )}
                     {pagination.page < pagination.totalPages && (
                       <li className="page-item">

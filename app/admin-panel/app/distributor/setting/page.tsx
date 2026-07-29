@@ -571,7 +571,7 @@ export default function DistributorSettingPage() {
                       </td>
                       <td>
                         <a
-                          href="javascript:void(0);"
+                          href="#"
                           className="btn btn-primary btn-sm text-white"
                           onClick={(event: MouseEvent) => {
                             event.preventDefault();
@@ -591,7 +591,7 @@ export default function DistributorSettingPage() {
           <div className="row">
             <div className="col text-end">
               <a
-                href="javascript:void(0);"
+                href="#"
                 className="btn btn-success btn-sm text-white"
                 data-bs-toggle="modal"
                 data-bs-target="#modalManager"
@@ -622,7 +622,7 @@ export default function DistributorSettingPage() {
                 </h4>
                 <div className="panel-heading-btn">
                   <a
-                    href="javascript:;"
+                    href="#"
                     className="btn btn-xs btn-icon btn-default"
                     data-toggle="panel-expand"
                     data-tooltip-init="true"
@@ -630,7 +630,7 @@ export default function DistributorSettingPage() {
                     <i className="fa fa-expand"></i>
                   </a>
                   <a
-                    href="javascript:;"
+                    href="#"
                     className="btn btn-xs btn-icon btn-danger"
                     data-bs-dismiss="modal"
                   >
@@ -696,7 +696,7 @@ export default function DistributorSettingPage() {
                 <div className="row">
                   <div className="col text-center">
                     <a
-                      href="javascript:void(0);"
+                      href="#"
                       className="btn btn-success btn-sm text-white"
                       onClick={handleCreate}
                       aria-disabled={isCreating}
@@ -705,7 +705,7 @@ export default function DistributorSettingPage() {
                       {isCreating ? "저장 중..." : "저장"}
                     </a>
                     <a
-                      href="javascript:void(0);"
+                      href="#"
                       className="btn btn-secondary btn-sm text-white"
                       data-bs-dismiss="modal"
                     >

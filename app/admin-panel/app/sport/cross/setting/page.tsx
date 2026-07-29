@@ -246,7 +246,7 @@ const PageContent = () => {
               </select>
               <a
                 className="btn btn-lime text-white"
-                href="javascript:void(0);"
+                href="#"
                 onClick={handleSearch}
               >
                 <i className="fa-solid fa-magnifying-glass me-2"></i>검색

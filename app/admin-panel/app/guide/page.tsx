@@ -314,7 +314,7 @@ export default function GuidePage() {
                       <td>{it.category}</td>
                       <td className="text-start">
                         <a
-                          href="javascript:void(0)"
+                          href="#"
                           onClick={() => openEdit(it)}
                           className="text-decoration-none"
                         >
@@ -357,14 +357,14 @@ export default function GuidePage() {
                       <td className="p-1">
                         <div className="btn-group">
                           <a
-                            href="javascript:void(0)"
+                            href="#"
                             className="btn btn-sm btn-primary text-white"
                             onClick={() => openEdit(it)}
                           >
                             <i className="fa fa-pencil-alt me-1"></i>수정
                           </a>
                           <a
-                            href="javascript:void(0)"
+                            href="#"
                             className="btn btn-sm btn-danger text-white"
                             onClick={() => deleteItem(it.id)}
                           >
@@ -468,7 +468,7 @@ export default function GuidePage() {
                   </h4>
                   <div className="panel-heading-btn">
                     <a
-                      href="javascript:void(0)"
+                      href="#"
                       className="btn btn-xs btn-icon btn-danger"
                       onClick={closeModal}
                     >
@@ -547,7 +547,7 @@ export default function GuidePage() {
                         {editingItem ? "수정" : "등록"}
                       </button>
                       <a
-                        href="javascript:void(0)"
+                        href="#"
                         className="btn btn-danger width-65 ms-2"
                         onClick={closeModal}
                       >

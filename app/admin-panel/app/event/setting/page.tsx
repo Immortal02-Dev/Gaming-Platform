@@ -260,7 +260,7 @@ export default function EventSettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                   data-tooltip-init="true"
@@ -268,14 +268,14 @@ export default function EventSettingPage() {
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -343,7 +343,7 @@ export default function EventSettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                   data-tooltip-init="true"
@@ -351,14 +351,14 @@ export default function EventSettingPage() {
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -369,7 +369,7 @@ export default function EventSettingPage() {
             <div className="panel-body border">
               <div className="text-end mb-2">
                 <a
-                  href="javascript:void(0)"
+                  href="#"
                   className="btn btn-success btn-sm text-white"
                   onClick={() => {
                     if (typeof window !== "undefined" && (window as any).$) {
@@ -435,7 +435,7 @@ export default function EventSettingPage() {
                 </h4>
                 <div className="panel-heading-btn">
                   <a
-                    href="javascript:;"
+                    href="#"
                     className="btn btn-xs btn-icon btn-default"
                     data-toggle="panel-expand"
                     data-tooltip-init="true"
@@ -443,7 +443,7 @@ export default function EventSettingPage() {
                     <i className="fa fa-expand"></i>
                   </a>
                   <a
-                    href="javascript:;"
+                    href="#"
                     className="btn btn-xs btn-icon btn-danger"
                     data-bs-dismiss="modal"
                   >
@@ -549,7 +549,7 @@ export default function EventSettingPage() {
                         <i className="fa fa-save me-1"></i>저장
                       </button>
                       <a
-                        href="javascript:void(0);"
+                        href="#"
                         className="btn btn-secondary btn-sm text-white"
                         data-bs-dismiss="modal"
                       >
@@ -674,7 +674,7 @@ function EventRow({
             <i className="fas fa-edit me-1"></i>변경
           </button>
           <a
-            href="javascript:void(0);"
+            href="#"
             className="btn btn-danger btn-sm text-white"
             onClick={() => onDelete(event.chargeEventIdx)}
           >

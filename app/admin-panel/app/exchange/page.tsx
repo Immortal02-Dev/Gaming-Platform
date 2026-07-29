@@ -682,7 +682,7 @@ function ExchangePageInner() {
                                   <li key={`${row.id}-parent-${linkIndex}`} className={link.className}>
                                     <a
                                       className="dropdown-item"
-                                      href="javascript:void(0);"
+                                      href="#"
                                       onClick={() => {
                                         const userIdx = row.parent?.userIdx || 0;
                                         if ((link as any).isMessage) {
@@ -706,7 +706,7 @@ function ExchangePageInner() {
                           {userDisplay ? (
                             <>
                               <a
-                                href="javascript:void(0)"
+                                href="#"
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                                 className="user-action"
@@ -728,7 +728,7 @@ function ExchangePageInner() {
                                   <li key={`${row.id}-user-${linkIndex}`} className={link.className}>
                                     <a
                                       className="dropdown-item"
-                                      href="javascript:void(0);"
+                                      href="#"
                                       onClick={() => {
                                         const userIdx = row.user?.userIdx || 0;
                                         if ((link as any).isMessage) {

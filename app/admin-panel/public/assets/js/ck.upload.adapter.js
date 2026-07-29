@@ -17,10 +17,10 @@ class UploadAdapter {
     _initRequest() {
         const xhr = (this.xhr = new XMLHttpRequest())
 
-        // íŒŒì¼ì—…ë¡œë“œë¥¼ ì²˜ë¦¬í•  ê²½ë¡œë¥¼ ìž‘ì„±í•´ ì¤€ë‹¤.
+        // 파일업로드를 처리할 경로를 작성해 준다.
         xhr.open('POST', '/editor/upload', true)
 
-        // laravel ìš© í† í°ì„ í•¨ê»˜ ë³´ë‚´ì¤€ë‹¤. (ë¡œê·¸ì¸ í•œ ìœ ì €ë§Œ í—ˆìš©)
+        // laravel 용 토큰을 함께 보내준다. (로그인 한 유저만 허용)
         xhr.setRequestHeader(
             'X-CSRF-TOKEN',
             document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -31,7 +31,7 @@ class UploadAdapter {
     _initListeners(resolve, reject, file) {
         const xhr = this.xhr
         const loader = this.loader
-        const genericErrorText = 'íŒŒì¼ì—…ë¡œë“œ ì‹¤íŒ¨ - ê´€ë¦¬ìžì—ê²Œ ë¬¸ì˜í•˜ì„¸ìš”.'
+        const genericErrorText = '파일업로드 실패 - 관리자에게 문의하세요.'
 
         xhr.addEventListener('error', (err) => {
             // console.log(err)
@@ -47,7 +47,7 @@ class UploadAdapter {
             }
 
             resolve({
-                default: response.url, //ì—…ë¡œë“œëœ íŒŒì¼ ì£¼ì†Œ
+                default: response.url, //업로드된 파일 주소
             })
         })
     }

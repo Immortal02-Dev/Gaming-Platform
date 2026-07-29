@@ -243,7 +243,7 @@ export default function MessageTemplatePage() {
                     <td>{index + 1}</td>
                     <td>
                       <a
-                        href="javascript:void(0)"
+                        href="#"
                         onClick={() => messageEdit(template.id)}
                       >
                         {template.subject}

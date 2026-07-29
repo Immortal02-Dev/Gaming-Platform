@@ -68,7 +68,7 @@ export default function RootLayout({
             }
           };`}
         </Script>
-        <Script id="sidebar-var">{`var sidebar_open = false;`}</Script>
+        <Script id="sidebar-var">{`var sidebar_open = true;`}</Script>
         <Script
           src="https://code.jquery.com/jquery-3.6.0.min.js"
           strategy="beforeInteractive"
@@ -77,8 +77,8 @@ export default function RootLayout({
           src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"
           strategy="beforeInteractive"
         />
-        <Script src="/assets/js/vendor.min.js" strategy="beforeInteractive" />
-        <Script src="/assets/js/app.min.js" strategy="beforeInteractive" />
+        <Script src="/assets/js/vendor.min.js" strategy="afterInteractive" />
+        <Script src="/assets/js/app.min.js" strategy="afterInteractive" />
         <Script
           src="/assets/plugins/gritter/js/jquery.gritter.js"
           strategy="afterInteractive"
@@ -103,7 +103,7 @@ export default function RootLayout({
           src="/assets/plugins/select2/dist/js/select2.min.js"
           strategy="afterInteractive"
         />
-  <Script src="/assets/js/common.js" strategy="afterInteractive" />
+        <Script src="/assets/js/common.js" strategy="afterInteractive" />
       </body>
     </html>
   );

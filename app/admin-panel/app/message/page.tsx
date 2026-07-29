@@ -430,7 +430,8 @@ export default function MessagePage() {
                         <li className="bg-gray-700">
                           <a
                             className="dropdown-item"
-                            href={`javascript:messageWrite(${message.receiverId});`}
+                            href="#"
+                            onClick={(e) => { e.preventDefault(); window.messageWrite?.(message.receiverId); }}
                           >
                             쪽지보내기
                           </a>
@@ -479,7 +480,7 @@ export default function MessagePage() {
                     </td>
                     <td>
                       <a
-                        href="javascript:void(0)"
+                        href="#"
                         onClick={() => messageEdit(message.id)}
                         dangerouslySetInnerHTML={{ __html: message.subject }}
                       />

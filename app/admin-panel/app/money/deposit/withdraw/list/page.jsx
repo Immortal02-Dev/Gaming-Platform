@@ -431,7 +431,7 @@ export default function MoneyDepositWithdrawListPage() {
                               <li key={idx} className={link.className || ""}>
                                 <a
                                   className="dropdown-item"
-                                  href="javascript:void(0);"
+                                  href="#"
                                   onClick={() => {
                                     if (link.action === "message") {
                                       window.messageWrite(
@@ -493,7 +493,7 @@ export default function MoneyDepositWithdrawListPage() {
                               <li key={idx} className={link.className || ""}>
                                 <a
                                   className="dropdown-item"
-                                  href="javascript:void(0);"
+                                  href="#"
                                   onClick={() => {
                                     if (link.action === "message") {
                                       window.messageWrite(

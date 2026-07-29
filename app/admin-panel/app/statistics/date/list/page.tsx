@@ -115,7 +115,7 @@ export default function StatisticsDateListPage() {
         {
           credentials: "include",
           headers: getAuthHeaders(),
-        }
+        },
       );
 
       if (response.status === 401) {
@@ -128,11 +128,15 @@ export default function StatisticsDateListPage() {
 
       if (data.success && range?.maxDate) {
         const maxDate = new Date(`${range.maxDate}T00:00:00`);
-        const minDate = range.minDate ? new Date(`${range.minDate}T00:00:00`) : null;
+        const minDate = range.minDate
+          ? new Date(`${range.minDate}T00:00:00`)
+          : null;
         const start = new Date(maxDate);
         start.setMonth(start.getMonth() - 1);
 
-        setStartDate(formatDateInput(minDate && start < minDate ? minDate : start));
+        setStartDate(
+          formatDateInput(minDate && start < minDate ? minDate : start),
+        );
         setEndDate(formatDateInput(maxDate));
         return;
       }
@@ -152,7 +156,7 @@ export default function StatisticsDateListPage() {
         {
           credentials: "include",
           headers: getAuthHeaders(),
-        }
+        },
       );
 
       if (response.status === 401) {
@@ -191,7 +195,7 @@ export default function StatisticsDateListPage() {
         {
           credentials: "include",
           headers: getAuthHeaders(),
-        }
+        },
       );
 
       if (response.status === 401) {
@@ -213,7 +217,14 @@ export default function StatisticsDateListPage() {
     } finally {
       setLoading(false);
     }
-  }, [startDate, endDate, userIdx, gameGroupIdx, getAuthHeaders, redirectToLogin]);
+  }, [
+    startDate,
+    endDate,
+    userIdx,
+    gameGroupIdx,
+    getAuthHeaders,
+    redirectToLogin,
+  ]);
 
   // Fetch game types and initialize date range on mount
   useEffect(() => {
@@ -298,44 +309,85 @@ export default function StatisticsDateListPage() {
   };
 
   // Group statistics by date
-  const groupedByDate = statistics.reduce((acc, stat) => {
-    const key = stat.stat_date;
-    if (!acc[key]) {
-      acc[key] = {
-        date: stat.stat_date,
-        gameTypes: [],
-        total: null as DateStatistics | null,
-      };
-    }
+  const groupedByDate = statistics.reduce(
+    (acc, stat) => {
+      const key = stat.stat_date;
+      if (!acc[key]) {
+        acc[key] = {
+          date: stat.stat_date,
+          gameTypes: [],
+          total: null as DateStatistics | null,
+        };
+      }
 
-    // If game_type_id is null or undefined, it's a total row
-    if (stat.game_type_id === null || stat.game_type_id === undefined) {
-      acc[key].total = stat;
-    } else {
-      acc[key].gameTypes.push(stat);
-    }
+      // If game_type_id is null or undefined, it's a total row
+      if (stat.game_type_id === null || stat.game_type_id === undefined) {
+        acc[key].total = stat;
+      } else {
+        acc[key].gameTypes.push(stat);
+      }
 
-    return acc;
-  }, {} as Record<string, { date: string; gameTypes: DateStatistics[]; total: DateStatistics | null }>);
+      return acc;
+    },
+    {} as Record<
+      string,
+      {
+        date: string;
+        gameTypes: DateStatistics[];
+        total: DateStatistics | null;
+      }
+    >,
+  );
 
-    // Ensure all dates have at least a total entry (calculate sum)
+  // Ensure all dates have at least a total entry (calculate sum)
   Object.values(groupedByDate).forEach((group) => {
     if (!group.total && group.gameTypes.length > 0) {
       const baseStat = group.gameTypes[0];
-      const totalStat = { ...baseStat, game_type_id: null, game_type_code: null, game_type_name: null };
-      
+      const totalStat = {
+        ...baseStat,
+        game_type_id: null,
+        game_type_code: null,
+        game_type_name: null,
+      };
+
       const sumFields = [
-        'site_balance', 'casino_balance', 'holdem_balance', 'mini_balance', 'total_points',
-        'user_deposit', 'user_withdrawal', 'user_profit', 'partner_deposit', 'partner_deposit_received',
-        'partner_withdrawal', 'partner_withdrawal_received', 'partner_profit', 'admin_deposit',
-        'admin_withdrawal', 'total_bet_amount', 'invalid_bet_amount', 'public_bet_amount',
-        'total_win_amount', 'betting_profit', 'rolling', 'member_comp', 'first_deposit_bonus',
-        'regular_deposit_bonus', 'final_profit', 'losing_amount', 'money_deposit', 'money_withdrawal',
-        'point_deposit', 'point_withdrawal'
+        "site_balance",
+        "casino_balance",
+        "holdem_balance",
+        "mini_balance",
+        "total_points",
+        "user_deposit",
+        "user_withdrawal",
+        "user_profit",
+        "partner_deposit",
+        "partner_deposit_received",
+        "partner_withdrawal",
+        "partner_withdrawal_received",
+        "partner_profit",
+        "admin_deposit",
+        "admin_withdrawal",
+        "total_bet_amount",
+        "invalid_bet_amount",
+        "public_bet_amount",
+        "total_win_amount",
+        "betting_profit",
+        "rolling",
+        "member_comp",
+        "first_deposit_bonus",
+        "regular_deposit_bonus",
+        "final_profit",
+        "losing_amount",
+        "money_deposit",
+        "money_withdrawal",
+        "point_deposit",
+        "point_withdrawal",
       ];
-      
-      sumFields.forEach(field => {
-        totalStat[field as keyof DateStatistics] = group.gameTypes.reduce((sum, stat) => sum + Number(stat[field as keyof DateStatistics] || 0), 0) as never;
+
+      sumFields.forEach((field) => {
+        totalStat[field as keyof DateStatistics] = group.gameTypes.reduce(
+          (sum, stat) => sum + Number(stat[field as keyof DateStatistics] || 0),
+          0,
+        ) as never;
       });
       group.total = totalStat;
     }
@@ -405,7 +457,7 @@ export default function StatisticsDateListPage() {
         first_deposit_bonus: 0,
         regular_deposit_bonus: 0,
         final_profit: 0,
-      }
+      },
     );
 
     return totals;
@@ -540,24 +592,34 @@ export default function StatisticsDateListPage() {
                     <i className="fa-solid fa-list me-2"></i>전체
                   </button>
                   <div className="input-group-text">자세히</div>
-                  {[...gameTypes].sort((a, b) => {
-                    const order = ["casino", "slot", "board", "mini", "sports"];
-                    const ai = order.indexOf(a.code);
-                    const bi = order.indexOf(b.code);
-                    if (ai === -1 && bi === -1) return a.display_order - b.display_order;
-                    if (ai === -1) return 1;
-                    if (bi === -1) return -1;
-                    return ai - bi;
-                  }).map((gt) => (
-                    <button
-                      key={gt.id}
-                      className={`btn btn-info ${gameGroupIdx === gt.id.toString() ? "active" : ""}`}
-                      type="button"
-                      onClick={() => handleGameGroupFilter(gt.id.toString())}
-                    >
-                      <i className="fa-solid fa-music me-2"></i>{gt.name_ko}
-                    </button>
-                  ))}
+                  {[...gameTypes]
+                    .sort((a, b) => {
+                      const order = [
+                        "casino",
+                        "slot",
+                        "board",
+                        "mini",
+                        "sports",
+                      ];
+                      const ai = order.indexOf(a.code);
+                      const bi = order.indexOf(b.code);
+                      if (ai === -1 && bi === -1)
+                        return a.display_order - b.display_order;
+                      if (ai === -1) return 1;
+                      if (bi === -1) return -1;
+                      return ai - bi;
+                    })
+                    .map((gt) => (
+                      <button
+                        key={gt.id}
+                        className={`btn btn-info ${gameGroupIdx === gt.id.toString() ? "active" : ""}`}
+                        type="button"
+                        onClick={() => handleGameGroupFilter(gt.id.toString())}
+                      >
+                        <i className="fa-solid fa-music me-2"></i>
+                        {gt.name_ko}
+                      </button>
+                    ))}
                 </div>
               </div>
             </form>
@@ -590,7 +652,8 @@ export default function StatisticsDateListPage() {
 
       {/* Table with Complete Header Structure */}
       <div className="row">
-        <div className="col">
+        ``
+        <div className="col" style={{ overflowX: "scroll" }}>
           <table
             id="partnerTable"
             className="table table-bordered table-responsive align-middle bg-white text-center fw-bold"
@@ -598,7 +661,7 @@ export default function StatisticsDateListPage() {
             {/* Table Header */}
             <thead
               className="bg-dark bg-gradient text-white"
-              style={{ position: "sticky", top: "50px", zIndex: 1 }}
+              // style={{ position: "sticky", top: "50px", zIndex: 1 }}
             >
               <tr>
                 <th rowSpan={2} className="align-middle">
@@ -699,10 +762,10 @@ export default function StatisticsDateListPage() {
                     rowDef.balanceType === "사이트"
                       ? totals.site_balance
                       : rowDef.balanceType === "카지노"
-                      ? 0
-                      : rowDef.balanceType === "홀덤"
-                      ? 0
-                      : 0;
+                        ? 0
+                        : rowDef.balanceType === "홀덤"
+                          ? 0
+                          : 0;
 
                   const getDepositData = () => {
                     if (rowDef.depositType === "유저") {
@@ -833,19 +896,19 @@ export default function StatisticsDateListPage() {
                         {isTotalGameRow
                           ? "0"
                           : rowDef.gameType === "보드게임" ||
-                            rowDef.gameType === "미니게임" ||
-                            rowDef.gameType === "스포츠"
-                          ? "-"
-                          : "0"}
+                              rowDef.gameType === "미니게임" ||
+                              rowDef.gameType === "스포츠"
+                            ? "-"
+                            : "0"}
                       </td>
                       <td>
                         {isTotalGameRow
                           ? "0"
                           : rowDef.gameType === "보드게임" ||
-                            rowDef.gameType === "미니게임" ||
-                            rowDef.gameType === "스포츠"
-                          ? "-"
-                          : "0"}
+                              rowDef.gameType === "미니게임" ||
+                              rowDef.gameType === "스포츠"
+                            ? "-"
+                            : "0"}
                       </td>
                       <td>
                         {isTotalGameRow
@@ -991,7 +1054,7 @@ export default function StatisticsDateListPage() {
                           : 0;
                       const gameTypeStat =
                         gameTypeStats.find(
-                          (stat) => stat.game_type_code === rowDef.gameType
+                          (stat) => stat.game_type_code === rowDef.gameType,
                         ) || null;
                       const isTotalRow = rowDef.gameType === "total";
 
@@ -1013,7 +1076,9 @@ export default function StatisticsDateListPage() {
                           const userDep = Number(total.user_deposit || 0);
                           const partDep = Number(total.partner_deposit || 0);
                           const userWith = Number(total.user_withdrawal || 0);
-                          const partWith = Number(total.partner_withdrawal || 0);
+                          const partWith = Number(
+                            total.partner_withdrawal || 0,
+                          );
                           const userProf = Number(total.user_profit || 0);
                           const partProf = Number(total.partner_profit || 0);
                           return {
@@ -1078,8 +1143,12 @@ export default function StatisticsDateListPage() {
                             betting_profit: Number(target.betting_profit || 0),
                             rolling: Number(target.rolling || 0),
                             member_comp: Number(target.member_comp || 0),
-                            first_deposit: Number(target.first_deposit_bonus || 0),
-                            regular_deposit: Number(target.regular_deposit_bonus || 0),
+                            first_deposit: Number(
+                              target.first_deposit_bonus || 0,
+                            ),
+                            regular_deposit: Number(
+                              target.regular_deposit_bonus || 0,
+                            ),
                             final_profit: Number(target.final_profit || 0),
                           };
                         }
@@ -1158,7 +1227,7 @@ export default function StatisticsDateListPage() {
                               </td>
                               <td rowSpan={rowSpan} className="align-middle">
                                 {formatNumber(
-                                  total.partner_withdrawal_received
+                                  total.partner_withdrawal_received,
                                 )}
                               </td>
                               <td
@@ -1256,8 +1325,6 @@ export default function StatisticsDateListPage() {
                 );
               })}
             </tbody>
-
-            
           </table>
         </div>
       </div>

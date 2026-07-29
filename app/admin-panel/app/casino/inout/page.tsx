@@ -19,7 +19,6 @@ declare global {
 
 interface DropdownLink {
   label: string;
-  href: (id: number) => string;
   className?: string;
 }
 
@@ -76,16 +75,16 @@ interface CasinoInoutResponse {
 }
 
 const dropdownLinks: DropdownLink[] = [
-  { label: "정보수정", href: (id: number) => `javascript:userDetail(${id}, 1);`, className: "bg-gray-700" },
-  { label: "수수료율", href: (id: number) => `javascript:userDetail(${id}, 17);`, className: "bg-gray-700" },
-  { label: "머니지급/차감", href: (id: number) => `javascript:userDetail(${id}, 3);`, className: "bg-gray-700" },
-  { label: "포인트지급/차감", href: (id: number) => `javascript:userDetail(${id}, 6);`, className: "bg-gray-700" },
-  { label: "쪽지보내기", href: (id: number) => `javascript:messageWrite(${id});`, className: "bg-gray-700" },
-  { label: "베팅내역", href: (id: number) => `javascript:userDetail(${id}, 8);` },
-  { label: "충환전내역", href: (id: number) => `javascript:userDetail(${id}, 4);` },
-  { label: "머니거래내역", href: (id: number) => `javascript:userDetail(${id}, 5);` },
-  { label: "포인트거래내역", href: (id: number) => `javascript:userDetail(${id}, 7);` },
-  { label: "쿠폰 현황", href: (id: number) => `javascript:userDetail(${id}, 15);` },
+  { label: "정보수정", className: "bg-gray-700" },
+  { label: "수수료율", className: "bg-gray-700" },
+  { label: "머니지급/차감", className: "bg-gray-700" },
+  { label: "포인트지급/차감", className: "bg-gray-700" },
+  { label: "쪽지보내기", className: "bg-gray-700" },
+  { label: "베팅내역" },
+  { label: "충환전내역" },
+  { label: "머니거래내역" },
+  { label: "포인트거래내역" },
+  { label: "쿠폰 현황" },
 ];
 
 function CasinoInoutPageInner() {
@@ -599,7 +598,7 @@ function CasinoInoutPageInner() {
                       </td>
                       <td className="p-1">
                         <a
-                          href="javascript:void(0)"
+                          href="#"
                           data-bs-toggle="dropdown"
                           aria-expanded="false"
                           className="user-action"
@@ -619,7 +618,7 @@ function CasinoInoutPageInner() {
                             <li key={idx} className={link.className || ""}>
                               <a
                                 className="dropdown-item"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
                                   e.preventDefault();
                                   if (link.label === "정보수정" && window.userDetail) window.userDetail(log.user?.userIdx || 0, 1);
@@ -657,7 +656,7 @@ function CasinoInoutPageInner() {
                         {handlerDisplayName ? (
                           <>
                             <a
-                              href="javascript:void(0)"
+                              href="#"
                               data-bs-toggle="dropdown"
                               aria-expanded="false"
                               className="user-action"
@@ -677,7 +676,7 @@ function CasinoInoutPageInner() {
                                 <li key={idx} className={link.className || ""}>
                                   <a
                                     className="dropdown-item"
-                                    href="javascript:void(0);"
+                                    href="#"
                                     onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
                                       e.preventDefault();
                                       if (link.label === "정보수정" && window.userDetail) window.userDetail(log.handler?.userIdx || 0, 1);

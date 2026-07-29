@@ -269,21 +269,21 @@ export default function SettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -391,21 +391,21 @@ export default function SettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -724,21 +724,21 @@ export default function SettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -794,21 +794,21 @@ export default function SettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -1291,21 +1291,21 @@ export default function SettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -1776,21 +1776,21 @@ export default function SettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -1927,21 +1927,21 @@ export default function SettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -2354,21 +2354,21 @@ export default function SettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -2409,21 +2409,21 @@ export default function SettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -2466,21 +2466,21 @@ export default function SettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -2702,21 +2702,21 @@ export default function SettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -2756,21 +2756,21 @@ export default function SettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                 >
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >

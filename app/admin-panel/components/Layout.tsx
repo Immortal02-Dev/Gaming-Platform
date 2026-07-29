@@ -112,9 +112,9 @@ export default function Layout({ children }: LayoutProps) {
           .querySelectorAll(".ps__rail-x, .ps__rail-y")
           .forEach((el) => el.remove());
 
-        sidebarContent.style.overflow = "";
-        sidebarContent.style.overflowY = "auto";
-        sidebarContent.style.overflowX = "hidden";
+        // sidebarContent.style.overflow = "";
+        // sidebarContent.style.overflowY = "hidden";
+        // sidebarContent.style.overflowX = "hidden";
       }
 
       attempts++;
@@ -588,7 +588,12 @@ export default function Layout({ children }: LayoutProps) {
       </div>
 
       <div id="sidebar" className="app-sidebar">
-        <div className="app-sidebar-content" data-height="100%">
+        <div
+          className="app-sidebar-content ps ps--active-y"
+          data-scrollbar="true"
+          data-height="100%"
+          style={{ height: "100%" }}
+        >
           <div className="menu">
             <div className="menu-profile p-3">
               <div id="casinoInfo"></div>
@@ -1270,57 +1275,79 @@ export default function Layout({ children }: LayoutProps) {
                 <div className="menu-caret"></div>
               </a>
               <div className="menu-submenu">
-                <div className={`menu-item ${pathname === "/platform/currencies" ? "active" : ""}`}>
+                <div
+                  className={`menu-item ${pathname === "/platform/currencies" ? "active" : ""}`}
+                >
                   <a href="/platform/currencies" className="menu-link">
                     <div className="menu-text">통화 관리</div>
                   </a>
                 </div>
-                <div className={`menu-item ${pathname === "/platform/languages" ? "active" : ""}`}>
+                <div
+                  className={`menu-item ${pathname === "/platform/languages" ? "active" : ""}`}
+                >
                   <a href="/platform/languages" className="menu-link">
                     <div className="menu-text">언어 관리</div>
                   </a>
                 </div>
-                <div className={`menu-item ${pathname === "/platform/chat" ? "active" : ""}`}>
+                <div
+                  className={`menu-item ${pathname === "/platform/chat" ? "active" : ""}`}
+                >
                   <a href="/platform/chat" className="menu-link">
                     <div className="menu-text">채팅 모니터링</div>
                   </a>
                 </div>
-                <div className={`menu-item ${pathname === "/platform/api-keys" ? "active" : ""}`}>
+                <div
+                  className={`menu-item ${pathname === "/platform/api-keys" ? "active" : ""}`}
+                >
                   <a href="/platform/api-keys" className="menu-link">
                     <div className="menu-text">API 키 관리</div>
                   </a>
                 </div>
-                <div className={`menu-item ${pathname === "/platform/payment-gateways" ? "active" : ""}`}>
+                <div
+                  className={`menu-item ${pathname === "/platform/payment-gateways" ? "active" : ""}`}
+                >
                   <a href="/platform/payment-gateways" className="menu-link">
                     <div className="menu-text">결제 게이트웨이</div>
                   </a>
                 </div>
-                <div className={`menu-item ${pathname === "/platform/audit-logs" ? "active" : ""}`}>
+                <div
+                  className={`menu-item ${pathname === "/platform/audit-logs" ? "active" : ""}`}
+                >
                   <a href="/platform/audit-logs" className="menu-link">
                     <div className="menu-text">어드민 활동 로그</div>
                   </a>
                 </div>
-                <div className={`menu-item ${pathname === "/provider" ? "active" : ""}`}>
+                <div
+                  className={`menu-item ${pathname === "/provider" ? "active" : ""}`}
+                >
                   <a href="/provider" className="menu-link">
                     <div className="menu-text">공급자 관리</div>
                   </a>
                 </div>
-                <div className={`menu-item ${pathname === "/swap" ? "active" : ""}`}>
+                <div
+                  className={`menu-item ${pathname === "/swap" ? "active" : ""}`}
+                >
                   <a href="/swap" className="menu-link">
                     <div className="menu-text">스왑 관리</div>
                   </a>
                 </div>
-                <div className={`menu-item ${pathname === "/notification" ? "active" : ""}`}>
+                <div
+                  className={`menu-item ${pathname === "/notification" ? "active" : ""}`}
+                >
                   <a href="/notification" className="menu-link">
                     <div className="menu-text">알림 관리</div>
                   </a>
                 </div>
-                <div className={`menu-item ${pathname === "/webhook" ? "active" : ""}`}>
+                <div
+                  className={`menu-item ${pathname === "/webhook" ? "active" : ""}`}
+                >
                   <a href="/webhook" className="menu-link">
                     <div className="menu-text">웹훅 관리</div>
                   </a>
                 </div>
-                <div className={`menu-item ${pathname === "/upload" ? "active" : ""}`}>
+                <div
+                  className={`menu-item ${pathname === "/upload" ? "active" : ""}`}
+                >
                   <a href="/upload" className="menu-link">
                     <div className="menu-text">업로드 관리</div>
                   </a>

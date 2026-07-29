@@ -390,7 +390,7 @@ function PageContent() {
                       <td>{rule.title}</td>
                       <td className="text-start">
                         <a
-                          href="javascript:void(0)"
+                          href="#"
                           onClick={() => openEditModal(rule)}
                           className="text-decoration-none"
                         >
@@ -449,7 +449,7 @@ function PageContent() {
             <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
               <a
                 className="page-link"
-                href="javascript:void(0)"
+                href="#"
                 onClick={() => handlePageChange(1)}
               >
                 <i className="fa fa-angle-double-left"></i>
@@ -458,7 +458,7 @@ function PageContent() {
             <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
               <a
                 className="page-link"
-                href="javascript:void(0)"
+                href="#"
                 onClick={() => handlePageChange(currentPage - 1)}
               >
                 <i className="fa fa-angle-left"></i>
@@ -477,7 +477,7 @@ function PageContent() {
                   >
                     <a
                       className="page-link"
-                      href="javascript:void(0)"
+                      href="#"
                       onClick={() => handlePageChange(page)}
                     >
                       {page}
@@ -502,7 +502,7 @@ function PageContent() {
             >
               <a
                 className="page-link"
-                href="javascript:void(0)"
+                href="#"
                 onClick={() => handlePageChange(currentPage + 1)}
               >
                 <i className="fa fa-angle-right"></i>
@@ -513,7 +513,7 @@ function PageContent() {
             >
               <a
                 className="page-link"
-                href="javascript:void(0)"
+                href="#"
                 onClick={() => handlePageChange(totalPages)}
               >
                 <i className="fa fa-angle-double-right"></i>
@@ -544,7 +544,7 @@ function PageContent() {
                   </h4>
                   <div className="panel-heading-btn">
                     <a
-                      href="javascript:void(0)"
+                      href="#"
                       className="btn btn-xs btn-icon btn-danger"
                       onClick={closeModal}
                     >
@@ -627,7 +627,7 @@ function PageContent() {
                         {currentRule ? "수정" : "등록"}
                       </button>
                       <a
-                        href="javascript:void(0)"
+                        href="#"
                         className="btn btn-danger width-65 ms-2"
                         onClick={closeModal}
                       >

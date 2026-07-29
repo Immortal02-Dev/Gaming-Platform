@@ -103,7 +103,7 @@ export default function UserLoginLogPage() {
                 <td>운영자</td>
                 <td>
                   <a
-                    href="javascript:void(0)"
+                    href="#"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                     className="user-action"
@@ -121,7 +121,7 @@ export default function UserLoginLogPage() {
                 <td>2025-03-07 10:15:37</td>
                 <td>
                   <a
-                    href="javascript:void(0);"
+                    href="#"
                     className="btn btn-success btn-sm text-white"
                     onClick={() => {/* fnIPBlack(6692) */}}
                   >
@@ -134,7 +134,7 @@ export default function UserLoginLogPage() {
                 <td>운영자</td>
                 <td>
                   <a
-                    href="javascript:void(0)"
+                    href="#"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                     className="user-action"
@@ -152,7 +152,7 @@ export default function UserLoginLogPage() {
                 <td>2025-03-06 07:56:44</td>
                 <td>
                   <a
-                    href="javascript:void(0);"
+                    href="#"
                     className="btn btn-success btn-sm text-white"
                     onClick={() => {/* fnIPBlack(6682) */}}
                   >
@@ -165,7 +165,7 @@ export default function UserLoginLogPage() {
                 <td>부본사</td>
                 <td>
                   <a
-                    href="javascript:void(0)"
+                    href="#"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                     className="user-action"
@@ -183,7 +183,7 @@ export default function UserLoginLogPage() {
                 <td>2025-03-06 15:22:18</td>
                 <td>
                   <a
-                    href="javascript:void(0);"
+                    href="#"
                     className="btn btn-success btn-sm text-white"
                     onClick={() => {/* fnIPBlack(6681) */}}
                   >
@@ -196,7 +196,7 @@ export default function UserLoginLogPage() {
                 <td>회원</td>
                 <td>
                   <a
-                    href="javascript:void(0)"
+                    href="#"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                     className="user-action"
@@ -214,7 +214,7 @@ export default function UserLoginLogPage() {
                 <td>2025-03-05 20:45:12</td>
                 <td>
                   <a
-                    href="javascript:void(0);"
+                    href="#"
                     className="btn btn-success btn-sm text-white"
                     onClick={() => {/* fnIPBlack(6680) */}}
                   >
@@ -227,7 +227,7 @@ export default function UserLoginLogPage() {
                 <td>총판</td>
                 <td>
                   <a
-                    href="javascript:void(0)"
+                    href="#"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                     className="user-action"
@@ -245,7 +245,7 @@ export default function UserLoginLogPage() {
                 <td>2025-03-05 14:30:45</td>
                 <td>
                   <a
-                    href="javascript:void(0);"
+                    href="#"
                     className="btn btn-success btn-sm text-white"
                     onClick={() => {/* fnIPBlack(6679) */}}
                   >

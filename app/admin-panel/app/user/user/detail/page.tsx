@@ -62,7 +62,8 @@ export function UserDetailPageInner({
 }: UserDetailPageInnerProps) {
   const searchParams = useSearchParams();
   const userIdx = userIdxProp ?? searchParams.get("userIdx");
-  const tabType = tabTypeProp ?? searchParams.get("tabType");
+  const tabType =
+    tabTypeProp ?? searchParams.get("tabType") ?? searchParams.get("tab");
 
   const [activeTab, setActiveTab] = useState("basic");
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -274,7 +275,9 @@ function UserDetailPageWrapper() {
   return (
     <UserDetailPageInner
       userIdxProp={searchParams.get("userIdx")}
-      tabTypeProp={searchParams.get("tabType")}
+      tabTypeProp={
+        searchParams.get("tabType") ?? searchParams.get("tab")
+      }
     />
   );
 }

@@ -437,7 +437,7 @@ function LoginLogListPageInner() {
                       <td>
                         {log.user_type === "user" && log.user_id ? (
                           <a
-                            href="javascript:void(0)"
+                            href="#"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                             className="user-action"
@@ -446,7 +446,7 @@ function LoginLogListPageInner() {
                           </a>
                         ) : (
                           <a
-                            href="javascript:void(0)"
+                            href="#"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                             className="user-action"
@@ -462,7 +462,7 @@ function LoginLogListPageInner() {
                       <td>{formatDateTime(log.login_at)}</td>
                       <td>
                         <a
-                          href="javascript:void(0);"
+                          href="#"
                           className="btn btn-success btn-sm text-white"
                           onClick={(e) => {
                             e.preventDefault();
@@ -513,7 +513,7 @@ function LoginLogListPageInner() {
                 </h4>
                 <div className="panel-heading-btn">
                   <a
-                    href="javascript:;"
+                    href="#"
                     className="btn btn-xs btn-icon btn-default"
                     data-toggle="panel-expand"
                     data-tooltip-init="true"
@@ -521,7 +521,7 @@ function LoginLogListPageInner() {
                     <i className="fa fa-expand"></i>
                   </a>
                   <a
-                    href="javascript:;"
+                    href="#"
                     className="btn btn-xs btn-icon btn-danger"
                     onClick={handleModalClose}
                   >
@@ -558,7 +558,7 @@ function LoginLogListPageInner() {
                         <i className="fa fa-save me-1"></i>저장
                       </button>
                       <a
-                        href="javascript:void(0);"
+                        href="#"
                         className="btn btn-secondary btn-sm text-white"
                         onClick={handleModalClose}
                       >

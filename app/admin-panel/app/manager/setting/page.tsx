@@ -390,7 +390,7 @@ export default function ManagerSettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                   data-tooltip-init="true"
@@ -398,14 +398,14 @@ export default function ManagerSettingPage() {
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -431,7 +431,7 @@ export default function ManagerSettingPage() {
                       <td>{ip.memo}</td>
                       <td className="p-1">
                         <a
-                          href="javascript:void(0);"
+                          href="#"
                           className="btn btn-danger btn-sm text-white"
                           onClick={() => handleSetAdminIPDelete(ip.adminIPIdx)}
                         >
@@ -444,7 +444,7 @@ export default function ManagerSettingPage() {
               </table>
               <div className="col text-end">
                 <a
-                  href="javascript:void(0);"
+                  href="#"
                   className="btn btn-sm btn-success width-65 text-white"
                   onClick={() => setShowModalAdminIP(true)}
                 >
@@ -469,7 +469,7 @@ export default function ManagerSettingPage() {
               </h4>
               <div className="panel-heading-btn">
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-default"
                   data-toggle="panel-expand"
                   data-tooltip-init="true"
@@ -477,14 +477,14 @@ export default function ManagerSettingPage() {
                   <i className="fa fa-expand"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-warning"
                   data-toggle="panel-collapse"
                 >
                   <i className="fa fa-minus"></i>
                 </a>
                 <a
-                  href="javascript:;"
+                  href="#"
                   className="btn btn-xs btn-icon btn-danger"
                   data-toggle="panel-remove"
                 >
@@ -530,7 +530,7 @@ export default function ManagerSettingPage() {
                       <td>{manager.registerDate}</td>
                       <td className="p-1" style={{ whiteSpace: "nowrap" }}>
                         <a
-                          href="javascript:void(0);"
+                          href="#"
                           className="btn btn-sm btn-primary w-60px text-white"
                           onClick={() => handleOpenEditManager(manager)}
                         >
@@ -545,7 +545,7 @@ export default function ManagerSettingPage() {
               <div className="row">
                 <div className="col text-end">
                   <a
-                    href="javascript:void(0);"
+                    href="#"
                     className="btn btn-sm btn-success width-65 text-white"
                     onClick={handleOpenAddManager}
                   >
@@ -581,7 +581,7 @@ export default function ManagerSettingPage() {
                   </h4>
                   <div className="panel-heading-btn">
                     <a
-                      href="javascript:;"
+                      href="#"
                       className="btn btn-xs btn-icon btn-default"
                       data-toggle="panel-expand"
                       data-tooltip-init="true"
@@ -589,7 +589,7 @@ export default function ManagerSettingPage() {
                       <i className="fa fa-expand"></i>
                     </a>
                     <a
-                      href="javascript:;"
+                      href="#"
                       className="btn btn-xs btn-icon btn-danger"
                       onClick={() => setShowModalManager(false)}
                     >
@@ -944,7 +944,7 @@ export default function ManagerSettingPage() {
                           <i className="fa fa-save me-2"></i>저장
                         </button>
                         <a
-                          href="javascript:;"
+                          href="#"
                           className="btn btn-danger text-white"
                           onClick={() => setShowModalManager(false)}
                         >
@@ -983,7 +983,7 @@ export default function ManagerSettingPage() {
                   </h4>
                   <div className="panel-heading-btn">
                     <a
-                      href="javascript:;"
+                      href="#"
                       className="btn btn-xs btn-icon btn-default"
                       data-toggle="panel-expand"
                       data-tooltip-init="true"
@@ -991,7 +991,7 @@ export default function ManagerSettingPage() {
                       <i className="fa fa-expand"></i>
                     </a>
                     <a
-                      href="javascript:;"
+                      href="#"
                       className="btn btn-xs btn-icon btn-danger"
                       onClick={() => setShowModalAddManager(false)}
                     >
@@ -1397,7 +1397,7 @@ export default function ManagerSettingPage() {
                           <i className="fa fa-save me-2"></i>저장
                         </button>
                         <a
-                          href="javascript:;"
+                          href="#"
                           className="btn btn-danger text-white"
                           onClick={() => setShowModalAddManager(false)}
                         >
@@ -1435,7 +1435,7 @@ export default function ManagerSettingPage() {
                   </h4>
                   <div className="panel-heading-btn">
                     <a
-                      href="javascript:;"
+                      href="#"
                       className="btn btn-xs btn-icon btn-default"
                       data-toggle="panel-expand"
                       data-tooltip-init="true"
@@ -1443,7 +1443,7 @@ export default function ManagerSettingPage() {
                       <i className="fa fa-expand"></i>
                     </a>
                     <a
-                      href="javascript:;"
+                      href="#"
                       className="btn btn-xs btn-icon btn-danger"
                       onClick={() => setShowModalAdminIP(false)}
                     >
@@ -1525,7 +1525,7 @@ export default function ManagerSettingPage() {
                           <i className="fa fa-save me-1"></i>저장
                         </button>
                         <a
-                          href="javascript:void(0);"
+                          href="#"
                           className="btn btn-secondary btn-sm text-white"
                           onClick={() => {
                             setShowModalAdminIP(false);

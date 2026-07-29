@@ -447,7 +447,7 @@ export default function ArcadeGameListPage() {
         <ul className="nav nav-pills">
           <li className="nav-item">
             <a
-              href="javascript:void(0);"
+              href="#"
               className="nav-link active bg-red me-2"
               onClick={handleArcadeGameStatusBoard}
             >
@@ -624,7 +624,7 @@ export default function ArcadeGameListPage() {
                         <td>{formatDateTime(game.resultTime)}</td>
                         <td className="p-1">
                           <a
-                            href="javascript:void(0);"
+                            href="#"
                             className="btn btn-success btn-sm text-white"
                             onClick={() =>
                               handleGameListDetail(game.gameArcadeListIdx)

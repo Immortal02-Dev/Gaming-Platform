@@ -147,7 +147,7 @@ export default function GameSettingPage() {
                 </h4>
                 <div className="panel-heading-btn">
                   <a
-                    href="javascript:;"
+                    href="#"
                     className="btn btn-xs btn-icon btn-default"
                     data-toggle="panel-expand"
                     data-tooltip-init="true"
@@ -155,14 +155,14 @@ export default function GameSettingPage() {
                     <i className="fa fa-expand"></i>
                   </a>
                   <a
-                    href="javascript:;"
+                    href="#"
                     className="btn btn-xs btn-icon btn-warning"
                     data-toggle="panel-collapse"
                   >
                     <i className="fa fa-minus"></i>
                   </a>
                   <a
-                    href="javascript:;"
+                    href="#"
                     className="btn btn-xs btn-icon btn-danger"
                     data-toggle="panel-remove"
                   >
@@ -229,7 +229,7 @@ export default function GameSettingPage() {
       )}
 
       <a
-        href="javascript:;"
+        href="#"
         className="btn btn-icon btn-success btn-circle btn-theme btn-scroll-to-top"
         data-toggle="scroll-to-top"
       >

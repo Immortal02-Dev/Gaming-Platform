@@ -492,7 +492,7 @@ export default function SlotBettingListPage() {
                           <li className="bg-gray-700">
                             <a
                               className="dropdown-item"
-                              href="javascript:void(0);"
+                              href="#"
                               onClick={() => (window as any).userDetail(order.user.userIdx, 1)}
                             >
                               정보수정
@@ -501,7 +501,7 @@ export default function SlotBettingListPage() {
                           <li className="bg-gray-700">
                             <a
                               className="dropdown-item"
-                              href="javascript:void(0);"
+                              href="#"
                               onClick={() => (window as any).userDetail(order.user.userIdx, 17)}
                             >
                               수수료율
@@ -510,7 +510,7 @@ export default function SlotBettingListPage() {
                           <li className="bg-gray-700">
                             <a
                               className="dropdown-item"
-                              href="javascript:void(0);"
+                              href="#"
                               onClick={() => (window as any).userDetail(order.user.userIdx, 3)}
                             >
                               머니지급/차감
@@ -519,19 +519,19 @@ export default function SlotBettingListPage() {
                           <li className="bg-gray-700">
                             <a
                               className="dropdown-item"
-                              href="javascript:void(0);"
+                              href="#"
                               onClick={() => (window as any).userDetail(order.user.userIdx, 6)}
                             >
                               포인트지급/차감
                             </a>
                           </li>
                           <li className="bg-gray-700">
-                            <a className="dropdown-item" href={`javascript:messageWrite(${order.user.userIdx});`}>쪽지보내기</a>
+                            <a className="dropdown-item" href="#" onClick={(e) => { e.preventDefault(); window.messageWrite?.(order.user.userIdx); }}>쪽지보내기</a>
                           </li>
                           <li>
                             <a
                               className="dropdown-item"
-                              href="javascript:void(0);"
+                              href="#"
                               onClick={() => (window as any).userDetail(order.user.userIdx, 8)}
                             >
                               베팅내역
@@ -540,7 +540,7 @@ export default function SlotBettingListPage() {
                           <li>
                             <a
                               className="dropdown-item"
-                              href="javascript:void(0);"
+                              href="#"
                               onClick={() => (window as any).userDetail(order.user.userIdx, 4)}
                             >
                               충환전내역
@@ -549,7 +549,7 @@ export default function SlotBettingListPage() {
                           <li>
                             <a
                               className="dropdown-item"
-                              href="javascript:void(0);"
+                              href="#"
                               onClick={() => (window as any).userDetail(order.user.userIdx, 5)}
                             >
                               머니거래내역
@@ -558,7 +558,7 @@ export default function SlotBettingListPage() {
                           <li>
                             <a
                               className="dropdown-item"
-                              href="javascript:void(0);"
+                              href="#"
                               onClick={() => (window as any).userDetail(order.user.userIdx, 7)}
                             >
                               포인트거래내역
@@ -567,7 +567,7 @@ export default function SlotBettingListPage() {
                           <li>
                             <a
                               className="dropdown-item"
-                              href="javascript:void(0);"
+                              href="#"
                               onClick={() => (window as any).userDetail(order.user.userIdx, 15)}
                             >
                               쿠폰 현황

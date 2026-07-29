@@ -138,11 +138,15 @@ export default function StatisticsPartnerListPage() {
 
       if (data.success && range?.maxDate) {
         const maxDate = new Date(`${range.maxDate}T00:00:00`);
-        const minDate = range.minDate ? new Date(`${range.minDate}T00:00:00`) : null;
+        const minDate = range.minDate
+          ? new Date(`${range.minDate}T00:00:00`)
+          : null;
         const start = new Date(maxDate);
         start.setMonth(start.getMonth() - 1);
 
-        setStartDate(formatDateInput(minDate && start < minDate ? minDate : start));
+        setStartDate(
+          formatDateInput(minDate && start < minDate ? minDate : start),
+        );
         setEndDate(formatDateInput(maxDate));
         return;
       }
@@ -224,7 +228,14 @@ export default function StatisticsPartnerListPage() {
     } finally {
       setLoading(false);
     }
-  }, [startDate, endDate, userIdx, gameGroupIdx, getAuthHeaders, redirectToLogin]);
+  }, [
+    startDate,
+    endDate,
+    userIdx,
+    gameGroupIdx,
+    getAuthHeaders,
+    redirectToLogin,
+  ]);
 
   // Fetch game types and initialize date range on mount
   useEffect(() => {
@@ -287,7 +298,7 @@ export default function StatisticsPartnerListPage() {
   };
 
   const handleSortByFinal = () => {
-    setSortOrder(prev => {
+    setSortOrder((prev) => {
       if (prev === null) return "desc";
       if (prev === "desc") return "asc";
       return null;
@@ -329,24 +340,56 @@ export default function StatisticsPartnerListPage() {
     >,
   );
 
-    // Ensure all partners have at least a total entry (calculate sum)
+  // Ensure all partners have at least a total entry (calculate sum)
   Object.values(groupedByPartner).forEach((group) => {
     if (!group.total && group.gameTypes.length > 0) {
       const baseStat = group.gameTypes[0];
-      const totalStat = { ...baseStat, game_type_id: null, game_type_code: null, game_type_name: null };
-      
+      const totalStat = {
+        ...baseStat,
+        game_type_id: null,
+        game_type_code: null,
+        game_type_name: null,
+      };
+
       const sumFields = [
-        'site_balance', 'casino_balance', 'holdem_balance', 'mini_balance', 'total_points',
-        'user_deposit', 'user_withdrawal', 'user_profit', 'partner_deposit', 'partner_deposit_received',
-        'partner_withdrawal', 'partner_withdrawal_received', 'partner_profit', 'admin_deposit',
-        'admin_withdrawal', 'total_bet_amount', 'invalid_bet_amount', 'public_bet_amount',
-        'total_win_amount', 'betting_profit', 'rolling', 'member_comp', 'first_deposit_bonus',
-        'regular_deposit_bonus', 'final_profit', 'losing_amount', 'money_deposit', 'money_withdrawal',
-        'point_deposit', 'point_withdrawal'
+        "site_balance",
+        "casino_balance",
+        "holdem_balance",
+        "mini_balance",
+        "total_points",
+        "user_deposit",
+        "user_withdrawal",
+        "user_profit",
+        "partner_deposit",
+        "partner_deposit_received",
+        "partner_withdrawal",
+        "partner_withdrawal_received",
+        "partner_profit",
+        "admin_deposit",
+        "admin_withdrawal",
+        "total_bet_amount",
+        "invalid_bet_amount",
+        "public_bet_amount",
+        "total_win_amount",
+        "betting_profit",
+        "rolling",
+        "member_comp",
+        "first_deposit_bonus",
+        "regular_deposit_bonus",
+        "final_profit",
+        "losing_amount",
+        "money_deposit",
+        "money_withdrawal",
+        "point_deposit",
+        "point_withdrawal",
       ];
-      
-      sumFields.forEach(field => {
-        totalStat[field as keyof PartnerStatistics] = group.gameTypes.reduce((sum, stat) => sum + Number(stat[field as keyof PartnerStatistics] || 0), 0) as never;
+
+      sumFields.forEach((field) => {
+        totalStat[field as keyof PartnerStatistics] = group.gameTypes.reduce(
+          (sum, stat) =>
+            sum + Number(stat[field as keyof PartnerStatistics] || 0),
+          0,
+        ) as never;
       });
       group.total = totalStat;
     }
@@ -578,7 +621,8 @@ export default function StatisticsPartnerListPage() {
                   id="btnSortFinal"
                   onClick={handleSortByFinal}
                 >
-                  최종손익순 {sortOrder === "desc" ? "↓" : sortOrder === "asc" ? "↑" : ""}
+                  최종손익순{" "}
+                  {sortOrder === "desc" ? "↓" : sortOrder === "asc" ? "↑" : ""}
                 </button>
               </div>
             </form>
@@ -586,7 +630,7 @@ export default function StatisticsPartnerListPage() {
             {/* Excel Download */}
             <div className="ms-auto">
               <a
-                href="javascript:void(0);"
+                href="#"
                 className="btn btn-primary text-white"
                 onClick={handleExcelDownload}
               >
@@ -621,16 +665,15 @@ export default function StatisticsPartnerListPage() {
 
       {/* Table with Complete Header Structure */}
       <div className="row">
-        <div className="col">
+        <div className="col" style={{ overflowX: "scroll" }}>
           <table
             id="partnerTable"
             className="table table-bordered table-responsive align-middle bg-white text-center fw-bold"
           >
-            
             {/* Table Header */}
             <thead
               className="bg-dark bg-gradient text-white"
-              style={{ position: "sticky", top: "50px", zIndex: 1 }}
+              // style={{ position: "sticky", top: "50px", zIndex: 1 }}
             >
               <tr>
                 <th rowSpan={2} className="align-middle">
@@ -1209,7 +1252,7 @@ export default function StatisticsPartnerListPage() {
                                 <li className="bg-gray-700">
                                   <a
                                     className="dropdown-item"
-                                    href="javascript:void(0);"
+                                    href="#"
                                     onClick={() =>
                                       (
                                         window as unknown as CustomWindow
@@ -1222,7 +1265,7 @@ export default function StatisticsPartnerListPage() {
                                 <li className="bg-gray-700">
                                   <a
                                     className="dropdown-item"
-                                    href="javascript:void(0);"
+                                    href="#"
                                     onClick={() =>
                                       (
                                         window as unknown as CustomWindow
@@ -1235,7 +1278,7 @@ export default function StatisticsPartnerListPage() {
                                 <li className="bg-gray-700">
                                   <a
                                     className="dropdown-item"
-                                    href="javascript:void(0);"
+                                    href="#"
                                     onClick={() =>
                                       (
                                         window as unknown as CustomWindow
@@ -1248,7 +1291,7 @@ export default function StatisticsPartnerListPage() {
                                 <li className="bg-gray-700">
                                   <a
                                     className="dropdown-item"
-                                    href="javascript:void(0);"
+                                    href="#"
                                     onClick={() =>
                                       (
                                         window as unknown as CustomWindow
@@ -1261,7 +1304,7 @@ export default function StatisticsPartnerListPage() {
                                 <li className="bg-gray-700">
                                   <a
                                     className="dropdown-item"
-                                    href="javascript:void(0);"
+                                    href="#"
                                     onClick={() =>
                                       (
                                         window as unknown as CustomWindow
@@ -1274,7 +1317,7 @@ export default function StatisticsPartnerListPage() {
                                 <li>
                                   <a
                                     className="dropdown-item"
-                                    href="javascript:void(0);"
+                                    href="#"
                                     onClick={() =>
                                       (
                                         window as unknown as CustomWindow
@@ -1287,7 +1330,7 @@ export default function StatisticsPartnerListPage() {
                                 <li>
                                   <a
                                     className="dropdown-item"
-                                    href="javascript:void(0);"
+                                    href="#"
                                     onClick={() =>
                                       (
                                         window as unknown as CustomWindow
@@ -1300,7 +1343,7 @@ export default function StatisticsPartnerListPage() {
                                 <li>
                                   <a
                                     className="dropdown-item"
-                                    href="javascript:void(0);"
+                                    href="#"
                                     onClick={() =>
                                       (
                                         window as unknown as CustomWindow
@@ -1313,7 +1356,7 @@ export default function StatisticsPartnerListPage() {
                                 <li>
                                   <a
                                     className="dropdown-item"
-                                    href="javascript:void(0);"
+                                    href="#"
                                     onClick={() =>
                                       (
                                         window as unknown as CustomWindow
@@ -1326,7 +1369,7 @@ export default function StatisticsPartnerListPage() {
                                 <li>
                                   <a
                                     className="dropdown-item"
-                                    href="javascript:void(0);"
+                                    href="#"
                                     onClick={() =>
                                       (
                                         window as unknown as CustomWindow
@@ -1507,8 +1550,6 @@ export default function StatisticsPartnerListPage() {
                 );
               })}
             </tbody>
-
-            
           </table>
         </div>
       </div>

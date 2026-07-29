@@ -405,7 +405,7 @@ export default function BoardPage() {
                       <td className="register p-1">
                         <div className="dropdown">
                           <a
-                            href="javascript:void(0)"
+                            href="#"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                             className="user-action"

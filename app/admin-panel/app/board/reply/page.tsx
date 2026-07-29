@@ -217,7 +217,7 @@ export default function BoardReplyPage() {
                       <td className="p-1"></td>
                       <td className="p-1">
                         <a
-                          href="javascript:void(0)"
+                          href="#"
                           data-bs-toggle="dropdown"
                           aria-expanded="false"
                           className="user-action"

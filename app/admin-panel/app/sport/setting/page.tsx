@@ -520,7 +520,7 @@ export default function SportSettingPage() {
                 </h4>
                 <div className="panel-heading-btn">
                   <a
-                    href="javascript:;"
+                    href="#"
                     className="btn btn-xs btn-icon btn-default"
                     data-toggle="panel-expand"
                     data-tooltip-init="true"
@@ -698,7 +698,7 @@ export default function SportSettingPage() {
       )}
 
       <a
-        href="javascript:;"
+        href="#"
         className="btn btn-icon btn-success btn-circle btn-theme btn-scroll-to-top"
         data-toggle="scroll-to-top"
       >

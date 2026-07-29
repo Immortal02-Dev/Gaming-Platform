@@ -510,7 +510,7 @@ function UserAllEditLogListPageInner() {
                             <li className="bg-gray-700">
                               <a
                                 className="dropdown-item"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() =>
                                   window.userDetail?.(log.user_id, 1)
                                 }
@@ -521,7 +521,7 @@ function UserAllEditLogListPageInner() {
                             <li className="bg-gray-700">
                               <a
                                 className="dropdown-item"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() =>
                                   window.userDetail?.(log.user_id, 17)
                                 }
@@ -532,7 +532,7 @@ function UserAllEditLogListPageInner() {
                             <li className="bg-gray-700">
                               <a
                                 className="dropdown-item"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() =>
                                   window.userDetail?.(log.user_id, 3)
                                 }
@@ -543,7 +543,7 @@ function UserAllEditLogListPageInner() {
                             <li className="bg-gray-700">
                               <a
                                 className="dropdown-item"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() =>
                                   window.userDetail?.(log.user_id, 6)
                                 }
@@ -554,7 +554,7 @@ function UserAllEditLogListPageInner() {
                             <li className="bg-gray-700">
                               <a
                                 className="dropdown-item"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() =>
                                   window.messageWrite?.(log.user_id)
                                 }
@@ -565,7 +565,7 @@ function UserAllEditLogListPageInner() {
                             <li>
                               <a
                                 className="dropdown-item"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() =>
                                   window.userDetail?.(log.user_id, 8)
                                 }
@@ -576,7 +576,7 @@ function UserAllEditLogListPageInner() {
                             <li>
                               <a
                                 className="dropdown-item"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() =>
                                   window.userDetail?.(log.user_id, 4)
                                 }
@@ -587,7 +587,7 @@ function UserAllEditLogListPageInner() {
                             <li>
                               <a
                                 className="dropdown-item"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() =>
                                   window.userDetail?.(log.user_id, 5)
                                 }
@@ -598,7 +598,7 @@ function UserAllEditLogListPageInner() {
                             <li>
                               <a
                                 className="dropdown-item"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() =>
                                   window.userDetail?.(log.user_id, 7)
                                 }
@@ -609,7 +609,7 @@ function UserAllEditLogListPageInner() {
                             <li>
                               <a
                                 className="dropdown-item"
-                                href="javascript:void(0);"
+                                href="#"
                                 onClick={() =>
                                   window.userDetail?.(log.user_id, 15)
                                 }

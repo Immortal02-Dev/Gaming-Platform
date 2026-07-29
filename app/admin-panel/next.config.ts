@@ -14,6 +14,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/user/userDetail.html',
+        destination: '/user/user/detail',
+        permanent: false,
+      },
+      {
+        source: '/user/userDetail',
+        destination: '/user/user/detail',
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
