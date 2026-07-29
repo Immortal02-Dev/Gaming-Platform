@@ -1,60 +1,105 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, FormEvent, ReactNode } from "react";
 import { useEffect, useRef, useState, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { useSearchParams, useRouter } from "next/navigation";
 
-const dropdownLinks = [
-  {
-    label: "정보수정",
-    href: "#",
-    className: "bg-gray-700",
-    action: (id) => `userDetail(${id}, 1)`,
-  },
+declare global {
+  interface Window {
+    userDetail?: (userIdx: string | number, tab: number) => void;
+    messageWrite?: (userIdx: string | number) => void;
+  }
+}
+
+type DropdownAction = "userDetail" | "messageWrite";
+
+interface DropdownLink {
+  label: string;
+  action: DropdownAction;
+  tab?: number;
+  className?: string;
+}
+
+const dropdownLinks: DropdownLink[] = [
+  { label: "정보수정", action: "userDetail", tab: 1, className: "bg-gray-700" },
   {
     label: "수수료율",
-    href: "#",
+    action: "userDetail",
+    tab: 17,
     className: "bg-gray-700",
-    action: (id) => `userDetail(${id}, 17)`,
   },
   {
     label: "머니지급/차감",
-    href: "#",
+    action: "userDetail",
+    tab: 3,
     className: "bg-gray-700",
-    action: (id) => `userDetail(${id}, 3)`,
   },
   {
     label: "포인트지급/차감",
-    href: "#",
+    action: "userDetail",
+    tab: 6,
     className: "bg-gray-700",
-    action: (id) => `userDetail(${id}, 6)`,
   },
-  {
-    label: "쪽지보내기",
-    href: "#",
-    className: "bg-gray-700",
-    action: (id) => `messageWrite(${id})`,
-  },
-  { label: "베팅내역", href: "#", action: (id) => `userDetail(${id}, 8)` },
-  { label: "충환전내역", href: "#", action: (id) => `userDetail(${id}, 4)` },
-  { label: "머니거래내역", href: "#", action: (id) => `userDetail(${id}, 5)` },
-  {
-    label: "포인트거래내역",
-    href: "#",
-    action: (id) => `userDetail(${id}, 7)`,
-  },
-  { label: "쿠폰 현황", href: "#", action: (id) => `userDetail(${id}, 15)` },
+  { label: "쪽지보내기", action: "messageWrite", className: "bg-gray-700" },
+  { label: "베팅내역", action: "userDetail", tab: 8 },
+  { label: "충환전내역", action: "userDetail", tab: 4 },
+  { label: "머니거래내역", action: "userDetail", tab: 5 },
+  { label: "포인트거래내역", action: "userDetail", tab: 7 },
+  { label: "쿠폰 현황", action: "userDetail", tab: 15 },
 ];
+
+interface MoneyLogUser {
+  userIdx: number;
+  userID: string;
+  nickname: string;
+  backgroundColor: string;
+  role: string;
+}
+
+interface MoneyLogAffiliation {
+  role: string;
+  backgroundColor: string;
+}
+
+interface MoneyLog {
+  id: number;
+  no: number;
+  user: MoneyLogUser;
+  affiliation: MoneyLogAffiliation | null;
+  logTypeGroup: string;
+  logType: string;
+  beforeAmount: number;
+  amountClass: string;
+  amountDisplay: string | number;
+  amount?: number | string;
+  afterAmount: number;
+  memo: string;
+  transactionDate: string;
+}
+
+interface Pagination {
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+
+interface MoneyLogApiResponse {
+  success: boolean;
+  data: Partial<MoneyLog>[];
+  pagination: Pagination;
+}
 
 function MoneyLogListPageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const formSearchRef = useRef(null);
-  const logTypeGroupIdxRef = useRef(null);
-  const moneyLogTypeIdxRef = useRef(null);
-  const startDateRef = useRef(null);
-  const endDateRef = useRef(null);
+  const formSearchRef = useRef<HTMLFormElement | null>(null);
+  const logTypeGroupIdxRef = useRef<HTMLSelectElement | null>(null);
+  const moneyLogTypeIdxRef = useRef<HTMLSelectElement | null>(null);
+  const startDateRef = useRef<HTMLInputElement | null>(null);
+  const endDateRef = useRef<HTMLInputElement | null>(null);
 
   const [pageSize, setPageSize] = useState(
     searchParams.get("pageSize") || "50",
@@ -81,9 +126,9 @@ function MoneyLogListPageInner() {
     searchParams.get("searchText") || "",
   );
 
-  const [logs, setLogs] = useState([]);
+  const [logs, setLogs] = useState<MoneyLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({
+  const [pagination, setPagination] = useState<Pagination>({
     total: 0,
     page: 1,
     pageSize: 50,
@@ -91,8 +136,21 @@ function MoneyLogListPageInner() {
     hasMore: false,
   });
 
-  // Fixed: Proper API_BASE_URL configuration for relative path
-  const API_BASE_URL = window.location.origin;
+  const API_BASE_URL = "";
+
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    params.set("pageSize", pageSize);
+    if (startDate) params.set("startDate", startDate);
+    if (endDate) params.set("endDate", endDate);
+    if (logTypeGroupIdx) params.set("logTypeGroupIdx", logTypeGroupIdx);
+    if (logTypeIdx) params.set("logTypeIdx", logTypeIdx);
+    if (searchType) params.set("searchType", searchType);
+    if (searchText) params.set("searchText", searchText);
+    router.push(`/money/log/list?${params.toString()}`);
+  };
 
   const fnChangeMoneylogTypeGroup = useCallback(() => {
     if (!moneyLogTypeIdxRef.current) return;
@@ -154,32 +212,34 @@ function MoneyLogListPageInner() {
         throw new Error("Failed to fetch money logs");
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as MoneyLogApiResponse;
       if (data.success) {
-        const processedData = data.data.map((log, index) => ({
-          ...log,
-          id: log.id || index,
-          no: log.no || index + 1,
-          user: {
-            userID: log.user?.userID || "unknown",
-            nickname: log.user?.nickname || "",
-            backgroundColor: log.user?.backgroundColor || "#6aa84f",
-            role: log.user?.role || "User",
-            userIdx: log.user?.userIdx || 0,
-          },
-          affiliation: {
-            role: log.affiliation?.role || "",
-            backgroundColor: log.affiliation?.backgroundColor || "#6aa84f",
-          },
-          logTypeGroup: log.logTypeGroup || "",
-          logType: log.logType || "",
-          beforeAmount: log.beforeAmount || 0,
-          amountClass: log.amountClass || "",
-          amountDisplay: log.amountDisplay || log.amount || 0,
-          afterAmount: log.afterAmount || 0,
-          memo: log.memo || "",
-          transactionDate: log.transactionDate || "",
-        }));
+        const processedData = data.data.map(
+          (log: Partial<MoneyLog>, index: number) => ({
+            ...log,
+            id: log.id || index,
+            no: log.no || index + 1,
+            user: {
+              userID: log.user?.userID || "unknown",
+              nickname: log.user?.nickname || "",
+              backgroundColor: log.user?.backgroundColor || "#6aa84f",
+              role: log.user?.role || "User",
+              userIdx: log.user?.userIdx || 0,
+            },
+            affiliation: {
+              role: log.affiliation?.role || "",
+              backgroundColor: log.affiliation?.backgroundColor || "#6aa84f",
+            },
+            logTypeGroup: log.logTypeGroup || "",
+            logType: log.logType || "",
+            beforeAmount: log.beforeAmount || 0,
+            amountClass: log.amountClass || "",
+            amountDisplay: log.amountDisplay || log.amount || 0,
+            afterAmount: log.afterAmount || 0,
+            memo: log.memo || "",
+            transactionDate: log.transactionDate || "",
+          }),
+        );
 
         setLogs(processedData);
         setPagination(data.pagination);
@@ -203,22 +263,18 @@ function MoneyLogListPageInner() {
   ]);
 
   useEffect(() => {
-    fetchLogs();
-  }, [
-    pageSize,
-    startDate,
-    endDate,
-    logTypeGroupIdx,
-    logTypeIdx,
-    searchType,
-    searchText,
-  ]);
+    const loadLogs = async () => {
+      await fetchLogs();
+    };
+
+    void loadLogs();
+  }, [fetchLogs]);
 
   useEffect(() => {
     const searchTextInput = document.getElementById("searchText");
     const btnSearch = document.getElementById("btnSearch");
     if (searchTextInput && btnSearch) {
-      const handleKeyDown = (e) => {
+      const handleKeyDown = (e: KeyboardEvent) => {
         if (e.keyCode === 13) {
           e.preventDefault();
           btnSearch.click();
@@ -243,7 +299,7 @@ function MoneyLogListPageInner() {
         dateFormat: "Y-m-d",
         disableMobile: true,
         defaultDate: startDate,
-        onChange: (selectedDates, dateStr) => {
+        onChange: (selectedDates: Date[], dateStr: string) => {
           if (dateStr) {
             setStartDate(dateStr);
           }
@@ -255,7 +311,7 @@ function MoneyLogListPageInner() {
         dateFormat: "Y-m-d",
         disableMobile: true,
         defaultDate: endDate,
-        onChange: (selectedDates, dateStr) => {
+        onChange: (selectedDates: Date[], dateStr: string) => {
           if (dateStr) {
             setEndDate(dateStr);
           }
@@ -269,40 +325,39 @@ function MoneyLogListPageInner() {
     }
   }, [startDate, endDate]);
 
-  // Fixed: Implement userDetail function
-  const userDetail = (userIdx, type) => {
-    console.log(`Opening user detail: userId=${userIdx}, type=${type}`);
-    alert(`User detail page would open for user ID: ${userIdx}, type: ${type}`);
-  };
-
-  // Fixed: Implement messageWrite function
-  const messageWrite = (userIdx) => {
-    console.log(`Opening message write: userId=${userIdx}`);
-    alert(`Message composer would open for user ID: ${userIdx}`);
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    params.set("page", "1");
-    params.set("pageSize", pageSize);
-    if (startDate) params.set("startDate", startDate);
-    if (endDate) params.set("endDate", endDate);
-    if (logTypeGroupIdx) params.set("logTypeGroupIdx", logTypeGroupIdx);
-    if (logTypeIdx) params.set("logTypeIdx", logTypeIdx);
-    if (searchType) params.set("searchType", searchType);
-    if (searchText) params.set("searchText", searchText);
-    router.push(`/money/log/list?${params.toString()}`);
+  const renderDropdownLinks = (userIdx: number) => {
+    return dropdownLinks.map((link, idx) => (
+      <li key={idx} className={link.className || ""}>
+        <a
+          className="dropdown-item"
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            if (
+              link.action === "userDetail" &&
+              window.userDetail &&
+              link.tab !== undefined
+            ) {
+              window.userDetail(userIdx, link.tab);
+            } else if (link.action === "messageWrite" && window.messageWrite) {
+              window.messageWrite(userIdx);
+            }
+          }}
+        >
+          {link.label}
+        </a>
+      </li>
+    ));
   };
 
   const renderPagination = () => {
-    const pages = [];
+    const pages: ReactNode[] = [];
     const currentPage = pagination.page;
     const totalPages = pagination.totalPages;
     const maxPages = 10;
 
     let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
-    let endPage = Math.min(totalPages, startPage + maxPages - 1);
+    const endPage = Math.min(totalPages, startPage + maxPages - 1);
 
     if (endPage - startPage < maxPages - 1) {
       startPage = Math.max(1, endPage - maxPages + 1);
@@ -707,69 +762,7 @@ function MoneyLogListPageInner() {
                             <i className="fa fa-user me-2"></i>
                             {displayName}
                           </li>
-                          {dropdownLinks.map((link, idx) => (
-                            <li key={idx} className={link.className || ""}>
-                              <a
-                                className="dropdown-item"
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  if (
-                                    link.label === "정보수정" &&
-                                    window.userDetail
-                                  )
-                                    window.userDetail(log.user.userIdx, 1);
-                                  else if (
-                                    link.label === "수수료율" &&
-                                    window.userDetail
-                                  )
-                                    window.userDetail(log.user.userIdx, 17);
-                                  else if (
-                                    link.label === "머니지급/차감" &&
-                                    window.userDetail
-                                  )
-                                    window.userDetail(log.user.userIdx, 3);
-                                  else if (
-                                    link.label === "포인트지급/차감" &&
-                                    window.userDetail
-                                  )
-                                    window.userDetail(log.user.userIdx, 6);
-                                  else if (
-                                    link.label === "쪽지보내기" &&
-                                    window.messageWrite
-                                  )
-                                    window.messageWrite(log.user.userIdx);
-                                  else if (
-                                    link.label === "베팅내역" &&
-                                    window.userDetail
-                                  )
-                                    window.userDetail(log.user.userIdx, 8);
-                                  else if (
-                                    link.label === "충환전내역" &&
-                                    window.userDetail
-                                  )
-                                    window.userDetail(log.user.userIdx, 4);
-                                  else if (
-                                    link.label === "머니거래내역" &&
-                                    window.userDetail
-                                  )
-                                    window.userDetail(log.user.userIdx, 5);
-                                  else if (
-                                    link.label === "포인트거래내역" &&
-                                    window.userDetail
-                                  )
-                                    window.userDetail(log.user.userIdx, 7);
-                                  else if (
-                                    link.label === "쿠폰 현황" &&
-                                    window.userDetail
-                                  )
-                                    window.userDetail(log.user.userIdx, 15);
-                                }}
-                              >
-                                {link.label}
-                              </a>
-                            </li>
-                          ))}
+                          {renderDropdownLinks(log.user.userIdx)}
                         </ul>
                       </td>
                       <td>{log.logTypeGroup}</td>
