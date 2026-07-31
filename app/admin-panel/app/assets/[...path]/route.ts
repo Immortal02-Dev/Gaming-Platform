@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.BACKEND_URL || "https://bc-game-backend-production.up.railway.net";
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  process.env.BACKEND_URL ||
+  "http://localhost:5000";
 
-async function handleRequest(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+async function handleRequest(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> },
+) {
   const resolvedParams = await params;
   const path = resolvedParams.path.join("/");
   const url = `${BACKEND_URL}/assets/${path}${request.nextUrl.search}`;
@@ -11,7 +17,7 @@ async function handleRequest(request: NextRequest, { params }: { params: Promise
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        'Accept': request.headers.get('accept') || '*/*',
+        Accept: request.headers.get("accept") || "*/*",
       },
       credentials: "omit",
     });
@@ -20,7 +26,14 @@ async function handleRequest(request: NextRequest, { params }: { params: Promise
 
     const responseHeaders = new Headers();
     response.headers.forEach((value, key) => {
-      if (!['content-encoding', 'transfer-encoding', 'connection', 'content-length'].includes(key.toLowerCase())) {
+      if (
+        ![
+          "content-encoding",
+          "transfer-encoding",
+          "connection",
+          "content-length",
+        ].includes(key.toLowerCase())
+      ) {
         responseHeaders.set(key, value);
       }
     });

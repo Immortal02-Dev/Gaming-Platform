@@ -1,9 +1,15 @@
 // Proxy Route v1.2.1 - Forced Re-creation to fix parsing error
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.BACKEND_URL || "https://bc-game-backend-production.up.railway.net";
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  process.env.BACKEND_URL ||
+  "http://localhost:5000";
 
-async function handleRequest(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+async function handleRequest(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> },
+) {
   const resolvedParams = await params;
   const path = resolvedParams.path.join("/");
   const url = `${BACKEND_URL}/api/${path}${request.nextUrl.search}`;
@@ -12,7 +18,7 @@ async function handleRequest(request: NextRequest, { params }: { params: Promise
 
   const headers = new Headers();
   request.headers.forEach((value, key) => {
-    if (key.toLowerCase() !== 'host') {
+    if (key.toLowerCase() !== "host") {
       headers.set(key, value);
     }
   });
@@ -35,7 +41,14 @@ async function handleRequest(request: NextRequest, { params }: { params: Promise
 
     const responseHeaders = new Headers();
     response.headers.forEach((value, key) => {
-      if (!['content-encoding', 'transfer-encoding', 'connection', 'content-length'].includes(key.toLowerCase())) {
+      if (
+        ![
+          "content-encoding",
+          "transfer-encoding",
+          "connection",
+          "content-length",
+        ].includes(key.toLowerCase())
+      ) {
         responseHeaders.set(key, value);
       }
     });
@@ -53,7 +66,7 @@ async function handleRequest(request: NextRequest, { params }: { params: Promise
     console.error(`Proxy error for ${url}:`, error);
     return NextResponse.json(
       { success: false, message: "Internal Proxy Error", error: errorMessage },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

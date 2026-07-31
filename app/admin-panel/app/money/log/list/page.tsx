@@ -105,14 +105,9 @@ function MoneyLogListPageInner() {
     searchParams.get("pageSize") || "50",
   );
   const [startDate, setStartDate] = useState(
-    searchParams.get("startDate") ||
-      new Date(new Date().setMonth(new Date().getMonth() - 1))
-        .toISOString()
-        .split("T")[0],
+    searchParams.get("startDate") || "",
   );
-  const [endDate, setEndDate] = useState(
-    searchParams.get("endDate") || new Date().toISOString().split("T")[0],
-  );
+  const [endDate, setEndDate] = useState(searchParams.get("endDate") || "");
   const [logTypeGroupIdx, setLogTypeGroupIdx] = useState(
     searchParams.get("logTypeGroupIdx") || "",
   );
@@ -288,42 +283,8 @@ function MoneyLogListPageInner() {
   }, []);
 
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      window.flatpickr &&
-      startDate &&
-      endDate
-    ) {
-      const startPicker = window.flatpickr(startDateRef.current, {
-        locale: "ko",
-        dateFormat: "Y-m-d",
-        disableMobile: true,
-        defaultDate: startDate,
-        onChange: (selectedDates: Date[], dateStr: string) => {
-          if (dateStr) {
-            setStartDate(dateStr);
-          }
-        },
-      });
-
-      const endPicker = window.flatpickr(endDateRef.current, {
-        locale: "ko",
-        dateFormat: "Y-m-d",
-        disableMobile: true,
-        defaultDate: endDate,
-        onChange: (selectedDates: Date[], dateStr: string) => {
-          if (dateStr) {
-            setEndDate(dateStr);
-          }
-        },
-      });
-
-      return () => {
-        if (startPicker) startPicker.destroy();
-        if (endPicker) endPicker.destroy();
-      };
-    }
-  }, [startDate, endDate]);
+    // Native date inputs are used instead of flatpickr for this page.
+  }, []);
 
   const renderDropdownLinks = (userIdx: number) => {
     return dropdownLinks.map((link, idx) => (
@@ -526,22 +487,22 @@ function MoneyLogListPageInner() {
                       style={{ width: "250px" }}
                     >
                       <input
-                        type="text"
+                        type="date"
                         id="startDate"
                         name="startDate"
-                        className="form-control date flatpickr-input"
+                        className="form-control"
                         value={startDate}
-                        readOnly
+                        onChange={(e) => setStartDate(e.target.value)}
                         ref={startDateRef}
                       />
                       <div className="input-group-text">~</div>
                       <input
-                        type="text"
+                        type="date"
                         id="endDate"
                         name="endDate"
-                        className="form-control date flatpickr-input"
+                        className="form-control"
                         value={endDate}
-                        readOnly
+                        onChange={(e) => setEndDate(e.target.value)}
                         ref={endDateRef}
                       />
                       <div className="input-group-text">

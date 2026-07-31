@@ -4,7 +4,7 @@ exports.getAllSubmissions = async (req, res) => {
   try {
     const { status } = req.query;
     let query = `
-      SELECT ks.*, u.username, u.email 
+      SELECT ks.*, u.username, u.email_or_phone AS email 
       FROM kyc_submissions ks
       JOIN users u ON ks.user_id = u.id
     `;
@@ -30,19 +30,27 @@ exports.updateStatus = async (req, res) => {
     const { status, rejection_reason } = req.body;
 
     if (!["approved", "rejected"].includes(status)) {
-      return res.status(400).json({ success: false, message: "Invalid status" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid status" });
     }
 
     await db.execute(
       "UPDATE kyc_submissions SET status = ?, rejection_reason = ?, processed_at = CURRENT_TIMESTAMP WHERE id = ?",
-      [status, rejection_reason || null, id]
+      [status, rejection_reason || null, id],
     );
 
     // If approved, update user's kyc_status (assuming it exists in users table)
     if (status === "approved") {
-      const [[sub]] = await db.execute("SELECT user_id FROM kyc_submissions WHERE id = ?", [id]);
+      const [[sub]] = await db.execute(
+        "SELECT user_id FROM kyc_submissions WHERE id = ?",
+        [id],
+      );
       if (sub) {
-        await db.execute("UPDATE users SET kyc_status = 'verified' WHERE id = ?", [sub.user_id]);
+        await db.execute(
+          "UPDATE users SET kyc_status = 'verified' WHERE id = ?",
+          [sub.user_id],
+        );
       }
     }
 

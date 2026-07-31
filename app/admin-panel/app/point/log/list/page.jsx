@@ -16,14 +16,9 @@ function PointLogListPageInner() {
     searchParams.get("pageSize") || "50",
   );
   const [startDate, setStartDate] = useState(
-    searchParams.get("startDate") ||
-      new Date(new Date().setMonth(new Date().getMonth() - 1))
-        .toISOString()
-        .split("T")[0],
+    searchParams.get("startDate") || "",
   );
-  const [endDate, setEndDate] = useState(
-    searchParams.get("endDate") || new Date().toISOString().split("T")[0],
-  );
+  const [endDate, setEndDate] = useState(searchParams.get("endDate") || "");
   const [logTypeGroupIdx, setLogTypeGroupIdx] = useState(
     searchParams.get("logTypeGroupIdx") || "",
   );
@@ -49,7 +44,7 @@ function PointLogListPageInner() {
 
   const API_BASE_URL = ""; // Use relative path for proxy
 
-  const fnChangeMoneylogTypeGroup = () => {
+  const fnChangeMoneylogTypeGroup = useCallback(() => {
     if (!moneyLogTypeIdxRef.current) return;
 
     const options = moneyLogTypeIdxRef.current.options;
@@ -79,11 +74,11 @@ function PointLogListPageInner() {
         setLogTypeIdx("");
       }
     }
-  };
+  }, [logTypeGroupIdx]);
 
   useEffect(() => {
     fnChangeMoneylogTypeGroup();
-  }, [logTypeGroupIdx]);
+  }, [fnChangeMoneylogTypeGroup]);
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
@@ -187,8 +182,6 @@ function PointLogListPageInner() {
       <li
         key="prev"
         className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
-        aria-disabled={currentPage === 1}
-        aria-label="이전"
       >
         {currentPage === 1 ? (
           <span className="page-link" aria-hidden="true">
@@ -244,8 +237,6 @@ function PointLogListPageInner() {
       <li
         key="next"
         className={`page-item ${!pagination.hasMore ? "disabled" : ""}`}
-        aria-disabled={!pagination.hasMore}
-        aria-label="다음"
       >
         {!pagination.hasMore ? (
           <span className="page-link" aria-hidden="true">
@@ -331,7 +322,7 @@ function PointLogListPageInner() {
             >
               <div className="row">
                 <div className="col">
-                  <div className="d-flex">
+                  <div className="d-flex flex-wrap align-items-center gap-1">
                     <select
                       name="pageSize"
                       className="form-select w-80px me-2"
@@ -350,21 +341,21 @@ function PointLogListPageInner() {
                       style={{ width: "310px" }}
                     >
                       <input
-                        type="text"
+                        type="date"
                         id="startDate"
                         name="startDate"
-                        className="form-control date_time flatpickr-input"
+                        className="form-control"
                         value={startDate}
-                        readOnly
+                        onChange={(e) => setStartDate(e.target.value)}
                       />
                       <div className="input-group-text">~</div>
                       <input
-                        type="text"
+                        type="date"
                         id="endDate"
                         name="endDate"
-                        className="form-control date_time flatpickr-input"
+                        className="form-control"
                         value={endDate}
-                        readOnly
+                        onChange={(e) => setEndDate(e.target.value)}
                       />
                       <div className="input-group-text">
                         <i className="fa fa-calendar"></i>
@@ -501,229 +492,232 @@ function PointLogListPageInner() {
 
       <div className="row">
         <div className="col">
-          <table className="table table-striped table-bordered table-responsive align-middle bg-white text-center fw-bold">
-            <thead className="bg-dark bg-gradient text-white">
-              <tr>
-                <th>No.</th>
-                <th>ID</th>
-                <th>닉네임(아이디)</th>
-                <th>유형</th>
-                <th>이전 포인트</th>
-                <th>변동 포인트</th>
-                <th>이후 포인트</th>
-                <th>비고</th>
-                <th>일시</th>
-                <th>관리자</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
+          <div style={{ overflowX: "auto" }}>
+            <table className="table table-striped table-bordered table-responsive align-middle bg-white text-center fw-bold">
+              <thead className="bg-dark bg-gradient text-white">
                 <tr>
-                  <td colSpan={10} className="text-center py-4">
-                    <span className="spinner-border spinner-border-sm me-2"></span>
-                    조회 중...
-                  </td>
+                  <th>No.</th>
+                  <th>ID</th>
+                  <th>닉네임(아이디)</th>
+                  <th>유형</th>
+                  <th>이전 포인트</th>
+                  <th>변동 포인트</th>
+                  <th>이후 포인트</th>
+                  <th>비고</th>
+                  <th>일시</th>
+                  <th>관리자</th>
                 </tr>
-              ) : logs.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className="text-center py-4">
-                    조회된 포인트 로그 내역이 없습니다.
-                  </td>
-                </tr>
-              ) : (
-                logs.map((log) => {
-                  const displayName = log.user.nickname
-                    ? `${log.user.userID} (${log.user.nickname})`
-                    : log.user.userID;
-                  return (
-                    <tr key={log.id}>
-                      <td>{log.no}</td>
-                      <td className="p-1">
-                        {log.affiliation && (
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={10} className="text-center py-4">
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      조회 중...
+                    </td>
+                  </tr>
+                ) : logs.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="text-center py-4">
+                      조회된 포인트 로그 내역이 없습니다.
+                    </td>
+                  </tr>
+                ) : (
+                  logs.map((log) => {
+                    const displayName = log.user.nickname
+                      ? `${log.user.userID} (${log.user.nickname})`
+                      : log.user.userID;
+                    return (
+                      <tr key={log.id}>
+                        <td>{log.no}</td>
+                        <td className="p-1">
+                          {log.affiliation && (
+                            <div
+                              className="input-group-text p-1 d-inline"
+                              style={{
+                                backgroundColor:
+                                  log.affiliation.backgroundColor,
+                              }}
+                            >
+                              {log.affiliation.role}
+                            </div>
+                          )}
+                        </td>
+                        <td className="">
                           <div
-                            className="input-group-text p-1 d-inline"
-                            style={{
-                              backgroundColor: log.affiliation.backgroundColor,
-                            }}
+                            className="input-group w-auto d-flex user-action"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
                           >
-                            {log.affiliation.role}
+                            <div
+                              className="input-group-text p-1 cursor-pointer d-inline"
+                              style={{
+                                backgroundColor: log.user.backgroundColor,
+                              }}
+                            >
+                              {log.user.role}
+                            </div>
+                            <label className="form-control p-1 cursor-pointer">
+                              {displayName}
+                            </label>
                           </div>
-                        )}
-                      </td>
-                      <td className="">
-                        <div
-                          className="input-group w-auto d-flex user-action"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          <div
-                            className="input-group-text p-1 cursor-pointer d-inline"
-                            style={{
-                              backgroundColor: log.user.backgroundColor,
-                            }}
-                          >
-                            {log.user.role}
-                          </div>
-                          <label className="form-control p-1 cursor-pointer">
-                            {displayName}
-                          </label>
-                        </div>
-                        <ul className="dropdown-menu dropdown-menu-dark py-0">
-                          <li
-                            className="fw-600 text-white"
-                            style={{
-                              padding:
-                                "var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)",
-                            }}
-                          >
-                            <i className="fa fa-user me-2"></i>
-                            {displayName}
-                          </li>
-                          <li className="bg-gray-700">
-                            <a
-                              className="dropdown-item"
-                              href="#"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                if (window.userDetail)
-                                  window.userDetail(log.user.userIdx, 1);
+                          <ul className="dropdown-menu dropdown-menu-dark py-0">
+                            <li
+                              className="fw-600 text-white"
+                              style={{
+                                padding:
+                                  "var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)",
                               }}
                             >
-                              상세보기
-                            </a>
-                          </li>
-                          <li className="bg-gray-700">
-                            <a
-                              className="dropdown-item"
-                              href="#"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                if (window.userDetail)
-                                  window.userDetail(log.user.userIdx, 17);
-                              }}
-                            >
-                              로그인 내역
-                            </a>
-                          </li>
-                          <li className="bg-gray-700">
-                            <a
-                              className="dropdown-item"
-                              href="#"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                if (window.userDetail)
-                                  window.userDetail(log.user.userIdx, 3);
-                              }}
-                            >
-                              충전/환전
-                            </a>
-                          </li>
-                          <li className="bg-gray-700">
-                            <a
-                              className="dropdown-item"
-                              href="#"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                if (window.userDetail)
-                                  window.userDetail(log.user.userIdx, 6);
-                              }}
-                            >
-                              포인트 지급/차감
-                            </a>
-                          </li>
-                          <li className="bg-gray-700">
-                            <a
-                              className="dropdown-item"
-                              href="#"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                if (window.messageWrite)
-                                  window.messageWrite(log.user.userIdx);
-                              }}
-                            >
-                              쪽지쓰기
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              className="dropdown-item"
-                              href="#"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                if (window.userDetail)
-                                  window.userDetail(log.user.userIdx, 8);
-                              }}
-                            >
-                              베팅내역
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              className="dropdown-item"
-                              href="#"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                if (window.userDetail)
-                                  window.userDetail(log.user.userIdx, 4);
-                              }}
-                            >
-                              정산내역
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              className="dropdown-item"
-                              href="#"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                if (window.userDetail)
-                                  window.userDetail(log.user.userIdx, 5);
-                              }}
-                            >
-                              쿠폰내역
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              className="dropdown-item"
-                              href="#"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                if (window.userDetail)
-                                  window.userDetail(log.user.userIdx, 7);
-                              }}
-                            >
-                              프로모션내역
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              className="dropdown-item"
-                              href="#"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                if (window.userDetail)
-                                  window.userDetail(log.user.userIdx, 15);
-                              }}
-                            >
-                              접속내역
-                            </a>
-                          </li>
-                        </ul>
-                      </td>
-                      <td>{log.logTypeGroup}</td>
-                      <td>{log.logType}</td>
-                      <td>{log.beforeAmount}</td>
-                      <td className={log.amountClass}>{log.amountDisplay}</td>
-                      <td>{log.afterAmount}</td>
-                      <td>{log.memo}</td>
-                      <td>{log.transactionDate}</td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                              <i className="fa fa-user me-2"></i>
+                              {displayName}
+                            </li>
+                            <li className="bg-gray-700">
+                              <a
+                                className="dropdown-item"
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (window.userDetail)
+                                    window.userDetail(log.user.userIdx, 1);
+                                }}
+                              >
+                                상세보기
+                              </a>
+                            </li>
+                            <li className="bg-gray-700">
+                              <a
+                                className="dropdown-item"
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (window.userDetail)
+                                    window.userDetail(log.user.userIdx, 17);
+                                }}
+                              >
+                                로그인 내역
+                              </a>
+                            </li>
+                            <li className="bg-gray-700">
+                              <a
+                                className="dropdown-item"
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (window.userDetail)
+                                    window.userDetail(log.user.userIdx, 3);
+                                }}
+                              >
+                                충전/환전
+                              </a>
+                            </li>
+                            <li className="bg-gray-700">
+                              <a
+                                className="dropdown-item"
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (window.userDetail)
+                                    window.userDetail(log.user.userIdx, 6);
+                                }}
+                              >
+                                포인트 지급/차감
+                              </a>
+                            </li>
+                            <li className="bg-gray-700">
+                              <a
+                                className="dropdown-item"
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (window.messageWrite)
+                                    window.messageWrite(log.user.userIdx);
+                                }}
+                              >
+                                쪽지쓰기
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                className="dropdown-item"
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (window.userDetail)
+                                    window.userDetail(log.user.userIdx, 8);
+                                }}
+                              >
+                                베팅내역
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                className="dropdown-item"
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (window.userDetail)
+                                    window.userDetail(log.user.userIdx, 4);
+                                }}
+                              >
+                                정산내역
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                className="dropdown-item"
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (window.userDetail)
+                                    window.userDetail(log.user.userIdx, 5);
+                                }}
+                              >
+                                쿠폰내역
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                className="dropdown-item"
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (window.userDetail)
+                                    window.userDetail(log.user.userIdx, 7);
+                                }}
+                              >
+                                프로모션내역
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                className="dropdown-item"
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (window.userDetail)
+                                    window.userDetail(log.user.userIdx, 15);
+                                }}
+                              >
+                                접속내역
+                              </a>
+                            </li>
+                          </ul>
+                        </td>
+                        <td>{log.logTypeGroup}</td>
+                        <td>{log.logType}</td>
+                        <td>{log.beforeAmount}</td>
+                        <td className={log.amountClass}>{log.amountDisplay}</td>
+                        <td>{log.afterAmount}</td>
+                        <td>{log.memo}</td>
+                        <td>{log.transactionDate}</td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

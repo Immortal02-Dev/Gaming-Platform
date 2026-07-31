@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import Layout from "@/components/Layout";
 
-
 interface KycSubmission {
   id: number;
   user_id: number;
@@ -24,29 +23,75 @@ export default function KycPage() {
   const [submissions, setSubmissions] = useState<KycSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setStatusFilter] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const fetchSubmissions = useCallback(async () => {
+    setLoading(true);
+    setErrorMessage(null);
+
     try {
       const params = new URLSearchParams();
       if (filter) params.append("status", filter);
       const query = params.toString() ? `?${params.toString()}` : "";
 
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("adminToken")
+          : null;
       const res = await fetch(`/api/admin/kyc/submissions${query}`, {
         credentials: "include",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
-      if (res.ok) {
-        const data = await res.json();
-        setSubmissions(data.data || []);
+
+      if (!res.ok) {
+        const errorBody = await res.text();
+        const message = `KYC load failed: ${res.status} ${res.statusText} ${errorBody}`;
+        console.error(message);
+        setErrorMessage(message);
+        setSubmissions([]);
+        return;
+      }
+
+      const data = await res.json().catch((err) => {
+        console.error("Failed to parse KYC response JSON", err);
+        setErrorMessage("Failed to parse server response.");
+        return null;
+      });
+
+      if (!data) {
+        setSubmissions([]);
+        return;
+      }
+
+      const submissionsData = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.data)
+          ? data.data
+          : [];
+
+      if (!Array.isArray(submissionsData)) {
+        console.error("Unexpected KYC data shape", data);
+        setErrorMessage("Unexpected response shape from server.");
+        setSubmissions([]);
+      } else {
+        setSubmissions(submissionsData);
       }
     } catch (error) {
       console.error("KYC load failed", error);
+      setErrorMessage(String(error));
+      setSubmissions([]);
     } finally {
       setLoading(false);
     }
   }, [filter]);
 
   useEffect(() => {
-    fetchSubmissions();
+    const loadSubmissions = async () => {
+      await fetchSubmissions();
+    };
+    void loadSubmissions();
   }, [fetchSubmissions]);
 
   const handleProcess = async (id: number, status: "approved" | "rejected") => {
@@ -85,7 +130,11 @@ export default function KycPage() {
       <div className="card shadow-sm border-0">
         <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
           <h5 className="mb-0">제출 목록</h5>
-          <select className="form-select form-select-sm w-auto" value={filter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <select
+            className="form-select form-select-sm w-auto"
+            value={filter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
             <option value="">전체 상태</option>
             <option value="pending">대기중</option>
             <option value="approved">승인됨</option>
@@ -98,68 +147,134 @@ export default function KycPage() {
               <i className="fa fa-spinner fa-spin fa-2x text-primary"></i>
             </div>
           ) : (
-            <div className="table-responsive">
-              <table className="table table-striped table-hover align-middle text-center fw-bold">
-                <thead className="table-light">
-                  <tr>
-                    <th>제출일</th>
-                    <th>회원</th>
-                    <th>유형</th>
-                    <th>성명 / 번호</th>
-                    <th>서류 확인</th>
-                    <th>상태</th>
-                    <th>관리</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {submissions.length === 0 ? (
+            <>
+              {errorMessage ? (
+                <div className="alert alert-danger" role="alert">
+                  {errorMessage}
+                </div>
+              ) : null}
+              <div className="table-responsive">
+                <table className="table table-striped table-hover align-middle text-center fw-bold">
+                  <thead className="table-light">
                     <tr>
-                      <td colSpan={7} className="p-4 text-muted">심사 대기중인 내역이 없습니다.</td>
+                      <th>제출일</th>
+                      <th>회원</th>
+                      <th>유형</th>
+                      <th>성명 / 번호</th>
+                      <th>서류 확인</th>
+                      <th>상태</th>
+                      <th>관리</th>
                     </tr>
-                  ) : (
-                    submissions.map((s) => (
-                      <tr key={s.id}>
-                        <td className="small text-muted">{new Date(s.submitted_at).toLocaleString()}</td>
-                        <td className="text-start">
-                          <div>{s.username}</div>
-                          <div className="small text-muted fw-normal">{s.email}</div>
-                        </td>
-                        <td><span className="badge bg-light text-dark border">{s.id_type}</span></td>
-                        <td className="text-start">
-                          <div>{s.full_name}</div>
-                          <div className="small text-muted fw-normal">{s.id_number}</div>
-                        </td>
-                        <td>
-                          <div className="d-flex gap-1 justify-content-center">
-                            <a href={s.id_front_url} target="_blank" className="btn btn-xs btn-outline-info">앞면</a>
-                            <a href={s.id_back_url} target="_blank" className="btn btn-xs btn-outline-info">뒷면</a>
-                            <a href={s.selfie_url} target="_blank" className="btn btn-xs btn-outline-info">셀카</a>
-                          </div>
-                        </td>
-                        <td>
-                          <span className={`badge ${s.status === 'pending' ? 'bg-warning' : s.status === 'approved' ? 'bg-success' : 'bg-danger'}`}>
-                            {s.status === 'pending' ? '심사중' : s.status === 'approved' ? '승인' : '거절'}
-                          </span>
-                        </td>
-                        <td>
-                          {s.status === 'pending' && (
-                            <div className="btn-group btn-group-sm">
-                              <button className="btn btn-success" onClick={() => handleProcess(s.id, 'approved')}>승인</button>
-                              <button className="btn btn-danger" onClick={() => handleProcess(s.id, 'rejected')}>거절</button>
-                            </div>
-                          )}
-                          {s.status !== 'pending' && s.rejection_reason && (
-                            <div className="small text-danger text-truncate" style={{ maxWidth: '100px' }} title={s.rejection_reason}>
-                              {s.rejection_reason}
-                            </div>
-                          )}
+                  </thead>
+                  <tbody>
+                    {submissions.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="p-4 text-muted">
+                          {errorMessage
+                            ? "요청 처리 중 오류가 발생했습니다."
+                            : "심사 대기중인 내역이 없습니다."}
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                    ) : (
+                      submissions.map((s) => (
+                        <tr key={s.id}>
+                          <td className="small text-muted">
+                            {new Date(s.submitted_at).toLocaleString()}
+                          </td>
+                          <td className="text-start">
+                            <div>{s.username}</div>
+                            <div className="small text-muted fw-normal">
+                              {s.email}
+                            </div>
+                          </td>
+                          <td>
+                            <span className="badge bg-light text-dark border">
+                              {s.id_type}
+                            </span>
+                          </td>
+                          <td className="text-start">
+                            <div>{s.full_name}</div>
+                            <div className="small text-muted fw-normal">
+                              {s.id_number}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="d-flex gap-1 justify-content-center">
+                              <a
+                                href={s.id_front_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="btn btn-xs btn-outline-info"
+                              >
+                                앞면
+                              </a>
+                              <a
+                                href={s.id_back_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="btn btn-xs btn-outline-info"
+                              >
+                                뒷면
+                              </a>
+                              <a
+                                href={s.selfie_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="btn btn-xs btn-outline-info"
+                              >
+                                셀카
+                              </a>
+                            </div>
+                          </td>
+                          <td>
+                            <span
+                              className={`badge ${s.status === "pending" ? "bg-warning" : s.status === "approved" ? "bg-success" : "bg-danger"}`}
+                            >
+                              {s.status === "pending"
+                                ? "심사중"
+                                : s.status === "approved"
+                                  ? "승인"
+                                  : "거절"}
+                            </span>
+                          </td>
+                          <td>
+                            {s.status === "pending" && (
+                              <div className="btn-group btn-group-sm">
+                                <button
+                                  className="btn btn-success"
+                                  onClick={() =>
+                                    handleProcess(s.id, "approved")
+                                  }
+                                >
+                                  승인
+                                </button>
+                                <button
+                                  className="btn btn-danger"
+                                  onClick={() =>
+                                    handleProcess(s.id, "rejected")
+                                  }
+                                >
+                                  거절
+                                </button>
+                              </div>
+                            )}
+                            {s.status !== "pending" && s.rejection_reason && (
+                              <div
+                                className="small text-danger text-truncate"
+                                style={{ maxWidth: "100px" }}
+                                title={s.rejection_reason}
+                              >
+                                {s.rejection_reason}
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       </div>
