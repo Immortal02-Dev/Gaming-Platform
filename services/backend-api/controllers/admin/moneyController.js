@@ -11,9 +11,14 @@ exports.getMoneyLogs = async (req, res) => {
       logTypeIdx,
       searchType,
       searchText,
+      userIdx,
     } = req.query;
-    const limit = parseInt(pageSize, 10);
-    const offset = (parseInt(page, 10) - 1) * limit;
+    const pageNum = parseInt(String(page), 10);
+    const pageSizeNum = parseInt(String(pageSize), 10);
+    const currentPage = Number.isFinite(pageNum) && pageNum > 0 ? pageNum : 1;
+    const limit =
+      Number.isFinite(pageSizeNum) && pageSizeNum > 0 ? pageSizeNum : 50;
+    const offset = (currentPage - 1) * limit;
 
     let whereClause = "WHERE 1=1";
     const queryParams = [];
@@ -33,6 +38,11 @@ exports.getMoneyLogs = async (req, res) => {
     if (logTypeIdx) {
       whereClause += " AND m.type_idx = ?";
       queryParams.push(logTypeIdx);
+    }
+
+    if (userIdx) {
+      whereClause += " AND m.user_id = ?";
+      queryParams.push(userIdx);
     }
 
     if (searchText && searchType) {
@@ -56,7 +66,7 @@ exports.getMoneyLogs = async (req, res) => {
         u.nickname,
         u.role as userRole
       FROM money_logs m
-      JOIN users u ON m.user_id = u.id
+      LEFT JOIN users u ON m.user_id = u.id
       ${whereClause}
       ORDER BY m.created_at DESC
       LIMIT ? OFFSET ?
@@ -66,7 +76,9 @@ exports.getMoneyLogs = async (req, res) => {
 
     const [[countResult]] = await db.execute(
       `
-      SELECT COUNT(*) as total FROM money_logs m JOIN users u ON m.user_id = u.id ${whereClause}`,
+      SELECT COUNT(*) as total FROM money_logs m
+      LEFT JOIN users u ON m.user_id = u.id
+      ${whereClause}`,
       queryParams,
     );
 
@@ -115,9 +127,9 @@ exports.getMoneyLogs = async (req, res) => {
       },
       user: {
         userIdx: r.user_id,
-        userID: r.username,
-        nickname: r.nickname || r.username,
-        role: r.userRole.toUpperCase(),
+        userID: r.username || "unknown",
+        nickname: r.nickname || r.username || "unknown",
+        role: r.userRole ? String(r.userRole).toUpperCase() : "USER",
         backgroundColor: r.userRole === "admin" ? "#343a40" : "#007bff",
       },
       logTypeGroup: groupMap[r.group_idx] || "기타",
@@ -142,6 +154,7 @@ exports.getMoneyLogs = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Error in getMoneyLogs:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

@@ -200,14 +200,28 @@ function MoneyLogListPageInner() {
         `${API_BASE_URL}/api/admin/money-logs?${params.toString()}`,
         {
           credentials: "include",
+          headers: {
+            Accept: "application/json",
+          },
         },
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch money logs");
+        const bodyText = await response.text().catch(() => "");
+        const message = `Failed to fetch money logs: ${response.status} ${response.statusText} ${bodyText}`;
+        console.error(message);
+        throw new Error(message);
       }
 
-      const data = (await response.json()) as MoneyLogApiResponse;
+      const responseText = await response.text();
+      let data: MoneyLogApiResponse;
+      try {
+        data = JSON.parse(responseText) as MoneyLogApiResponse;
+      } catch (parseError) {
+        const message = `Failed to parse money logs response: ${parseError instanceof Error ? parseError.message : parseError} ${responseText}`;
+        console.error(message);
+        throw new Error(message);
+      }
       if (data.success) {
         const processedData = data.data.map(
           (log: Partial<MoneyLog>, index: number) => ({
@@ -596,13 +610,13 @@ function MoneyLogListPageInner() {
                       <option data-logtypegroupidx="7" value="37">
                         포인트 충전 요청
                       </option>
-                      <option data-logtypegroupIdx="5" value="39">
+                      <option data-logtypegroupidx="5" value="39">
                         포인트 충전
                       </option>
-                      <option data-logtypegroupIdx="5" value="40">
+                      <option data-logtypegroupidx="5" value="40">
                         포인트 충전 요청(첫충)
                       </option>
-                      <option data-logtypeGroupIdx="13" value="41">
+                      <option data-logtypegroupidx="13" value="41">
                         포인트 충전 요청
                       </option>
                     </select>
