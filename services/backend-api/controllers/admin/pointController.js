@@ -61,7 +61,7 @@ exports.getPointLogs = async (req, res) => {
       }
     }
 
-    const [rows] = await db.execute(
+    const [rows] = await db.query(
       `
       SELECT 
         p.*,
@@ -77,7 +77,7 @@ exports.getPointLogs = async (req, res) => {
       [...queryParams, limit, offset],
     );
 
-    const [[countResult]] = await db.execute(
+    const [[countResult]] = await db.query(
       `
       SELECT COUNT(*) as total FROM point_logs p
       LEFT JOIN users u ON p.user_id = u.id

@@ -58,7 +58,7 @@ exports.getMoneyLogs = async (req, res) => {
       }
     }
 
-    const [rows] = await db.execute(
+    const [rows] = await db.query(
       `
       SELECT 
         m.*,
@@ -74,7 +74,7 @@ exports.getMoneyLogs = async (req, res) => {
       [...queryParams, limit, offset],
     );
 
-    const [[countResult]] = await db.execute(
+    const [[countResult]] = await db.query(
       `
       SELECT COUNT(*) as total FROM money_logs m
       LEFT JOIN users u ON m.user_id = u.id
