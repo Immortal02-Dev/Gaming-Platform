@@ -307,7 +307,7 @@ export default function BankSettingPage() {
                 </a>
               </div>
             </div>
-            <div className="panel-body">
+            <div className="panel-body" style={{ overflow: "auto" }}>
               <table className="table table-striped table-bordered table-responsive table-hover align-middle bg-white text-center text-nowrap fw-bold">
                 <thead className="bg-dark bg-gradient text-white">
                   <tr>
@@ -419,7 +419,7 @@ export default function BankSettingPage() {
                 </a>
               </div>
             </div>
-            <div className="panel-body">
+            <div className="panel-body" style={{ overflow: "auto" }}>
               <table className="table table-striped table-bordered table-responsive table-hover align-middle bg-white text-center text-nowrap fw-bold">
                 <thead className="bg-dark bg-gradient text-white">
                   <tr>

@@ -115,7 +115,7 @@ export default function ArcadeBettingListPage() {
 
   const fetchOrders = async (
     page: number = 1,
-    overrideGameTypeIdx?: string
+    overrideGameTypeIdx?: string,
   ) => {
     setLoading(true);
     try {
@@ -137,7 +137,7 @@ export default function ArcadeBettingListPage() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -151,7 +151,7 @@ export default function ArcadeBettingListPage() {
           totalBetMoney: 0,
           totalWinMoney: 0,
           totalCancelMoney: 0,
-        }
+        },
       );
       setCurrentPage(data.pagination.page);
       setTotalPages(data.pagination.totalPages);
@@ -193,7 +193,7 @@ export default function ArcadeBettingListPage() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -385,7 +385,7 @@ export default function ArcadeBettingListPage() {
       {/* end row */}
 
       <div className="row">
-        <div className="col">
+        <div className="col" style={{ overflow: "auto" }}>
           <table
             className="table dataTable table-striped table-bordered table-responsive align-middle bg-white text-center fw-bold"
             style={{ margin: "0 !important" }}

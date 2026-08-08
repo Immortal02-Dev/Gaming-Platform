@@ -10,8 +10,17 @@ declare global {
     jQuery: any;
     userDetail?: (userIdx: string | number, tab: number) => void;
     messageWrite?: (userIdx: string | number) => void;
-    fnSelectUser?: (userIdx: string | number, text: string, child: string) => void;
-    depthControl?: (obj: HTMLElement, depth: string, level: number, userIdx: string | number) => void;
+    fnSelectUser?: (
+      userIdx: string | number,
+      text: string,
+      child: string,
+    ) => void;
+    depthControl?: (
+      obj: HTMLElement,
+      depth: string,
+      level: number,
+      userIdx: string | number,
+    ) => void;
   }
 }
 
@@ -55,7 +64,7 @@ export default function SportBettingListPage() {
   const [pageSize, setPageSize] = useState("50");
   const [startDate, setStartDate] = useState("2024-01-01");
   const [endDate, setEndDate] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
   const [typeFlag, setTypeFlag] = useState("");
   const [typeCrossSpecial, setTypeCrossSpecial] = useState("");
@@ -126,7 +135,7 @@ export default function SportBettingListPage() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -141,7 +150,7 @@ export default function SportBettingListPage() {
           totalWinMoney: 0,
           totalLoseMoney: 0,
           totalCancelledMoney: 0,
-        }
+        },
       );
       setCurrentPage(data.pagination.page);
       setTotalPages(data.pagination.totalPages);
@@ -231,22 +240,26 @@ export default function SportBettingListPage() {
                   detailHtml += `
                   <tr>
                     <td>${game.gameStartDate}</td>
-                    <td><img src="${game.sportImage || ""
-                    }" class="sport_image" onerror="this.style.display='none';">${game.sportName
+                    <td><img src="${
+                      game.sportImage || ""
+                    }" class="sport_image" onerror="this.style.display='none';">${
+                      game.sportName
                     }</td>
                     <td>${game.leagueName}</td>
                     <td>
                       <div class="d-flex justify-content-between row-cols-3">
                         <div class="member home">
-                          <img src="${game.teamHomeImage || ""
-                    }" class="sport_image" onerror="this.style.display='none';">
+                          <img src="${
+                            game.teamHomeImage || ""
+                          }" class="sport_image" onerror="this.style.display='none';">
                           <div class="txt">${game.teamHome}</div>
                         </div>
                         <div class="memberVS">VS</div>
                         <div class="member away">
                           <div class="txt">${game.teamAway}</div>
-                          <img src="${game.teamAwayImage || ""
-                    }" class="sport_image" onerror="this.style.display='none';">
+                          <img src="${
+                            game.teamAwayImage || ""
+                          }" class="sport_image" onerror="this.style.display='none';">
                         </div>
                       </div>
                     </td>
@@ -254,7 +267,7 @@ export default function SportBettingListPage() {
                     <td>${game.selection}</td>
                     <td>${game.odds}</td>
                     <td><span class="${getBadgeClassForStatus(
-                      game.gameResult
+                      game.gameResult,
                     )}">${game.gameResultDisplay}</span></td>
                     <td>${game.folderCancelled ? "Yes" : ""}</td>
                     <td>${game.resultTime || ""}</td>
@@ -272,8 +285,8 @@ export default function SportBettingListPage() {
                       <td>배당률</td>
                       <td>${order.totalOdds}</td>
                       <td><span class="${getBadgeClassForStatus(
-                  order.betStatus
-                )}">${order.betStatusDisplay}</span></td>
+                        order.betStatus,
+                      )}">${order.betStatusDisplay}</span></td>
                       <td>베팅 시간</td>
                       <td>${order.betTime}</td>
                     </tr>
@@ -284,8 +297,8 @@ export default function SportBettingListPage() {
                   .parents("tr")
                   .after(
                     '<tr class="detail"><td colspan="99">' +
-                    detailHtml +
-                    "</td></tr>"
+                      detailHtml +
+                      "</td></tr>",
                   );
               }
             },
@@ -421,9 +434,9 @@ export default function SportBettingListPage() {
       {/* begin row */}
       <div className="row mb-2">
         <div className="col">
-          <div className="d-flex bg-white p-2">
+          <div className="d-flex bg-white p-2 flex-wrap">
             <form onSubmit={handleSearch}>
-              <div className="d-flex">
+              <div className="d-flex flex-wrap gap-2 gap-xl-0">
                 <select
                   name="pageSize"
                   className="form-select w-80px me-2"
@@ -573,7 +586,7 @@ export default function SportBettingListPage() {
       {/* end row */}
 
       <div className="row">
-        <div className="col">
+        <div className="col" style={{ overflow: "auto" }}>
           <table
             className="table dataTable table-striped table-bordered table-responsive align-middle bg-white text-center fw-bold"
             style={{ margin: "0 !important" }}
@@ -671,7 +684,9 @@ export default function SportBettingListPage() {
                           <a
                             className="dropdown-item"
                             href="#"
-                            onClick={() => (window as any).userDetail(order.user.userIdx, 1)}
+                            onClick={() =>
+                              (window as any).userDetail(order.user.userIdx, 1)
+                            }
                           >
                             정보수정
                           </a>
@@ -680,7 +695,9 @@ export default function SportBettingListPage() {
                           <a
                             className="dropdown-item"
                             href="#"
-                            onClick={() => (window as any).userDetail(order.user.userIdx, 17)}
+                            onClick={() =>
+                              (window as any).userDetail(order.user.userIdx, 17)
+                            }
                           >
                             수수료율
                           </a>
@@ -689,7 +706,9 @@ export default function SportBettingListPage() {
                           <a
                             className="dropdown-item"
                             href="#"
-                            onClick={() => (window as any).userDetail(order.user.userIdx, 3)}
+                            onClick={() =>
+                              (window as any).userDetail(order.user.userIdx, 3)
+                            }
                           >
                             머니지급/차감
                           </a>
@@ -698,7 +717,9 @@ export default function SportBettingListPage() {
                           <a
                             className="dropdown-item"
                             href="#"
-                            onClick={() => (window as any).userDetail(order.user.userIdx, 6)}
+                            onClick={() =>
+                              (window as any).userDetail(order.user.userIdx, 6)
+                            }
                           >
                             포인트지급/차감
                           </a>
@@ -707,7 +728,10 @@ export default function SportBettingListPage() {
                           <a
                             className="dropdown-item"
                             href="#"
-                            onClick={(e) => { e.preventDefault(); window.messageWrite?.(order.user.userIdx); }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.messageWrite?.(order.user.userIdx);
+                            }}
                           >
                             쪽지보내기
                           </a>
@@ -716,7 +740,9 @@ export default function SportBettingListPage() {
                           <a
                             className="dropdown-item"
                             href="#"
-                            onClick={() => (window as any).userDetail(order.user.userIdx, 8)}
+                            onClick={() =>
+                              (window as any).userDetail(order.user.userIdx, 8)
+                            }
                           >
                             베팅내역
                           </a>
@@ -725,7 +751,9 @@ export default function SportBettingListPage() {
                           <a
                             className="dropdown-item"
                             href="#"
-                            onClick={() => (window as any).userDetail(order.user.userIdx, 4)}
+                            onClick={() =>
+                              (window as any).userDetail(order.user.userIdx, 4)
+                            }
                           >
                             충환전내역
                           </a>
@@ -734,7 +762,9 @@ export default function SportBettingListPage() {
                           <a
                             className="dropdown-item"
                             href="#"
-                            onClick={() => (window as any).userDetail(order.user.userIdx, 5)}
+                            onClick={() =>
+                              (window as any).userDetail(order.user.userIdx, 5)
+                            }
                           >
                             머니거래내역
                           </a>
@@ -743,7 +773,9 @@ export default function SportBettingListPage() {
                           <a
                             className="dropdown-item"
                             href="#"
-                            onClick={() => (window as any).userDetail(order.user.userIdx, 7)}
+                            onClick={() =>
+                              (window as any).userDetail(order.user.userIdx, 7)
+                            }
                           >
                             포인트거래내역
                           </a>
@@ -752,7 +784,9 @@ export default function SportBettingListPage() {
                           <a
                             className="dropdown-item"
                             href="#"
-                            onClick={() => (window as any).userDetail(order.user.userIdx, 15)}
+                            onClick={() =>
+                              (window as any).userDetail(order.user.userIdx, 15)
+                            }
                           >
                             쿠폰 현황
                           </a>

@@ -10,8 +10,17 @@ declare global {
     jQuery: any;
     userDetail?: (userIdx: string | number, tab: number) => void;
     messageWrite?: (userIdx: string | number) => void;
-    fnSelectUser?: (userIdx: string | number, text: string, child: string) => void;
-    depthControl?: (obj: HTMLElement, depth: string, level: number, userIdx: string | number) => void;
+    fnSelectUser?: (
+      userIdx: string | number,
+      text: string,
+      child: string,
+    ) => void;
+    depthControl?: (
+      obj: HTMLElement,
+      depth: string,
+      level: number,
+      userIdx: string | number,
+    ) => void;
   }
 }
 
@@ -58,7 +67,9 @@ interface BettingSummary {
 export default function CasinoBettingListPage() {
   const [pageSize, setPageSize] = useState("50");
   const [startDate, setStartDate] = useState("2024-04-01 14:30");
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0] + " 23:59");
+  const [endDate, setEndDate] = useState(
+    new Date().toISOString().split("T")[0] + " 23:59",
+  );
   const [vendorIdx, setVendorIdx] = useState("");
   const [betStatus, setBetStatus] = useState("");
   const [searchType, setSearchType] = useState("");
@@ -70,7 +81,7 @@ export default function CasinoBettingListPage() {
     totalWinMoney: 0,
     totalEmptyBetMoney: 0,
     totalEmptyWinMoney: 0,
-    totalCancelledMoney: 0
+    totalCancelledMoney: 0,
   });
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -125,12 +136,15 @@ export default function CasinoBettingListPage() {
         ...(searchText && { searchText }),
       });
 
-      const response = await fetch(`${BACKEND_URL}/api/admin/casino-betting?${params.toString()}`, {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${BACKEND_URL}/api/admin/casino-betting?${params.toString()}`,
+        {
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to fetch orders: ${response.status}`);
@@ -138,18 +152,20 @@ export default function CasinoBettingListPage() {
 
       const data = await response.json();
       setOrders(data.data || []);
-      setSummary(data.summary || {
-        totalBetMoney: 0,
-        totalTieMoney: 0,
-        totalWinMoney: 0,
-        totalEmptyBetMoney: 0,
-        totalEmptyWinMoney: 0,
-        totalCancelledMoney: 0
-      });
+      setSummary(
+        data.summary || {
+          totalBetMoney: 0,
+          totalTieMoney: 0,
+          totalWinMoney: 0,
+          totalEmptyBetMoney: 0,
+          totalEmptyWinMoney: 0,
+          totalCancelledMoney: 0,
+        },
+      );
       setCurrentPage(data.pagination.page);
       setTotalPages(data.pagination.totalPages);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("Error fetching orders:", error);
       setOrders([]);
     } finally {
       setLoading(false);
@@ -167,7 +183,7 @@ export default function CasinoBettingListPage() {
   };
 
   const formatNumber = (num: number) => {
-    return num.toLocaleString('ko-KR');
+    return num.toLocaleString("ko-KR");
   };
 
   return (
@@ -234,9 +250,9 @@ export default function CasinoBettingListPage() {
       {/* begin row */}
       <div className="row mb-2">
         <div className="col">
-          <div className="d-flex bg-white p-2">
+          <div className="d-flex bg-white p-2 flex-wrap">
             <form onSubmit={handleSearch}>
-              <div className="d-flex">
+              <div className="d-flex flex-wrap gap-2 gap-xl-0">
                 <select
                   name="pageSize"
                   className="form-select w-80px me-2"
@@ -352,7 +368,10 @@ export default function CasinoBettingListPage() {
             </form>
             <div className="ms-auto">
               <label className="col-form-label">
-                베팅 금액 : <span className="text-primary">{formatNumber(summary.totalBetMoney)}</span>
+                베팅 금액 :{" "}
+                <span className="text-primary">
+                  {formatNumber(summary.totalBetMoney)}
+                </span>
               </label>
               /
               <label className="col-form-label">
@@ -360,19 +379,29 @@ export default function CasinoBettingListPage() {
               </label>
               /
               <label className="col-form-label">
-                당첨 금액 : <span className="text-danger">{formatNumber(summary.totalWinMoney)}</span>
+                당첨 금액 :{" "}
+                <span className="text-danger">
+                  {formatNumber(summary.totalWinMoney)}
+                </span>
               </label>
               /
               <label className="col-form-label">
-                공베팅금 : <span className="text-primary">{formatNumber(summary.totalEmptyBetMoney)}</span>
+                공베팅금 :{" "}
+                <span className="text-primary">
+                  {formatNumber(summary.totalEmptyBetMoney)}
+                </span>
               </label>
               /
               <label className="col-form-label">
-                공당첨금 : <span className="text-danger">{formatNumber(summary.totalEmptyWinMoney)}</span>
+                공당첨금 :{" "}
+                <span className="text-danger">
+                  {formatNumber(summary.totalEmptyWinMoney)}
+                </span>
               </label>
               /
               <label className="col-form-label">
-                취소 금액 : <span>{formatNumber(summary.totalCancelledMoney)}</span>
+                취소 금액 :{" "}
+                <span>{formatNumber(summary.totalCancelledMoney)}</span>
               </label>
             </div>
           </div>
@@ -398,10 +427,14 @@ export default function CasinoBettingListPage() {
                   <th>게임타입</th>
                   <th>테이블명</th>
                   <th>이전 금액</th>
-                  <th className="sorting" data-sort="betMoney">베팅액</th>
+                  <th className="sorting" data-sort="betMoney">
+                    베팅액
+                  </th>
                   <th>이후 금액</th>
                   <th>당첨 이전 금액</th>
-                  <th className="sorting" data-sort="winMoney">당첨금</th>
+                  <th className="sorting" data-sort="winMoney">
+                    당첨금
+                  </th>
                   <th>당첨 이후 금액</th>
                   <th>비고</th>
                   <th>베팅시간</th>
@@ -429,7 +462,16 @@ export default function CasinoBettingListPage() {
                       <td>{order.transactionID}</td>
                       <td className="p-1">
                         {order.affiliation && (
-                          <div style={{ backgroundColor: order.affiliation.backgroundColor, padding: '2px 8px', borderRadius: '4px', color: '#fff', fontSize: '12px' }}>
+                          <div
+                            style={{
+                              backgroundColor:
+                                order.affiliation.backgroundColor,
+                              padding: "2px 8px",
+                              borderRadius: "4px",
+                              color: "#fff",
+                              fontSize: "12px",
+                            }}
+                          >
                             {order.affiliation.role}
                           </div>
                         )}
@@ -442,23 +484,38 @@ export default function CasinoBettingListPage() {
                         >
                           <div
                             className="input-group-text p-1 cursor-pointer d-inline"
-                            style={{ backgroundColor: order.affiliation?.backgroundColor || "#f4a29c" }}
+                            style={{
+                              backgroundColor:
+                                order.affiliation?.backgroundColor || "#f4a29c",
+                            }}
                           >
-                            {order.affiliation?.role || '회원'}
+                            {order.affiliation?.role || "회원"}
                           </div>
                           <label className="form-control p-1 cursor-pointer">
                             {order.user.userID} ({order.user.nickname})
                           </label>
                         </div>
                         <ul className="dropdown-menu dropdown-menu-dark py-0">
-                          <li className="fw-600 text-white" style={{ padding: "var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)" }}>
-                            <i className="fa fa-user me-2"></i>{order.user.userID} ({order.user.nickname})
+                          <li
+                            className="fw-600 text-white"
+                            style={{
+                              padding:
+                                "var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)",
+                            }}
+                          >
+                            <i className="fa fa-user me-2"></i>
+                            {order.user.userID} ({order.user.nickname})
                           </li>
                           <li className="bg-gray-700">
                             <a
                               className="dropdown-item"
                               href="#"
-                              onClick={() => (window as any).userDetail(order.user.userIdx, 1)}
+                              onClick={() =>
+                                (window as any).userDetail(
+                                  order.user.userIdx,
+                                  1,
+                                )
+                              }
                             >
                               정보수정
                             </a>
@@ -467,7 +524,12 @@ export default function CasinoBettingListPage() {
                             <a
                               className="dropdown-item"
                               href="#"
-                              onClick={() => (window as any).userDetail(order.user.userIdx, 17)}
+                              onClick={() =>
+                                (window as any).userDetail(
+                                  order.user.userIdx,
+                                  17,
+                                )
+                              }
                             >
                               수수료율
                             </a>
@@ -476,7 +538,12 @@ export default function CasinoBettingListPage() {
                             <a
                               className="dropdown-item"
                               href="#"
-                              onClick={() => (window as any).userDetail(order.user.userIdx, 3)}
+                              onClick={() =>
+                                (window as any).userDetail(
+                                  order.user.userIdx,
+                                  3,
+                                )
+                              }
                             >
                               머니지급/차감
                             </a>
@@ -485,19 +552,38 @@ export default function CasinoBettingListPage() {
                             <a
                               className="dropdown-item"
                               href="#"
-                              onClick={() => (window as any).userDetail(order.user.userIdx, 6)}
+                              onClick={() =>
+                                (window as any).userDetail(
+                                  order.user.userIdx,
+                                  6,
+                                )
+                              }
                             >
                               포인트지급/차감
                             </a>
                           </li>
                           <li className="bg-gray-700">
-                            <a className="dropdown-item" href="#" onClick={(e) => { e.preventDefault(); window.messageWrite?.(order.user.userIdx); }}>쪽지보내기</a>
+                            <a
+                              className="dropdown-item"
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                window.messageWrite?.(order.user.userIdx);
+                              }}
+                            >
+                              쪽지보내기
+                            </a>
                           </li>
                           <li>
                             <a
                               className="dropdown-item"
                               href="#"
-                              onClick={() => (window as any).userDetail(order.user.userIdx, 8)}
+                              onClick={() =>
+                                (window as any).userDetail(
+                                  order.user.userIdx,
+                                  8,
+                                )
+                              }
                             >
                               베팅내역
                             </a>
@@ -506,7 +592,12 @@ export default function CasinoBettingListPage() {
                             <a
                               className="dropdown-item"
                               href="#"
-                              onClick={() => (window as any).userDetail(order.user.userIdx, 4)}
+                              onClick={() =>
+                                (window as any).userDetail(
+                                  order.user.userIdx,
+                                  4,
+                                )
+                              }
                             >
                               충환전내역
                             </a>
@@ -515,7 +606,12 @@ export default function CasinoBettingListPage() {
                             <a
                               className="dropdown-item"
                               href="#"
-                              onClick={() => (window as any).userDetail(order.user.userIdx, 5)}
+                              onClick={() =>
+                                (window as any).userDetail(
+                                  order.user.userIdx,
+                                  5,
+                                )
+                              }
                             >
                               머니거래내역
                             </a>
@@ -524,7 +620,12 @@ export default function CasinoBettingListPage() {
                             <a
                               className="dropdown-item"
                               href="#"
-                              onClick={() => (window as any).userDetail(order.user.userIdx, 7)}
+                              onClick={() =>
+                                (window as any).userDetail(
+                                  order.user.userIdx,
+                                  7,
+                                )
+                              }
                             >
                               포인트거래내역
                             </a>
@@ -533,7 +634,12 @@ export default function CasinoBettingListPage() {
                             <a
                               className="dropdown-item"
                               href="#"
-                              onClick={() => (window as any).userDetail(order.user.userIdx, 15)}
+                              onClick={() =>
+                                (window as any).userDetail(
+                                  order.user.userIdx,
+                                  15,
+                                )
+                              }
                             >
                               쿠폰 현황
                             </a>
@@ -552,7 +658,7 @@ export default function CasinoBettingListPage() {
                       <td>{formatNumber(order.afterWinMoney)}</td>
                       <td>{order.note}</td>
                       <td>{order.betTime}</td>
-                      <td>{order.resultTime || ''}</td>
+                      <td>{order.resultTime || ""}</td>
                       <td>{order.createdAt}</td>
                     </tr>
                   ))
@@ -569,4 +675,3 @@ export default function CasinoBettingListPage() {
     </Layout>
   );
 }
-

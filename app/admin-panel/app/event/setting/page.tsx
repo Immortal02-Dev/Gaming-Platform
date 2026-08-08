@@ -380,35 +380,37 @@ export default function EventSettingPage() {
                   <i className="fa fa-plus me-1"></i>이벤트 추가
                 </a>
               </div>
-              <table className="table table-striped table-bordered table-responsive align-middle bg-white text-center fw-bold">
-                <thead className="bg-dark bg-gradient text-white">
-                  <tr>
-                    <th>번호</th>
-                    <th>지정 시간</th>
-                    <th>돌발 보너스 %</th>
-                    <th>보너스 최대금액</th>
-                    <th>사용 여부</th>
-                    <th>기능</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {chargeEvents.length === 0 ? (
+              <div style={{ overflow: "auto" }}>
+                <table className="table table-striped table-bordered table-responsive align-middle bg-white text-center fw-bold">
+                  <thead className="bg-dark bg-gradient text-white">
                     <tr>
-                      <td colSpan={6}>등록된 이벤트가 없습니다.</td>
+                      <th>번호</th>
+                      <th>지정 시간</th>
+                      <th>돌발 보너스 %</th>
+                      <th>보너스 최대금액</th>
+                      <th>사용 여부</th>
+                      <th>기능</th>
                     </tr>
-                  ) : (
-                    chargeEvents.map((event, index) => (
-                      <EventRow
-                        key={event.chargeEventIdx}
-                        event={event}
-                        index={index}
-                        onUpdate={handleUpdateEvent}
-                        onDelete={handleDeleteEvent}
-                      />
-                    ))
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {chargeEvents.length === 0 ? (
+                      <tr>
+                        <td colSpan={6}>등록된 이벤트가 없습니다.</td>
+                      </tr>
+                    ) : (
+                      chargeEvents.map((event, index) => (
+                        <EventRow
+                          key={event.chargeEventIdx}
+                          event={event}
+                          index={index}
+                          onUpdate={handleUpdateEvent}
+                          onDelete={handleDeleteEvent}
+                        />
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

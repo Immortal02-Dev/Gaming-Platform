@@ -223,7 +223,7 @@ export default function BoardQnaPage() {
       </div>
 
       <div className="row">
-        <div className="col">
+        <div className="col" style={{ overflow: "auto" }}>
           {loading ? (
             <div className="text-center p-4">
               <div className="spinner-border" role="status">

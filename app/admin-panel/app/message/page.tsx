@@ -3,8 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Layout from "@/components/Layout";
 
-
-
 const BACKEND_URL = ""; // Use relative path for proxy
 
 interface Message {
@@ -44,41 +42,43 @@ export default function MessagePage() {
   const [loading, setLoading] = useState(false);
   const [searchType, setSearchType] = useState("");
   const [searchText, setSearchText] = useState("");
-  
 
-  const fetchMessages = useCallback(async (page: number = 1) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        pageSize,
-        ...(searchType && { searchType }),
-        ...(searchText && { searchText }),
-      });
+  const fetchMessages = useCallback(
+    async (page: number = 1) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          pageSize,
+          ...(searchType && { searchType }),
+          ...(searchText && { searchText }),
+        });
 
-      const token = localStorage.getItem("adminToken");
-      const response = await fetch(
-        `${BACKEND_URL}/api/admin/messages?${params.toString()}`,
-        {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
+        const token = localStorage.getItem("adminToken");
+        const response = await fetch(
+          `${BACKEND_URL}/api/admin/messages?${params.toString()}`,
+          {
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token && { Authorization: `Bearer ${token}` }),
+            },
           },
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch messages: ${response.status}`);
         }
-      );
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch messages: ${response.status}`);
+        const data = await response.json();
+        setMessages(data.data || []);
+        setCurrentPage(data.pagination.page);
+      } finally {
+        setLoading(false);
       }
-
-      const data = await response.json();
-      setMessages(data.data || []);
-      setCurrentPage(data.pagination.page);
-    } finally {
-      setLoading(false);
-    }
-  }, [pageSize, searchType, searchText]);
+    },
+    [pageSize, searchType, searchText],
+  );
 
   useEffect(() => {
     fetchMessages(1);
@@ -104,7 +104,7 @@ export default function MessagePage() {
     window.open(
       "/message/write",
       "messageWrite",
-      `top=${nTop}, left=${nLeft}, width=${nWidth}, height=${nHeight}, status=no, menubar=no, toolbar=no`
+      `top=${nTop}, left=${nLeft}, width=${nWidth}, height=${nHeight}, status=no, menubar=no, toolbar=no`,
     );
   };
 
@@ -123,7 +123,7 @@ export default function MessagePage() {
     window.open(
       `/message/edit?messageIdx=${messageIdx}`,
       `messageEdit${messageIdx}`,
-      `top=${nTop}, left=${nLeft}, width=${nWidth}, height=${nHeight}, status=no, menubar=no, toolbar=no`
+      `top=${nTop}, left=${nLeft}, width=${nWidth}, height=${nHeight}, status=no, menubar=no, toolbar=no`,
     );
   };
 
@@ -145,7 +145,7 @@ export default function MessagePage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ messageIds: selectedMessages }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -174,7 +174,7 @@ export default function MessagePage() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const result = await response.json();
@@ -202,7 +202,7 @@ export default function MessagePage() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const result = await response.json();
@@ -313,7 +313,7 @@ export default function MessagePage() {
       {/* end row */}
 
       <div className="row">
-        <div className="col">
+        <div className="col" style={{ overflow: "auto" }}>
           <table className="table table-striped table-bordered table-responsive table-hover align-middle bg-white text-center text-nowrap fw-bold">
             <thead className="bg-dark bg-gradient text-white">
               <tr>
@@ -431,7 +431,10 @@ export default function MessagePage() {
                           <a
                             className="dropdown-item"
                             href="#"
-                            onClick={(e) => { e.preventDefault(); window.messageWrite?.(message.receiverId); }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.messageWrite?.(message.receiverId);
+                            }}
                           >
                             쪽지보내기
                           </a>

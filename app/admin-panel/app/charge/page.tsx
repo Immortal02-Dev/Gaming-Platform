@@ -252,22 +252,30 @@ function ChargePageInner() {
           },
         );
 
-if (!response.ok) {
-           const errorBody = await response.json().catch(() => ({}));
-           throw new Error(errorBody?.message || "충전 신청 내역을 불러오지 못했습니다.");
-         }
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => ({}));
+          throw new Error(
+            errorBody?.message || "충전 신청 내역을 불러오지 못했습니다.",
+          );
+        }
 
-         const data: ChargeResponse = await response.json();
-         if (!data.success) {
-           throw new Error(data.error || "충전 신청 내역을 불러오지 못했습니다.");
-         }
+        const data: ChargeResponse = await response.json();
+        if (!data.success) {
+          throw new Error(
+            data.error || "충전 신청 내역을 불러오지 못했습니다.",
+          );
+        }
 
         setRows(data.data);
         setSummary(data.summary || defaultSummary);
         setPagination(data.pagination || defaultPagination);
       } catch (error) {
         console.error("Failed to fetch charge requests:", error);
-        alert(error instanceof Error ? error.message : "충전 신청 내역을 불러오지 못했습니다.");
+        alert(
+          error instanceof Error
+            ? error.message
+            : "충전 신청 내역을 불러오지 못했습니다.",
+        );
       } finally {
         if (showSpinner) {
           setLoading(false);
@@ -441,17 +449,22 @@ if (!response.ok) {
 
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.success) {
-        throw new Error(result?.message || result?.error || "상태 변경에 실패했습니다.");
+        throw new Error(
+          result?.message || result?.error || "상태 변경에 실패했습니다.",
+        );
       }
 
       alert(
-        result.message || `${selectedIds.length}건이 ${config.label} 처리되었습니다.`,
+        result.message ||
+          `${selectedIds.length}건이 ${config.label} 처리되었습니다.`,
       );
       setSelectedIds([]);
       await fetchCharges({ showSpinner: false });
     } catch (error) {
       console.error("Failed to update charge statuses:", error);
-      alert(error instanceof Error ? error.message : "상태 변경에 실패했습니다.");
+      alert(
+        error instanceof Error ? error.message : "상태 변경에 실패했습니다.",
+      );
     } finally {
       setLoading(false);
     }
@@ -532,14 +545,18 @@ if (!response.ok) {
                 value={formatNumber(summary.approvedAmount)}
                 readOnly
               />
-              <div className="input-group-text bg-info text-white">대기금액</div>
+              <div className="input-group-text bg-info text-white">
+                대기금액
+              </div>
               <input
                 type="text"
                 className="form-control"
                 value={formatNumber(summary.pendingAmount)}
                 readOnly
               />
-              <div className="input-group-text bg-danger text-white">취소금액</div>
+              <div className="input-group-text bg-danger text-white">
+                취소금액
+              </div>
               <input
                 type="text"
                 className="form-control"
@@ -560,7 +577,7 @@ if (!response.ok) {
               className="w-100"
               onSubmit={handleSearch}
             >
-              <div className="d-flex">
+              <div className="d-flex flex-wrap gap-2 gap-xl-0">
                 <select
                   name="pageSize"
                   className="form-select w-80px me-2"
@@ -929,7 +946,8 @@ if (!response.ok) {
       <div className="row mt-3">
         <div className="col d-flex justify-content-between align-items-center">
           <div>
-            총 {pagination.total.toLocaleString("ko-KR")}건 / {pagination.page}페이지
+            총 {pagination.total.toLocaleString("ko-KR")}건 / {pagination.page}
+            페이지
           </div>
           <div className="btn-group">
             <button

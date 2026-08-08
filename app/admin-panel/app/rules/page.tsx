@@ -26,7 +26,10 @@ interface Pagination {
 
 function PageContent() {
   const contentPreview = useCallback((html: string) => {
-    const text = (html || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+    const text = (html || "")
+      .replace(/<[^>]*>/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
     return text.length > 120 ? `${text.slice(0, 120)}...` : text;
   }, []);
 
@@ -56,42 +59,52 @@ function PageContent() {
 
   const [formContent, setFormContent] = useState("");
 
-  const fetchRules = useCallback(async (page = 1) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams({
-        page: String(page),
-        pageSize,
-      });
-      if (searchText.trim()) {
-        if (searchType === "title" || searchType === "content" || searchType === "all") {
-          params.set("searchType", searchType);
-          params.set("searchText", searchText.trim());
+  const fetchRules = useCallback(
+    async (page = 1) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const params = new URLSearchParams({
+          page: String(page),
+          pageSize,
+        });
+        if (searchText.trim()) {
+          if (
+            searchType === "title" ||
+            searchType === "content" ||
+            searchType === "all"
+          ) {
+            params.set("searchType", searchType);
+            params.set("searchText", searchText.trim());
+          }
         }
+        if (active === "true" || active === "false") {
+          params.set("active", active);
+        }
+        const response = await fetch(
+          `${BACKEND_URL}/api/admin/rules?${params.toString()}`,
+          {
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setRules(data.items || []);
+        setCurrentPage(data.page || page);
+        setTotal(data.total || 0);
+      } catch (e: any) {
+        setError(e.message);
+        setRules([]);
+        setTotal(0);
+      } finally {
+        setLoading(false);
       }
-      if (active === "true" || active === "false") {
-        params.set("active", active);
-      }
-      const response = await fetch(`${BACKEND_URL}/api/admin/rules?${params.toString()}`, {
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setRules(data.items || []);
-      setCurrentPage(data.page || page);
-      setTotal(data.total || 0);
-    } catch (e: any) {
-      setError(e.message);
-      setRules([]);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [pageSize, searchText, searchType, active]);
+    },
+    [pageSize, searchText, searchType, active],
+  );
 
   useEffect(() => {
     fetchRules(currentPage);
@@ -110,7 +123,13 @@ function PageContent() {
 
   const openCreateModal = () => {
     setCurrentRule(null);
-    setFormData({ category: "", title: "", content: "", isActive: true, displayOrder: 0 });
+    setFormData({
+      category: "",
+      title: "",
+      content: "",
+      isActive: true,
+      displayOrder: 0,
+    });
     setFormContent("");
     setIsModalOpen(true);
   };
@@ -131,17 +150,28 @@ function PageContent() {
   const closeModal = () => {
     setIsModalOpen(false);
     setCurrentRule(null);
-    setFormData({ category: "", title: "", content: "", isActive: true, displayOrder: 0 });
+    setFormData({
+      category: "",
+      title: "",
+      content: "",
+      isActive: true,
+      displayOrder: 0,
+    });
     setFormContent("");
   };
 
   const handleFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : name === "displayOrder" ? Number(value) : value,
+      [name]:
+        type === "checkbox"
+          ? checked
+          : name === "displayOrder"
+            ? Number(value)
+            : value,
     }));
   };
 
@@ -224,19 +254,22 @@ function PageContent() {
 
   const handleActiveToggle = async (id: number, isActive: boolean) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/admin/rules/${id}/active`, {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive }),
-      });
+      const response = await fetch(
+        `${BACKEND_URL}/api/admin/rules/${id}/active`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isActive }),
+        },
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       setRules((prev) =>
-        prev.map((rule) => (rule.id === id ? { ...rule, isActive } : rule))
+        prev.map((rule) => (rule.id === id ? { ...rule, isActive } : rule)),
       );
     } catch (e: any) {
       setError(e.message);
@@ -246,8 +279,8 @@ function PageContent() {
   const handleDisplayOrderChange = (id: number, newOrder: number) => {
     setRules((prevRules) =>
       prevRules.map((rule) =>
-        rule.id === id ? { ...rule, displayOrder: newOrder } : rule
-      )
+        rule.id === id ? { ...rule, displayOrder: newOrder } : rule,
+      ),
     );
   };
 
@@ -255,14 +288,17 @@ function PageContent() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${BACKEND_URL}/api/admin/rules/${id}/order`, {
-        method: "PUT",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${BACKEND_URL}/api/admin/rules/${id}/order`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ displayOrder }),
         },
-        body: JSON.stringify({ displayOrder }),
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -340,13 +376,20 @@ function PageContent() {
                   onChange={(e) => setSearchText(e.target.value)}
                 />
 
-                <button className="btn btn-lime d-flex align-items-center justify-content-center" type="submit" style={{ width: "100%" }}>
+                <button
+                  className="btn btn-lime d-flex align-items-center justify-content-center"
+                  type="submit"
+                  style={{ width: "100%" }}
+                >
                   <i className="fa-solid fa-magnifying-glass me-2"></i>검색
                 </button>
               </div>
             </form>
             <div className="ms-auto">
-              <button className="btn btn-primary btn-sm" onClick={openCreateModal}>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={openCreateModal}
+              >
                 <i className="fas fa-edit me-2"></i>규칙 등록
               </button>
             </div>
@@ -354,7 +397,7 @@ function PageContent() {
         </div>
       </div>
       <div className="row">
-        <div className="col">
+        <div className="col" style={{ overflow: "auto" }}>
           {loading ? (
             <div className="text-center p-4">
               <div className="spinner-border" role="status">
@@ -385,7 +428,9 @@ function PageContent() {
                 ) : (
                   rules.map((rule, index) => (
                     <tr key={rule.id}>
-                      <td>{(currentPage - 1) * parseInt(pageSize) + index + 1}</td>
+                      <td>
+                        {(currentPage - 1) * parseInt(pageSize) + index + 1}
+                      </td>
                       <td>{rule.category}</td>
                       <td>{rule.title}</td>
                       <td className="text-start">
@@ -403,9 +448,14 @@ function PageContent() {
                           className="form-control text-center"
                           value={rule.displayOrder}
                           onChange={(e) =>
-                            handleDisplayOrderChange(rule.id, parseInt(e.target.value))
+                            handleDisplayOrderChange(
+                              rule.id,
+                              parseInt(e.target.value),
+                            )
                           }
-                          onBlur={() => handleDisplayOrderSave(rule.id, rule.displayOrder)}
+                          onBlur={() =>
+                            handleDisplayOrderSave(rule.id, rule.displayOrder)
+                          }
                         />
                       </td>
                       <td className="p-1">
@@ -414,7 +464,9 @@ function PageContent() {
                             className="form-check-input"
                             type="checkbox"
                             checked={rule.isActive}
-                            onChange={(e) => handleActiveToggle(rule.id, e.target.checked)}
+                            onChange={(e) =>
+                              handleActiveToggle(rule.id, e.target.checked)
+                            }
                           />
                         </div>
                       </td>
@@ -555,7 +607,9 @@ function PageContent() {
                 <div className="panel-body">
                   <form onSubmit={handleSubmit}>
                     <div className="form-group row mb-3">
-                      <label className="col-form-label col-md-3">카테고리</label>
+                      <label className="col-form-label col-md-3">
+                        카테고리
+                      </label>
                       <div className="col-md-9">
                         <input
                           type="text"
@@ -603,7 +657,9 @@ function PageContent() {
                       </div>
                     </div>
                     <div className="form-group row mb-3">
-                      <label className="col-form-label col-md-3">운영 여부</label>
+                      <label className="col-form-label col-md-3">
+                        운영 여부
+                      </label>
                       <div className="col-md-9">
                         <div className="form-check form-switch">
                           <input

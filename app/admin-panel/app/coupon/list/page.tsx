@@ -449,9 +449,9 @@ function CouponListPageInner() {
 
       <div className="row mb-2">
         <div className="col-12">
-          <div className="d-flex bg-white p-2">
+          <div className="d-flex bg-white p-2 flex-wrap gap-2">
             <form id="formSearch" ref={formSearchRef} onSubmit={handleSearch}>
-              <div className="d-flex">
+              <div className="d-flex flex-wrap gap-1">
                 <select
                   name="pageSize"
                   className="form-select w-80px me-2"
@@ -562,7 +562,7 @@ function CouponListPageInner() {
                 </a>
               </div>
             </form>
-            <div className="ms-auto">
+            <div className="ms-auto d-flex gap-1">
               <a
                 className="btn btn-danger"
                 href="#"
@@ -590,86 +590,88 @@ function CouponListPageInner() {
 
       <div className="row">
         <div className="col-12">
-          <table
-            className="table dataTable table-striped table-bordered table-responsive align-middle bg-white text-center fw-bold"
-            id="couponTable"
-            style={{ margin: 0 }}
-          >
-            <thead
-              className="bg-dark bg-gradient text-white"
-              style={{ position: "sticky", top: "0px", zIndex: 1 }}
+          <div style={{ overflow: "auto" }}>
+            <table
+              className="table dataTable table-striped table-bordered table-responsive align-middle bg-white text-center fw-bold"
+              id="couponTable"
+              style={{ margin: 0 }}
             >
-              <tr>
-                <th>
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    id="checkAll"
-                    ref={checkAllRef}
-                    checked={checkAllChecked}
-                    onChange={handleCheckAll}
-                  />
-                </th>
-                <th>No.</th>
-                <th>받는사람</th>
-                <th>쿠폰제목</th>
-                <th>쿠폰금액</th>
-                <th>상태</th>
-                <th>등록자</th>
-                <th>등록일시</th>
-                <th>사용일시</th>
-                <th>만료일</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
+              <thead
+                className="bg-dark bg-gradient text-white"
+                style={{ position: "sticky", top: "0px", zIndex: 1 }}
+              >
                 <tr>
-                  <td colSpan={10} className="text-center py-4">
-                    <span className="spinner-border spinner-border-sm me-2"></span>
-                    로딩 중...
-                  </td>
+                  <th>
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      id="checkAll"
+                      ref={checkAllRef}
+                      checked={checkAllChecked}
+                      onChange={handleCheckAll}
+                    />
+                  </th>
+                  <th>No.</th>
+                  <th>받는사람</th>
+                  <th>쿠폰제목</th>
+                  <th>쿠폰금액</th>
+                  <th>상태</th>
+                  <th>등록자</th>
+                  <th>등록일시</th>
+                  <th>사용일시</th>
+                  <th>만료일</th>
                 </tr>
-              ) : coupons.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className="text-center py-4">
-                    검색 결과가 없습니다.
-                  </td>
-                </tr>
-              ) : (
-                coupons.map((coupon, index) => {
-                  const rowNumber =
-                    pagination.total -
-                    (pagination.page - 1) * pagination.pageSize -
-                    index;
-                  return (
-                    <tr
-                      key={coupon.id}
-                      data-idx={coupon.id}
-                      data-status={coupon.status}
-                      data-num={rowNumber}
-                    >
-                      <td>
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          disabled={coupon.status !== "0"}
-                        />
-                      </td>
-                      <td>{rowNumber}</td>
-                      <td>{coupon.receiver_id_display || "-"}</td>
-                      <td>{coupon.subject}</td>
-                      <td>{formatNumber(coupon.amount)}</td>
-                      <td>{getStatusLabel(coupon.status)}</td>
-                      <td>{coupon.register_id_display || "-"}</td>
-                      <td>{formatDateTime(coupon.register_date)}</td>
-                      <td>{formatDateTime(coupon.use_date)}</td>
-                      <td>{formatDate(coupon.expire_date)}</td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={10} className="text-center py-4">
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      로딩 중...
+                    </td>
+                  </tr>
+                ) : coupons.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="text-center py-4">
+                      검색 결과가 없습니다.
+                    </td>
+                  </tr>
+                ) : (
+                  coupons.map((coupon, index) => {
+                    const rowNumber =
+                      pagination.total -
+                      (pagination.page - 1) * pagination.pageSize -
+                      index;
+                    return (
+                      <tr
+                        key={coupon.id}
+                        data-idx={coupon.id}
+                        data-status={coupon.status}
+                        data-num={rowNumber}
+                      >
+                        <td>
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            disabled={coupon.status !== "0"}
+                          />
+                        </td>
+                        <td>{rowNumber}</td>
+                        <td>{coupon.receiver_id_display || "-"}</td>
+                        <td>{coupon.subject}</td>
+                        <td>{formatNumber(coupon.amount)}</td>
+                        <td>{getStatusLabel(coupon.status)}</td>
+                        <td>{coupon.register_id_display || "-"}</td>
+                        <td>{formatDateTime(coupon.register_date)}</td>
+                        <td>{formatDateTime(coupon.use_date)}</td>
+                        <td>{formatDate(coupon.expire_date)}</td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
