@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 export default function LoginLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      {/* Page loader */}
-      <div id="loader" className="app-loader">
+      {/* Page loader - hidden immediately on login page; app.min.js may be slow on first cold start */}
+      <div id="loader" className="app-loader" style={{ display: "none" }}>
         <span className="spinner"></span>
       </div>
       

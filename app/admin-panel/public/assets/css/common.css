@@ -957,7 +957,7 @@ table.dataTable thead > tr > td.sorting_asc_disabled:before {
 .game-tab-pane.is-visible {
   display: block;
 }
-@media (max-width: 690px) {
+@media (max-width: 768px) {
   .app-header {
     height: 127px;
   }
@@ -992,24 +992,19 @@ table.dataTable thead > tr > td.sorting_asc_disabled:before {
   }
   .app-content {
     padding: 0px 5px;
+    overflow-x: auto;
   }
   .page-header {
     margin: 0;
     font-size: 16px;
     padding: 8px 5px;
   }
-  .app-content {
-    min-width: max-content;
-  }
   .app.userdetail {
-    min-width: max-content;
+    overflow-x: auto;
   }
   .panel .panel-body {
     padding: 5px;
   }
-  /* .bg-dark.bg-gradient.text-white {
-    top: 127px !important;
-  } */
   .dashbd {
     padding-bottom: 20px;
     flex-wrap: wrap;
@@ -1048,4 +1043,131 @@ table.dataTable thead > tr > td.sorting_asc_disabled:before {
     font-size: 12px;
     padding: 0 10px;
   }
+
+  /* --- Grid Columns: Stack non-responsive columns on mobile --- */
+  .row > .col-2,
+  .row > .col-3,
+  .row > .col-4,
+  .row > .col-5,
+  .row > .col-6,
+  .row > .col-7,
+  .row > .col-8,
+  .row > .col-9,
+  .row > .col-10 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* --- Table scrolling: wrap tables so only the table scrolls, not the full page --- */
+  .panel-body .table-responsive,
+  .panel > .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  /* --- Forms & Inputs: fit screen and prevent horizontal overflows --- */
+  .form-inline .form-control,
+  .form-group .form-control,
+  .form-control,
+  .form-select,
+  .input-group,
+  .select2-container {
+    max-width: 100% !important;
+  }
+
+  /* --- Search Form: wrap and layout correctly on mobile --- */
+  #searchForm,
+  #searchForm .d-flex {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  #searchForm .input-group,
+  #searchForm .btn {
+    margin-right: 0 !important;
+  }
+
+  /* --- Button Groups: wrap nicely on mobile screens --- */
+  .btn-group,
+  .btn-group-vertical {
+    flex-wrap: wrap !important;
+  }
+  .btn-group > .btn,
+  .btn-group-vertical > .btn {
+    border-radius: 4px !important;
+    margin: 2px !important;
+    flex: 1 1 auto;
+  }
+
+  /* --- Panel Headings: stack controls when title is long --- */
+  .panel-heading {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  .panel-heading-btn {
+    margin-left: 0 !important;
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+  }
+
+  /* --- Tab Navigation: scrollable horizontally rather than stacking vertically --- */
+  .nav-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+  .nav-tabs .nav-item {
+    white-space: nowrap !important;
+  }
+
+  /* --- Flex containers: wrap on mobile to prevent overflow --- */
+  .dflexS,
+  .dflexL,
+  .dflexR,
+  .user-action {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  /* --- Header moneyinfo: allow horizontal scroll within header area --- */
+  .app-header .navbar-nav.moneyinfo {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+
+  /* --- Modals: full-screen on very small screens --- */
+  .modal-dialog {
+    margin: 0.5rem;
+    max-width: calc(100vw - 1rem) !important;
+  }
+  .modal-content {
+    max-height: calc(100vh - 1rem);
+    overflow-y: auto;
+  }
+
+  /* --- daymonth tab list: allow scroll --- */
+  .daymonth {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+  .daymonth li a {
+    min-width: 100px;
+  }
 }
+
+/* --- Tablet (768px) breakpoint --- */
+@media (min-width: 769px) and (max-width: 991px) {
+  .dashbd > div {
+    width: 49%;
+  }
+  .dashboard_box {
+    width: 48.5%;
+  }
+}
+

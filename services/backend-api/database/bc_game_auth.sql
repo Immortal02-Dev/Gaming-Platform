@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 06, 2026 at 11:22 AM
+-- Generation Time: Jul 29, 2026 at 10:38 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -27,7 +27,7 @@ SET time_zone = "+00:00";
 -- Table structure for table `admin_audit_logs`
 --
 
-CREATE TABLE `admin_audit_logs` (
+CREATE TABLE IF NOT EXISTS `admin_audit_logs` (
   `id` int(11) NOT NULL,
   `admin_id` int(11) NOT NULL,
   `action` varchar(100) NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE `admin_audit_logs` (
 -- Dumping data for table `admin_audit_logs`
 --
 
-INSERT INTO `admin_audit_logs` (`id`, `admin_id`, `action`, `target_type`, `target_id`, `details`, `ip_address`, `created_at`) VALUES
+INSERT IGNORE INTO `admin_audit_logs` (`id`, `admin_id`, `action`, `target_type`, `target_id`, `details`, `ip_address`, `created_at`) VALUES
 (1, 2, 'update_user', 'user', '1', '{\"reason\": \"Manual balance adjustment\", \"amount\": 100}', '192.168.1.10', '2026-03-21 09:24:28'),
 (2, 2, 'ban_user', 'user', '5', '{\"reason\": \"Suspicious activity detected\"}', '192.168.1.49', '2026-03-21 09:24:28'),
 (3, 2, 'update_setting', 'platform', 'general', '{\"maintenance_mode\": false}', '192.168.1.144', '2026-03-21 09:24:28'),
@@ -151,7 +151,81 @@ INSERT INTO `admin_audit_logs` (`id`, `admin_id`, `action`, `target_type`, `targ
 (106, 3, 'UPDATE_USER', 'users', '37', '{\"nickname\":\"\",\"status\":\"2\",\"level\":\"0\",\"role\":\"admin\",\"memo\":\"\",\"recommendCode\":\"\",\"phoneNumber\":\"\",\"bankIdx\":\"\",\"bankNumber\":\"\",\"bankerName\":\"\",\"warningColorIdx\":\"\",\"chargeBankIdx\":\"\",\"gameLevel\":{\"1\":6,\"2\":1,\"3\":1,\"4\":1,\"5\":1}}', '::1', '2026-07-06 09:07:05'),
 (107, 3, 'UPDATE_USER', 'users', '37', '{\"nickname\":\"\",\"status\":\"2\",\"level\":\"0\",\"role\":\"admin\",\"memo\":\"\",\"recommendCode\":\"\",\"phoneNumber\":\"\",\"bankIdx\":\"\",\"bankNumber\":\"\",\"bankerName\":\"\",\"warningColorIdx\":\"\",\"chargeBankIdx\":\"\",\"gameLevel\":{\"1\":6,\"2\":1,\"3\":1,\"4\":1,\"5\":1}}', '::1', '2026-07-06 09:07:06'),
 (108, 3, 'UPDATE_USER', 'users', '35', '{\"nickname\":\"code\",\"status\":\"2\",\"level\":\"0\",\"role\":\"user\",\"memo\":\"\",\"recommendCode\":\"\",\"phoneNumber\":\"\",\"bankIdx\":\"\",\"bankNumber\":\"\",\"bankerName\":\"\",\"warningColorIdx\":\"\",\"chargeBankIdx\":\"\",\"gameLevel\":{\"1\":13,\"2\":1,\"3\":1,\"4\":1,\"5\":1}}', '::1', '2026-07-06 09:07:37'),
-(109, 3, 'UPDATE_USER', 'users', '37', '{\"nickname\":\"\",\"status\":\"2\",\"level\":\"0\",\"role\":\"admin\",\"memo\":\"dasd\",\"recommendCode\":\"\",\"phoneNumber\":\"ewe\",\"bankIdx\":\"1\",\"bankNumber\":\"sad\",\"bankerName\":\"dasd\",\"warningColorIdx\":\"\",\"chargeBankIdx\":\"\",\"gameLevel\":{\"1\":6,\"2\":8,\"3\":1,\"4\":1,\"5\":5}}', '::1', '2026-07-06 09:07:57');
+(109, 3, 'UPDATE_USER', 'users', '37', '{\"nickname\":\"\",\"status\":\"2\",\"level\":\"0\",\"role\":\"admin\",\"memo\":\"dasd\",\"recommendCode\":\"\",\"phoneNumber\":\"ewe\",\"bankIdx\":\"1\",\"bankNumber\":\"sad\",\"bankerName\":\"dasd\",\"warningColorIdx\":\"\",\"chargeBankIdx\":\"\",\"gameLevel\":{\"1\":6,\"2\":8,\"3\":1,\"4\":1,\"5\":5}}', '::1', '2026-07-06 09:07:57'),
+(110, 3, 'UPDATE_USER', 'users', '36', '{\"nickname\":\"\",\"status\":\"2\",\"level\":\"0\",\"role\":\"user\",\"memo\":\"\",\"recommendCode\":\"\",\"phoneNumber\":\"\",\"bankIdx\":\"\",\"bankNumber\":\"\",\"bankerName\":\"\",\"warningColorIdx\":\"\",\"chargeBankIdx\":\"\",\"gameLevel\":{\"1\":1,\"2\":1,\"3\":1,\"4\":1,\"5\":6}}', '::1', '2026-07-07 08:20:21'),
+(111, 3, 'SEND_MESSAGE', 'messages', NULL, '{\"receiverId\":36,\"messageTitle\":\"Withdrawal Processed\",\"messageContent\":\"<p>Your&nbsp;withdrawal&nbsp;request&nbsp;has&nbsp;been&nbsp;completed...</p>\"}', '::1', '2026-07-07 08:20:35'),
+(112, 3, 'CREATE_USER', 'users', NULL, '{\"username\":\"TBA12345\",\"email_or_phone\":\"Jample@gmail.com\",\"password\":\"********\",\"role\":\"user\"}', '::1', '2026-07-07 09:42:18'),
+(113, 3, 'UPDATE_USER', 'users', '2', '{\"nickname\":\"admin\",\"status\":\"2\",\"level\":\"0\",\"role\":\"admin\",\"memo\":\"dasd\",\"recommendCode\":\"\",\"phoneNumber\":\"sdsa\",\"bankIdx\":\"\",\"bankNumber\":\"dsad\",\"bankerName\":\"dsad\",\"warningColorIdx\":\"\",\"chargeBankIdx\":\"\",\"gameLevel\":{\"1\":5,\"2\":1,\"3\":1,\"4\":1,\"5\":5}}', '::1', '2026-07-08 00:55:00'),
+(114, 3, 'UPDATE_USER', 'users', '1', '{\"nickname\":\"user\",\"status\":\"3\",\"level\":\"0\",\"role\":\"user\",\"memo\":\"dasd\",\"recommendCode\":\"Welcome2026\",\"phoneNumber\":\"dsad\",\"bankIdx\":\"\",\"bankNumber\":\"dasd\",\"bankerName\":\"das\",\"warningColorIdx\":\"1\",\"chargeBankIdx\":\"\",\"gameLevel\":{\"1\":1,\"2\":1,\"3\":8,\"4\":8,\"5\":8}}', '::1', '2026-07-08 00:55:40'),
+(115, 3, 'CREATE_USER', 'users', NULL, '{\"username\":\"dasd\",\"email_or_phone\":\"das@gmail.com\",\"password\":\"********\",\"role\":\"partner\"}', '::1', '2026-07-08 00:56:27'),
+(116, 3, 'CREATE_DISTRIBUTOR_LEVEL', 'distributor', NULL, '{\"fullName\":\"ew\",\"shortName\":\"we\",\"color\":\"#D9D9D9\"}', '::1', '2026-07-08 01:25:57'),
+(117, 3, 'UPDATE_USER', 'users', '7', '{\"nickname\":\"WhaleWatcher\",\"status\":\"2\",\"level\":\"5\",\"role\":\"user\",\"memo\":\"dasdsa\",\"recommendCode\":\"WHALE\",\"phoneNumber\":\"dasd\",\"bankIdx\":\"\",\"bankNumber\":\"dasd\",\"bankerName\":\"dasdd\",\"warningColorIdx\":\"\",\"chargeBankIdx\":\"\",\"gameLevel\":{\"1\":7,\"2\":6,\"3\":9,\"4\":5,\"5\":4}}', '::1', '2026-07-08 02:13:45'),
+(118, 3, 'CREATE_USER', 'users', NULL, '{\"username\":\"dsad\",\"email_or_phone\":\"samp@gmail.com\",\"password\":\"********\",\"role\":\"user\"}', '::1', '2026-07-08 02:14:31'),
+(119, 3, 'UPDATE_USER', 'users', '1', '{\"nickname\":\"user\",\"status\":\"3\",\"level\":\"0\",\"role\":\"user\",\"memo\":\"dasd\",\"recommendCode\":\"Welcome2026\",\"phoneNumber\":\"dsad\",\"bankIdx\":\"\",\"bankNumber\":\"dasd\",\"bankerName\":\"das\",\"warningColorIdx\":\"1\",\"chargeBankIdx\":\"\",\"gameLevel\":{\"1\":1,\"2\":4,\"3\":8,\"4\":8,\"5\":8}}', '::1', '2026-07-08 02:16:10'),
+(120, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:30:36'),
+(121, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:30:36'),
+(122, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"1\"}', '::1', '2026-07-18 09:30:37'),
+(123, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"T\"}', '::1', '2026-07-18 09:30:45'),
+(124, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"TE\"}', '::1', '2026-07-18 09:30:45'),
+(125, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"TEs\"}', '::1', '2026-07-18 09:30:46'),
+(126, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"TEst\"}', '::1', '2026-07-18 09:30:46'),
+(127, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"TEs\"}', '::1', '2026-07-18 09:30:46'),
+(128, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"TE\"}', '::1', '2026-07-18 09:30:47'),
+(129, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"T\"}', '::1', '2026-07-18 09:30:47'),
+(130, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"Tw\"}', '::1', '2026-07-18 09:30:47'),
+(131, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"Twa\"}', '::1', '2026-07-18 09:30:47'),
+(132, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"Tw\"}', '::1', '2026-07-18 09:30:47'),
+(133, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"T\"}', '::1', '2026-07-18 09:30:48'),
+(134, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"Te\"}', '::1', '2026-07-18 09:30:48'),
+(135, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"Tes\"}', '::1', '2026-07-18 09:30:48'),
+(136, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"Test\"}', '::1', '2026-07-18 09:30:49'),
+(137, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"Testr\"}', '::1', '2026-07-18 09:30:49'),
+(138, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"Test\"}', '::1', '2026-07-18 09:30:50'),
+(139, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"d\"}', '::1', '2026-07-18 09:30:50'),
+(140, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"ds\"}', '::1', '2026-07-18 09:30:51'),
+(141, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"dsa\"}', '::1', '2026-07-18 09:30:51'),
+(142, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"dsad\"}', '::1', '2026-07-18 09:30:51'),
+(143, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"dsada\"}', '::1', '2026-07-18 09:30:51'),
+(144, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"dsadas\"}', '::1', '2026-07-18 09:30:51'),
+(145, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"dsada\"}', '::1', '2026-07-18 09:30:52'),
+(146, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"dsad\"}', '::1', '2026-07-18 09:30:53'),
+(147, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"dsa\"}', '::1', '2026-07-18 09:30:53'),
+(148, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"ds\"}', '::1', '2026-07-18 09:30:53'),
+(149, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"d\"}', '::1', '2026-07-18 09:30:53'),
+(150, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"\"}', '::1', '2026-07-18 09:30:53'),
+(151, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:31:03'),
+(152, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:31:03'),
+(153, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"1\"}', '::1', '2026-07-18 09:37:21'),
+(154, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:37:22'),
+(155, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"1\"}', '::1', '2026-07-18 09:37:23'),
+(156, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:37:29'),
+(157, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:37:51'),
+(158, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"1\"}', '::1', '2026-07-18 09:38:00'),
+(159, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:38:01'),
+(160, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:38:04'),
+(161, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"1\"}', '::1', '2026-07-18 09:38:06'),
+(162, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:38:12'),
+(163, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"1\"}', '::1', '2026-07-18 09:38:13'),
+(164, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"1\"}', '::1', '2026-07-18 09:38:15'),
+(165, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:38:19'),
+(166, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"1\"}', '::1', '2026-07-18 09:38:20'),
+(167, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"1\"}', '::1', '2026-07-18 09:38:24'),
+(168, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"1\"}', '::1', '2026-07-18 09:38:25'),
+(169, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:38:26'),
+(170, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:38:34'),
+(171, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"0\"}', '::1', '2026-07-18 09:48:01'),
+(172, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"1\"}', '::1', '2026-07-18 09:48:02'),
+(173, 3, 'UPDATE_SETTING', 'settings', NULL, '{\"value\":\"1\"}', '::1', '2026-07-18 09:48:56'),
+(174, 3, 'UPDATE_USER', 'users', '3', '{\"nickname\":\"superadmin\",\"status\":\"2\",\"level\":\"0\",\"role\":\"admin\",\"memo\":\"\",\"recommendCode\":\"\",\"phoneNumber\":\"\",\"bankIdx\":\"\",\"bankNumber\":\"\",\"bankerName\":\"\",\"warningColorIdx\":\"2\",\"chargeBankIdx\":\"\",\"gameLevel\":{\"1\":1,\"2\":1,\"3\":1,\"4\":1,\"5\":1}}', '::1', '2026-07-18 10:20:06'),
+(175, 3, 'UPDATE_USER', 'users', '2', '{\"nickname\":\"admin\",\"status\":\"2\",\"level\":\"0\",\"role\":\"admin\",\"memo\":\"dasd\",\"recommendCode\":\"\",\"phoneNumber\":\"sdsa\",\"bankIdx\":\"\",\"bankNumber\":\"dsad\",\"bankerName\":\"dsad\",\"warningColorIdx\":\"1\",\"chargeBankIdx\":\"\",\"gameLevel\":{\"1\":5,\"2\":1,\"3\":1,\"4\":1,\"5\":5}}', '::1', '2026-07-18 10:21:07'),
+(176, 3, 'CREATE_DISTRIBUTOR_LEVEL', 'distributor', NULL, '{\"fullName\":\"test\",\"shortName\":\"user\",\"color\":\"#CFE2F3\"}', '::1', '2026-07-23 08:36:55'),
+(177, 3, 'UPDATE_DISTRIBUTOR_LEVEL', 'distributor', NULL, '{\"fullName\":\"부본사\",\"shortName\":\"부본\",\"color\":\"#45818E\",\"step\":1}', '::1', '2026-07-23 08:37:01'),
+(178, 3, 'UPDATE_DISTRIBUTOR_LEVEL', 'distributor', NULL, '{\"fullName\":\"부본사\",\"shortName\":\"부본\",\"color\":\"#45818E\",\"step\":1}', '::1', '2026-07-23 08:37:04'),
+(179, 3, 'UPDATE_DISTRIBUTOR_LEVEL', 'distributor', NULL, '{\"fullName\":\"부본사\",\"shortName\":\"부본\",\"color\":\"#45818E\",\"step\":1}', '::1', '2026-07-23 08:37:16'),
+(180, 3, 'UPDATE_DISTRIBUTOR_LEVEL', 'distributor', NULL, '{\"fullName\":\"test\",\"shortName\":\"user\",\"color\":\"#CFE2F3\",\"step\":5}', '::1', '2026-07-23 08:37:21'),
+(181, 3, 'UPDATE_GAME_SETTING_STATUS', 'game-setting', '9', '{\"key\":\"gameTypeClose\",\"value\":1}', '::1', '2026-07-28 07:39:38'),
+(182, 3, 'UPDATE_GAME_SETTING_STATUS', 'game-setting', '9', '{\"key\":\"gameTypeClose\",\"value\":0}', '::1', '2026-07-28 07:39:43'),
+(183, 3, 'SEND_MESSAGE', 'messages', NULL, '{\"receiverId\":12,\"messageTitle\":\"Withdrawal Processed\",\"messageContent\":\"<p>Your&nbsp;withdrawal&nbsp;request&nbsp;has&nbsp;been&nbsp;completed...</p>\"}', '::1', '2026-07-29 07:26:29');
 
 -- --------------------------------------------------------
 
@@ -159,7 +233,7 @@ INSERT INTO `admin_audit_logs` (`id`, `admin_id`, `action`, `target_type`, `targ
 -- Table structure for table `admin_ips`
 --
 
-CREATE TABLE `admin_ips` (
+CREATE TABLE IF NOT EXISTS `admin_ips` (
   `adminIPIdx` int(10) UNSIGNED NOT NULL,
   `adminIP` varchar(64) NOT NULL,
   `memo` varchar(255) NOT NULL DEFAULT '',
@@ -172,7 +246,7 @@ CREATE TABLE `admin_ips` (
 -- Table structure for table `admin_managers`
 --
 
-CREATE TABLE `admin_managers` (
+CREATE TABLE IF NOT EXISTS `admin_managers` (
   `managerIdx` int(10) UNSIGNED NOT NULL,
   `registerUserIdx` int(11) DEFAULT NULL,
   `userId` varchar(64) NOT NULL,
@@ -191,7 +265,7 @@ CREATE TABLE `admin_managers` (
 -- Dumping data for table `admin_managers`
 --
 
-INSERT INTO `admin_managers` (`managerIdx`, `registerUserIdx`, `userId`, `password`, `nickName`, `userRoleIdx`, `userStatusIdx`, `allowLiveInfo`, `allowAlarmCount`, `allowDashboard`, `memo`, `registerDate`) VALUES
+INSERT IGNORE INTO `admin_managers` (`managerIdx`, `registerUserIdx`, `userId`, `password`, `nickName`, `userRoleIdx`, `userStatusIdx`, `allowLiveInfo`, `allowAlarmCount`, `allowDashboard`, `memo`, `registerDate`) VALUES
 (1, NULL, 'admin', '$2b$10$8tpB4.O0eCR4vvvlXXqWcuL/1oZ/usZzD4KIy6DAbk.wiDwN8Rv0q', 'admin', 2, 2, 1, 1, 1, 'Imported from users table (admin)', '2026-03-18 15:57:22'),
 (2, NULL, 'superadmin', '$2b$10$8tpB4.O0eCR4vvvlXXqWcuL/1oZ/usZzD4KIy6DAbk.wiDwN8Rv0q', 'superadmin', 1, 2, 1, 1, 1, 'Imported from users table (super_admin)', '2026-03-18 15:57:22'),
 (3, NULL, 'admin_test', '$2b$10$8tpB4.O0eCR4vvvlXXqWcuL/1oZ/usZzD4KIy6DAbk.wiDwN8Rv0q', 'admin_test', 2, 2, 1, 1, 1, 'Imported from users table (admin)', '2026-03-18 17:24:21'),
@@ -203,7 +277,7 @@ INSERT INTO `admin_managers` (`managerIdx`, `registerUserIdx`, `userId`, `passwo
 -- Table structure for table `admin_manager_permissions`
 --
 
-CREATE TABLE `admin_manager_permissions` (
+CREATE TABLE IF NOT EXISTS `admin_manager_permissions` (
   `id` int(10) UNSIGNED NOT NULL,
   `managerIdx` int(10) UNSIGNED NOT NULL,
   `permissionId` int(11) NOT NULL,
@@ -215,7 +289,7 @@ CREATE TABLE `admin_manager_permissions` (
 -- Dumping data for table `admin_manager_permissions`
 --
 
-INSERT INTO `admin_manager_permissions` (`id`, `managerIdx`, `permissionId`, `readYN`, `writeYN`) VALUES
+INSERT IGNORE INTO `admin_manager_permissions` (`id`, `managerIdx`, `permissionId`, `readYN`, `writeYN`) VALUES
 (1, 1, 1, 1, 1),
 (2, 3, 1, 1, 1),
 (3, 2, 1, 1, 1),
@@ -403,7 +477,7 @@ INSERT INTO `admin_manager_permissions` (`id`, `managerIdx`, `permissionId`, `re
 -- Table structure for table `alarm_settings`
 --
 
-CREATE TABLE `alarm_settings` (
+CREATE TABLE IF NOT EXISTS `alarm_settings` (
   `idx` int(11) NOT NULL,
   `alarm_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -419,7 +493,7 @@ CREATE TABLE `alarm_settings` (
 -- Dumping data for table `alarm_settings`
 --
 
-INSERT INTO `alarm_settings` (`idx`, `alarm_id`, `name`, `sound_idx`, `count_type`, `win_amount`, `site_idx`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `alarm_settings` (`idx`, `alarm_id`, `name`, `sound_idx`, `count_type`, `win_amount`, `site_idx`, `created_at`, `updated_at`) VALUES
 (1, 1, '신규회원', 0, 1, 0.00, 1, '2026-05-07 03:37:36', '2026-05-07 03:37:36'),
 (2, 2, '신규파트너', 0, 1, 0.00, 1, '2026-05-07 03:37:36', '2026-05-07 03:37:36'),
 (3, 3, '충전신청', 0, 1, 0.00, 1, '2026-05-07 03:37:36', '2026-05-07 03:37:36'),
@@ -438,7 +512,7 @@ INSERT INTO `alarm_settings` (`idx`, `alarm_id`, `name`, `sound_idx`, `count_typ
 -- Table structure for table `arcade_bets`
 --
 
-CREATE TABLE `arcade_bets` (
+CREATE TABLE IF NOT EXISTS `arcade_bets` (
   `id` int(11) NOT NULL,
   `game_list_id` int(11) NOT NULL COMMENT 'FK -> arcade_game_list.id',
   `game_type_id` int(11) NOT NULL,
@@ -460,7 +534,7 @@ CREATE TABLE `arcade_bets` (
 -- Dumping data for table `arcade_bets`
 --
 
-INSERT INTO `arcade_bets` (`id`, `game_list_id`, `game_type_id`, `user_id`, `bet_item`, `odds`, `before_money`, `bet_money`, `after_money`, `win_before_money`, `win_money`, `win_after_money`, `bet_status`, `bet_time`, `is_deleted`) VALUES
+INSERT IGNORE INTO `arcade_bets` (`id`, `game_list_id`, `game_type_id`, `user_id`, `bet_item`, `odds`, `before_money`, `bet_money`, `after_money`, `win_before_money`, `win_money`, `win_after_money`, `bet_status`, `bet_time`, `is_deleted`) VALUES
 (1, 18, 12, 10, '대', 1.95, 100000.00, 1865.00, 98135.00, 98135.00, 3636.75, 101771.75, 1, '2026-04-08 09:59:31', 0),
 (2, 7, 15, 8, '소', 1.95, 100000.00, 39799.00, 60201.00, 60201.00, 77608.05, 137809.05, 1, '2026-04-13 09:59:31', 0),
 (3, 5, 13, 12, '좌', 1.95, 100000.00, 22277.00, 77723.00, 77723.00, 0.00, 77723.00, 2, '2026-04-24 09:59:31', 0),
@@ -568,7 +642,7 @@ INSERT INTO `arcade_bets` (`id`, `game_list_id`, `game_type_id`, `user_id`, `bet
 -- Table structure for table `arcade_game_list`
 --
 
-CREATE TABLE `arcade_game_list` (
+CREATE TABLE IF NOT EXISTS `arcade_game_list` (
   `id` int(11) NOT NULL,
   `game_type_id` int(11) NOT NULL COMMENT 'FK -> arcade_game_types.id',
   `game_inning` varchar(50) NOT NULL COMMENT 'Global round number e.g. 202600123',
@@ -588,7 +662,7 @@ CREATE TABLE `arcade_game_list` (
 -- Dumping data for table `arcade_game_list`
 --
 
-INSERT INTO `arcade_game_list` (`id`, `game_type_id`, `game_inning`, `game_today_inning`, `game_arcade_status`, `bet_money`, `win_money`, `game_time`, `bet_close_time`, `result_time`, `result_data`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `arcade_game_list` (`id`, `game_type_id`, `game_inning`, `game_today_inning`, `game_arcade_status`, `bet_money`, `win_money`, `game_time`, `bet_close_time`, `result_time`, `result_data`, `created_at`, `updated_at`) VALUES
 (1, 4, '20260502-100', '100', 3, 0.00, 0.00, '2026-05-02 17:59:31', '2026-05-02 17:59:31', NULL, NULL, '2026-05-02 09:59:31', '2026-05-02 09:59:31'),
 (2, 10, '20260502-101', '101', 3, 0.00, 0.00, '2026-05-02 17:54:31', '2026-05-02 17:54:31', NULL, NULL, '2026-05-02 09:59:31', '2026-05-02 09:59:31'),
 (3, 11, '20260502-102', '102', 3, 0.00, 0.00, '2026-05-02 17:49:31', '2026-05-02 17:49:31', NULL, NULL, '2026-05-02 09:59:31', '2026-05-02 09:59:31'),
@@ -616,7 +690,7 @@ INSERT INTO `arcade_game_list` (`id`, `game_type_id`, `game_inning`, `game_today
 -- Table structure for table `arcade_game_types`
 --
 
-CREATE TABLE `arcade_game_types` (
+CREATE TABLE IF NOT EXISTS `arcade_game_types` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL COMMENT 'e.g. 파워볼(PBG)',
   `slug` varchar(100) NOT NULL,
@@ -629,7 +703,7 @@ CREATE TABLE `arcade_game_types` (
 -- Dumping data for table `arcade_game_types`
 --
 
-INSERT INTO `arcade_game_types` (`id`, `name`, `slug`, `interval_minutes`, `is_active`, `created_at`) VALUES
+INSERT IGNORE INTO `arcade_game_types` (`id`, `name`, `slug`, `interval_minutes`, `is_active`, `created_at`) VALUES
 (4, '파워볼(PBG)', 'pbg-powerball', 5, 1, '2026-05-02 09:59:31'),
 (10, 'EOS파워볼5분', 'eos-powerball-5m', 5, 1, '2026-05-02 09:59:31'),
 (11, 'EOS파워볼3분', 'eos-powerball-3m', 3, 1, '2026-05-02 09:59:31'),
@@ -644,7 +718,7 @@ INSERT INTO `arcade_game_types` (`id`, `name`, `slug`, `interval_minutes`, `is_a
 -- Table structure for table `arcade_settings`
 --
 
-CREATE TABLE `arcade_settings` (
+CREATE TABLE IF NOT EXISTS `arcade_settings` (
   `id` int(11) NOT NULL,
   `game_type_id` int(11) NOT NULL COMMENT 'FK -> arcade_game_types.id',
   `setting_key` varchar(100) NOT NULL COMMENT 'e.g. min_bet, max_bet, odds_multiplier',
@@ -657,7 +731,7 @@ CREATE TABLE `arcade_settings` (
 -- Dumping data for table `arcade_settings`
 --
 
-INSERT INTO `arcade_settings` (`id`, `game_type_id`, `setting_key`, `setting_value`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `arcade_settings` (`id`, `game_type_id`, `setting_key`, `setting_value`, `created_at`, `updated_at`) VALUES
 (1, 4, 'min_bet', '100', '2026-05-04 09:41:51', '2026-05-04 09:41:51'),
 (2, 4, 'max_bet', '100000', '2026-05-04 09:41:51', '2026-05-04 09:41:51'),
 (3, 4, 'odds_base', '1.95', '2026-05-04 09:41:51', '2026-05-04 09:41:51'),
@@ -693,7 +767,7 @@ INSERT INTO `arcade_settings` (`id`, `game_type_id`, `setting_key`, `setting_val
 -- Table structure for table `banks`
 --
 
-CREATE TABLE `banks` (
+CREATE TABLE IF NOT EXISTS `banks` (
   `bankIdx` int(10) UNSIGNED NOT NULL,
   `bankName` varchar(64) NOT NULL,
   `useYN` tinyint(4) NOT NULL DEFAULT 1 COMMENT '1=사용, 0=미사용',
@@ -705,7 +779,7 @@ CREATE TABLE `banks` (
 -- Dumping data for table `banks`
 --
 
-INSERT INTO `banks` (`bankIdx`, `bankName`, `useYN`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `banks` (`bankIdx`, `bankName`, `useYN`, `created_at`, `updated_at`) VALUES
 (1, 'dddd', 1, '2026-05-06 17:28:32', '2026-05-06 17:28:32'),
 (2, 'BDO', 1, '2026-05-06 17:35:47', '2026-05-06 17:35:47'),
 (3, 'BPI', 1, '2026-05-06 17:35:47', '2026-05-06 17:35:47'),
@@ -724,7 +798,7 @@ INSERT INTO `banks` (`bankIdx`, `bankName`, `useYN`, `created_at`, `updated_at`)
 -- Table structure for table `banners`
 --
 
-CREATE TABLE `banners` (
+CREATE TABLE IF NOT EXISTS `banners` (
   `id` int(11) NOT NULL,
   `title` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
@@ -743,7 +817,7 @@ CREATE TABLE `banners` (
 -- Dumping data for table `banners`
 --
 
-INSERT INTO `banners` (`id`, `title`, `description`, `image`, `href`, `gradient_color`, `sort_order`, `is_active`, `is_promo`, `badge_image`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `banners` (`id`, `title`, `description`, `image`, `href`, `gradient_color`, `sort_order`, `is_active`, `is_promo`, `badge_image`, `created_at`, `updated_at`) VALUES
 (1, 'Welcome Bonus', 'Get up to 360% bonus on your first 4 deposits!', 'https://img.freepik.com/free-vector/gradient-crypto-banner-template_23-2149187313.jpg', '/promotions', 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)', 1, 1, 1, NULL, '2026-04-16 06:05:46', '2026-04-16 06:05:46'),
 (2, 'Daily Contest', 'Total prize pool of $10,000 every single day!', 'https://img.freepik.com/free-vector/flat-crypto-instagram-stories-collection_23-2149176316.jpg', '/contest', 'linear-gradient(90deg, #f59e0b 0%, #ef4444 100%)', 2, 1, 0, NULL, '2026-04-16 06:05:46', '2026-04-16 06:05:46'),
 (3, 'VIP Club', 'Join the most exclusive club in the crypto gaming industry.', 'https://img.freepik.com/free-vector/flat-nft-banner-concept_23-2149253457.jpg', '/vip', 'linear-gradient(90deg, #10b981 0%, #3b82f6 100%)', 3, 1, 0, NULL, '2026-04-16 06:05:46', '2026-04-16 06:05:46'),
@@ -757,7 +831,7 @@ INSERT INTO `banners` (`id`, `title`, `description`, `image`, `href`, `gradient_
 -- Table structure for table `bets`
 --
 
-CREATE TABLE `bets` (
+CREATE TABLE IF NOT EXISTS `bets` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `game_id` int(11) NOT NULL,
@@ -774,7 +848,7 @@ CREATE TABLE `bets` (
 -- Dumping data for table `bets`
 --
 
-INSERT INTO `bets` (`id`, `user_id`, `game_id`, `amount`, `currency`, `payout`, `profit`, `category`, `status`, `created_at`) VALUES
+INSERT IGNORE INTO `bets` (`id`, `user_id`, `game_id`, `amount`, `currency`, `payout`, `profit`, `category`, `status`, `created_at`) VALUES
 (1, 10, 7, 68.35000000, 'USDT', 0.00000000, -68.35000000, 'original', 'lost', '2026-03-18 21:32:51'),
 (2, 12, 9, 5.11000000, 'USDT', 8.46000000, 3.35000000, 'slots', 'won', '2026-03-18 01:40:51'),
 (3, 9, 9, 72.70000000, 'USDT', 126.67000000, 53.97000000, 'slots', 'won', '2026-03-21 05:42:51'),
@@ -1082,7 +1156,7 @@ INSERT INTO `bets` (`id`, `user_id`, `game_id`, `amount`, `currency`, `payout`, 
 -- Table structure for table `bet_limits`
 --
 
-CREATE TABLE `bet_limits` (
+CREATE TABLE IF NOT EXISTS `bet_limits` (
   `id` int(11) NOT NULL,
   `category` enum('global','casino','sports','trading') NOT NULL,
   `min_bet` decimal(20,8) DEFAULT 0.00000000,
@@ -1095,7 +1169,7 @@ CREATE TABLE `bet_limits` (
 -- Dumping data for table `bet_limits`
 --
 
-INSERT INTO `bet_limits` (`id`, `category`, `min_bet`, `max_bet`, `is_active`, `updated_at`) VALUES
+INSERT IGNORE INTO `bet_limits` (`id`, `category`, `min_bet`, `max_bet`, `is_active`, `updated_at`) VALUES
 (1, 'global', 0.10000000, 10000.00000000, 1, '2026-04-21 02:50:00'),
 (2, 'casino', 0.10000000, 5000.00000000, 1, '2026-04-21 02:50:00'),
 (3, 'sports', 1.00000000, 2000.00000000, 1, '2026-04-21 02:50:00'),
@@ -1107,7 +1181,7 @@ INSERT INTO `bet_limits` (`id`, `category`, `min_bet`, `max_bet`, `is_active`, `
 -- Table structure for table `boards`
 --
 
-CREATE TABLE `boards` (
+CREATE TABLE IF NOT EXISTS `boards` (
   `id` int(11) NOT NULL,
   `board_type` varchar(50) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -1133,7 +1207,7 @@ CREATE TABLE `boards` (
 -- Dumping data for table `boards`
 --
 
-INSERT INTO `boards` (`id`, `board_type`, `user_id`, `subject`, `content`, `reply_content`, `title_color`, `title_weight`, `is_pinned`, `display_order`, `is_popup`, `is_disabled`, `view_date`, `view_count`, `request_type`, `created_at`, `updated_at`, `replied_at`, `reply_user_id`) VALUES
+INSERT IGNORE INTO `boards` (`id`, `board_type`, `user_id`, `subject`, `content`, `reply_content`, `title_color`, `title_weight`, `is_pinned`, `display_order`, `is_popup`, `is_disabled`, `view_date`, `view_count`, `request_type`, `created_at`, `updated_at`, `replied_at`, `reply_user_id`) VALUES
 (1, 'notice', 2, '[공지] 시스템 정기 점검 안내 (5/10)', '<p>안녕하세요. BC.Game입니다.</p><p>안정적인 서비스 제공을 위해 시스템 정기 점검이 예정되어 있습니다.</p><p>일시: 2026년 5월 10일 02:00 ~ 06:00</p>', NULL, '#000000', '', 'Y', 1, 'N', 'N', NULL, 0, '', '2026-05-04 01:39:48', '2026-05-04 01:39:48', NULL, NULL),
 (2, 'notice', 2, '[안내] 입출금 지연 현상 정상화 완료', '<p>임시 서버 점검으로 인한 입출금 지연 현상이 모두 해결되었습니다.</p>', NULL, '#000000', '', 'N', 2, 'N', 'N', NULL, 0, '', '2026-05-04 01:39:48', '2026-05-04 01:39:48', NULL, NULL),
 (3, 'event', 2, '✨ 신규 가입 웰컴 보너스 이벤트 ✨', '<p>신규 가입하신 모든 분들께 100% 입금 보너스를 드립니다!</p>', NULL, '#000000', '', 'Y', 1, 'N', 'N', NULL, 0, '', '2026-05-04 01:39:48', '2026-05-04 01:39:48', NULL, NULL),
@@ -1154,7 +1228,7 @@ INSERT INTO `boards` (`id`, `board_type`, `user_id`, `subject`, `content`, `repl
 -- Table structure for table `board_bet_orders`
 --
 
-CREATE TABLE `board_bet_orders` (
+CREATE TABLE IF NOT EXISTS `board_bet_orders` (
   `id` int(11) NOT NULL,
   `transaction_id` varchar(100) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -1177,7 +1251,7 @@ CREATE TABLE `board_bet_orders` (
 -- Dumping data for table `board_bet_orders`
 --
 
-INSERT INTO `board_bet_orders` (`id`, `transaction_id`, `user_id`, `api_provider`, `game_type_idx`, `game_name`, `round_id`, `game_holdem_group_key`, `bet_money`, `win_money`, `jackpot`, `bet_status`, `bet_details`, `note`, `game_time`, `created_at`) VALUES
+INSERT IGNORE INTO `board_bet_orders` (`id`, `transaction_id`, `user_id`, `api_provider`, `game_type_idx`, `game_name`, `round_id`, `game_holdem_group_key`, `bet_money`, `win_money`, `jackpot`, `bet_status`, `bet_details`, `note`, `game_time`, `created_at`) VALUES
 (1, 'BOARD-1777716066941-0', 5, 'Holdem', 5, 'Texas Holdem', 'ROUND-0', NULL, 22668.00, 0.00, 0.00, 1, NULL, NULL, '2026-04-08 10:01:06', '2026-05-02 10:01:06'),
 (2, 'BOARD-1777716066960-1', 3, 'Poker', 5, 'Omaha', 'ROUND-1', NULL, 73524.00, 0.00, 0.00, 1, NULL, NULL, '2026-04-22 10:01:06', '2026-05-02 10:01:06'),
 (3, 'BOARD-1777716066966-2', 8, 'Baccarat', 5, 'Seven Stud', 'ROUND-2', NULL, 78461.00, 156922.00, 0.00, 1, NULL, NULL, '2026-04-09 10:01:06', '2026-05-02 10:01:06'),
@@ -1235,7 +1309,7 @@ INSERT INTO `board_bet_orders` (`id`, `transaction_id`, `user_id`, `api_provider
 -- Table structure for table `casino_bet_orders`
 --
 
-CREATE TABLE `casino_bet_orders` (
+CREATE TABLE IF NOT EXISTS `casino_bet_orders` (
   `id` int(11) NOT NULL,
   `transaction_id` varchar(100) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -1261,7 +1335,7 @@ CREATE TABLE `casino_bet_orders` (
 -- Dumping data for table `casino_bet_orders`
 --
 
-INSERT INTO `casino_bet_orders` (`id`, `transaction_id`, `user_id`, `api_provider`, `vendor_id`, `vendor_name`, `game_type`, `table_name`, `before_bet_money`, `bet_money`, `after_bet_money`, `before_win_money`, `win_money`, `after_win_money`, `bet_status`, `note`, `bet_time`, `result_time`, `created_at`) VALUES
+INSERT IGNORE INTO `casino_bet_orders` (`id`, `transaction_id`, `user_id`, `api_provider`, `vendor_id`, `vendor_name`, `game_type`, `table_name`, `before_bet_money`, `bet_money`, `after_bet_money`, `before_win_money`, `win_money`, `after_win_money`, `bet_status`, `note`, `bet_time`, `result_time`, `created_at`) VALUES
 (1, 'TXN-BW47D0XJP', 8, 'Habanero', NULL, 'Vendor X', 'Crazy Time', 'Table 1', 70710.00, 20710.00, 50000.00, 50000.00, 0.00, 50000.00, 2, 'Note', '2026-04-13 09:40:32', '2026-04-13 09:40:32', '2026-05-02 09:40:32'),
 (2, 'TXN-9R6IDIW6N', 11, 'Habanero', NULL, 'Vendor X', 'Baccarat', 'Table 1', 61845.00, 11845.00, 50000.00, 50000.00, 0.00, 50000.00, 2, 'Note', '2026-04-28 09:40:32', '2026-04-28 09:40:32', '2026-05-02 09:40:32'),
 (3, 'TXN-5FGT7R687', 3, 'Evolution', NULL, 'Vendor X', 'Mega Ball', 'Table 1', 56731.00, 6731.00, 50000.00, 50000.00, 0.00, 50000.00, 2, 'Note', '2026-04-09 09:40:32', '2026-04-09 09:40:32', '2026-05-02 09:40:32'),
@@ -1319,7 +1393,7 @@ INSERT INTO `casino_bet_orders` (`id`, `transaction_id`, `user_id`, `api_provide
 -- Table structure for table `casino_transfers`
 --
 
-CREATE TABLE `casino_transfers` (
+CREATE TABLE IF NOT EXISTS `casino_transfers` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `handler_id` int(11) DEFAULT NULL,
@@ -1336,7 +1410,7 @@ CREATE TABLE `casino_transfers` (
 -- Dumping data for table `casino_transfers`
 --
 
-INSERT INTO `casino_transfers` (`id`, `user_id`, `handler_id`, `api_provider`, `exchange_type`, `amount`, `before_amount`, `after_amount`, `status_idx`, `created_at`) VALUES
+INSERT IGNORE INTO `casino_transfers` (`id`, `user_id`, `handler_id`, `api_provider`, `exchange_type`, `amount`, `before_amount`, `after_amount`, `status_idx`, `created_at`) VALUES
 (1, 1, 1, 'Evolution', 'depositHoldem', 4416.00000000, 347504.00000000, 343088.00000000, 3, '2026-04-20 09:39:42'),
 (2, 12, 1, 'Habanero', 'withdraw', 61248.00000000, 533928.00000000, 595176.00000000, 3, '2026-04-18 09:39:42'),
 (3, 9, 1, 'Habanero', 'withdraw', 45935.00000000, 196196.00000000, 242131.00000000, 3, '2026-04-21 09:39:42'),
@@ -1394,7 +1468,7 @@ INSERT INTO `casino_transfers` (`id`, `user_id`, `handler_id`, `api_provider`, `
 -- Table structure for table `charge_banks`
 --
 
-CREATE TABLE `charge_banks` (
+CREATE TABLE IF NOT EXISTS `charge_banks` (
   `bankIdx` int(10) UNSIGNED NOT NULL,
   `bankName` varchar(64) NOT NULL,
   `bankerName` varchar(64) NOT NULL,
@@ -1409,7 +1483,7 @@ CREATE TABLE `charge_banks` (
 -- Dumping data for table `charge_banks`
 --
 
-INSERT INTO `charge_banks` (`bankIdx`, `bankName`, `bankerName`, `bankNumber`, `useYN`, `autoYN`, `registerDate`, `updated_at`) VALUES
+INSERT IGNORE INTO `charge_banks` (`bankIdx`, `bankName`, `bankerName`, `bankNumber`, `useYN`, `autoYN`, `registerDate`, `updated_at`) VALUES
 (1, 'dddddd', '434fdfdf', 'fdsfds', 1, 0, '2026-05-06 17:28:52', '2026-05-06 17:28:52'),
 (2, 'BDO', 'Juan dela Cruz', '0023-0156-2589-4521', 1, 1, '2026-05-06 17:35:47', '2026-05-06 17:35:47'),
 (3, 'BPI', 'Maria Santos', '1234-5678-9012-3456', 1, 0, '2026-05-06 17:35:47', '2026-05-06 17:35:47'),
@@ -1423,7 +1497,7 @@ INSERT INTO `charge_banks` (`bankIdx`, `bankName`, `bankerName`, `bankNumber`, `
 -- Table structure for table `charge_events`
 --
 
-CREATE TABLE `charge_events` (
+CREATE TABLE IF NOT EXISTS `charge_events` (
   `chargeEventIdx` int(11) NOT NULL,
   `stratTime` time NOT NULL,
   `endTime` time NOT NULL,
@@ -1438,7 +1512,7 @@ CREATE TABLE `charge_events` (
 -- Dumping data for table `charge_events`
 --
 
-INSERT INTO `charge_events` (`chargeEventIdx`, `stratTime`, `endTime`, `eventBonusCommission`, `eventBonusLimit`, `eventUseYN`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `charge_events` (`chargeEventIdx`, `stratTime`, `endTime`, `eventBonusCommission`, `eventBonusLimit`, `eventUseYN`, `created_at`, `updated_at`) VALUES
 (1, '09:00:00', '10:00:00', 5.00, 1000.00, 1, '2026-05-07 02:52:40', '2026-05-07 02:52:40'),
 (2, '12:00:00', '13:00:00', 7.50, 1500.00, 1, '2026-05-07 02:52:40', '2026-05-07 02:52:40'),
 (3, '18:00:00', '19:30:00', 10.00, 2000.00, 1, '2026-05-07 02:52:40', '2026-05-07 02:52:40'),
@@ -1451,7 +1525,7 @@ INSERT INTO `charge_events` (`chargeEventIdx`, `stratTime`, `endTime`, `eventBon
 -- Table structure for table `chat_messages`
 --
 
-CREATE TABLE `chat_messages` (
+CREATE TABLE IF NOT EXISTS `chat_messages` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `username` varchar(255) NOT NULL,
@@ -1465,7 +1539,7 @@ CREATE TABLE `chat_messages` (
 -- Dumping data for table `chat_messages`
 --
 
-INSERT INTO `chat_messages` (`id`, `user_id`, `username`, `avatar_url`, `message`, `type`, `created_at`) VALUES
+INSERT IGNORE INTO `chat_messages` (`id`, `user_id`, `username`, `avatar_url`, `message`, `type`, `created_at`) VALUES
 (4, 36, 'user1', NULL, 'hi', 'public', '2026-05-15 04:14:20'),
 (5, 36, 'user1', NULL, 'hi', 'public', '2026-05-15 04:14:39'),
 (6, 37, 'user2', NULL, 'hello', 'public', '2026-05-15 04:20:53'),
@@ -1477,7 +1551,7 @@ INSERT INTO `chat_messages` (`id`, `user_id`, `username`, `avatar_url`, `message
 -- Table structure for table `coupons`
 --
 
-CREATE TABLE `coupons` (
+CREATE TABLE IF NOT EXISTS `coupons` (
   `id` int(11) NOT NULL,
   `receiver_id` int(11) NOT NULL COMMENT 'User who receives the coupon',
   `subject` varchar(255) NOT NULL COMMENT 'Coupon title/description',
@@ -1493,7 +1567,7 @@ CREATE TABLE `coupons` (
 -- Dumping data for table `coupons`
 --
 
-INSERT INTO `coupons` (`id`, `receiver_id`, `subject`, `amount`, `status`, `register_id`, `register_date`, `use_date`, `expire_date`) VALUES
+INSERT IGNORE INTO `coupons` (`id`, `receiver_id`, `subject`, `amount`, `status`, `register_id`, `register_date`, `use_date`, `expire_date`) VALUES
 (1, 11, 'Referral Bonus', 82.00, 1, 2, '2026-04-26 00:58:57', '2026-04-27 08:58:57', '2026-05-26'),
 (2, 9, 'Daily Spin Prize', 28.00, 0, 2, '2026-04-26 00:58:57', NULL, '2026-05-26'),
 (3, 4, 'Special Event Coupon', 55.00, 1, 2, '2026-04-26 00:58:57', '2026-04-27 08:58:57', '2026-05-26'),
@@ -1521,7 +1595,7 @@ INSERT INTO `coupons` (`id`, `receiver_id`, `subject`, `amount`, `status`, `regi
 -- Table structure for table `crypto_deposit_addresses`
 --
 
-CREATE TABLE `crypto_deposit_addresses` (
+CREATE TABLE IF NOT EXISTS `crypto_deposit_addresses` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `currency` varchar(10) NOT NULL,
@@ -1534,7 +1608,7 @@ CREATE TABLE `crypto_deposit_addresses` (
 -- Dumping data for table `crypto_deposit_addresses`
 --
 
-INSERT INTO `crypto_deposit_addresses` (`id`, `user_id`, `currency`, `network`, `address`, `created_at`) VALUES
+INSERT IGNORE INTO `crypto_deposit_addresses` (`id`, `user_id`, `currency`, `network`, `address`, `created_at`) VALUES
 (1, 1, 'USDT', 'ERC20', '0x29C3CC2526c96661dEa3E73A159455b65733Dd39', '2026-03-17 09:48:19'),
 (2, 1, 'BCD', 'ETHEREUM', '0x29C3CC2526c96661dEa3E73A159455b65733Dd39', '2026-03-17 09:48:19');
 
@@ -1544,7 +1618,7 @@ INSERT INTO `crypto_deposit_addresses` (`id`, `user_id`, `currency`, `network`, 
 -- Table structure for table `daily_contest_history`
 --
 
-CREATE TABLE `daily_contest_history` (
+CREATE TABLE IF NOT EXISTS `daily_contest_history` (
   `id` int(11) NOT NULL,
   `contest_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -1559,7 +1633,7 @@ CREATE TABLE `daily_contest_history` (
 -- Table structure for table `daily_contest_participants`
 --
 
-CREATE TABLE `daily_contest_participants` (
+CREATE TABLE IF NOT EXISTS `daily_contest_participants` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `contest_id` int(11) NOT NULL,
@@ -1572,7 +1646,7 @@ CREATE TABLE `daily_contest_participants` (
 -- Dumping data for table `daily_contest_participants`
 --
 
-INSERT INTO `daily_contest_participants` (`id`, `user_id`, `contest_id`, `wager_amount`, `current_rank`, `updated_at`) VALUES
+INSERT IGNORE INTO `daily_contest_participants` (`id`, `user_id`, `contest_id`, `wager_amount`, `current_rank`, `updated_at`) VALUES
 (1, 1, 1, 150.00000000, 1, '2026-03-16 07:35:29');
 
 -- --------------------------------------------------------
@@ -1581,7 +1655,7 @@ INSERT INTO `daily_contest_participants` (`id`, `user_id`, `contest_id`, `wager_
 -- Table structure for table `distributor_levels`
 --
 
-CREATE TABLE `distributor_levels` (
+CREATE TABLE IF NOT EXISTS `distributor_levels` (
   `idx` int(11) NOT NULL,
   `step` int(11) NOT NULL,
   `full_name` varchar(100) NOT NULL,
@@ -1595,10 +1669,12 @@ CREATE TABLE `distributor_levels` (
 -- Dumping data for table `distributor_levels`
 --
 
-INSERT INTO `distributor_levels` (`idx`, `step`, `full_name`, `short_name`, `color`, `created_at`, `updated_at`) VALUES
-(1, 1, '부본사', '부본', '#45818e', '2026-05-02 08:43:02', '2026-05-02 08:43:02'),
+INSERT IGNORE INTO `distributor_levels` (`idx`, `step`, `full_name`, `short_name`, `color`, `created_at`, `updated_at`) VALUES
+(1, 1, '부본사', '부본', '#45818E', '2026-05-02 08:43:02', '2026-07-23 08:37:01'),
 (2, 2, '총판', '총판', '#6aa84f', '2026-05-02 08:43:02', '2026-05-02 08:43:02'),
-(3, 3, '매장', '매장', '#f1c232', '2026-05-02 08:43:02', '2026-05-02 08:43:02');
+(3, 3, '매장', '매장', '#f1c232', '2026-05-02 08:43:02', '2026-05-02 08:43:02'),
+(4, 4, 'ew', 'we', '#D9D9D9', '2026-07-08 01:25:57', '2026-07-08 01:25:57'),
+(5, 5, 'test', 'user', '#CFE2F3', '2026-07-23 08:36:55', '2026-07-23 08:36:55');
 
 -- --------------------------------------------------------
 
@@ -1606,7 +1682,7 @@ INSERT INTO `distributor_levels` (`idx`, `step`, `full_name`, `short_name`, `col
 -- Table structure for table `event_settings`
 --
 
-CREATE TABLE `event_settings` (
+CREATE TABLE IF NOT EXISTS `event_settings` (
   `id` int(11) NOT NULL,
   `setting_key` varchar(100) NOT NULL COMMENT 'e.g. event_enabled, event_start_date, event_end_date',
   `setting_value` varchar(255) NOT NULL COMMENT 'Value as string',
@@ -1618,7 +1694,7 @@ CREATE TABLE `event_settings` (
 -- Dumping data for table `event_settings`
 --
 
-INSERT INTO `event_settings` (`id`, `setting_key`, `setting_value`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `event_settings` (`id`, `setting_key`, `setting_value`, `created_at`, `updated_at`) VALUES
 (1, 'event_enabled', '0', '2026-05-07 02:40:29', '2026-05-07 02:40:29'),
 (2, 'event_type', 'deposit_bonus', '2026-05-07 02:40:29', '2026-05-07 02:40:29'),
 (3, 'event_start_date', '2024-01-01', '2026-05-07 02:40:29', '2026-05-07 02:40:29'),
@@ -1630,7 +1706,7 @@ INSERT INTO `event_settings` (`id`, `setting_key`, `setting_value`, `created_at`
 -- Table structure for table `faqs`
 --
 
-CREATE TABLE `faqs` (
+CREATE TABLE IF NOT EXISTS `faqs` (
   `id` int(11) NOT NULL,
   `category` varchar(100) NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -1645,7 +1721,7 @@ CREATE TABLE `faqs` (
 -- Dumping data for table `faqs`
 --
 
-INSERT INTO `faqs` (`id`, `category`, `title`, `content`, `display_order`, `is_active`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `faqs` (`id`, `category`, `title`, `content`, `display_order`, `is_active`, `created_at`, `updated_at`) VALUES
 (1, '계정', '비밀번호를 잊어버렸어요.', '<p>비밀번호 찾기 기능을 이용하시거나 고객센터로 문의해주세요.</p>', 1, 1, '2026-05-11 09:17:54', '2026-05-11 09:17:54'),
 (2, '계정', '계정을 탈퇴하고 싶어요.', '<p>고객센터를 통해 본인 확인 후 탈퇴 처리가 가능합니다.</p>', 2, 1, '2026-05-11 09:17:54', '2026-05-11 09:17:54'),
 (3, '충전/환전', '충전은 어떻게 하나요?', '<p>내 정보 > 충전 메뉴에서 안내된 계좌로 입금 후 충전 신청을 해주세요.</p>', 3, 1, '2026-05-11 09:17:54', '2026-05-11 09:17:54'),
@@ -1659,7 +1735,7 @@ INSERT INTO `faqs` (`id`, `category`, `title`, `content`, `display_order`, `is_a
 -- Table structure for table `fraud_rules`
 --
 
-CREATE TABLE `fraud_rules` (
+CREATE TABLE IF NOT EXISTS `fraud_rules` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `description` text DEFAULT NULL,
@@ -1673,7 +1749,7 @@ CREATE TABLE `fraud_rules` (
 -- Dumping data for table `fraud_rules`
 --
 
-INSERT INTO `fraud_rules` (`id`, `name`, `description`, `criteria_json`, `action`, `is_active`, `created_at`) VALUES
+INSERT IGNORE INTO `fraud_rules` (`id`, `name`, `description`, `criteria_json`, `action`, `is_active`, `created_at`) VALUES
 (1, 'Abnormal Win Rate', 'Detects users with > 200% win rate on over 100 bets', '{\"win_rate\": 200, \"min_bets\": 100}', 'flag', 1, '2026-04-21 02:30:53'),
 (2, 'IP Overlap', 'Detects multiple accounts logged in from the same IP', '{\"max_accounts\": 3}', 'notify', 1, '2026-04-21 02:30:53'),
 (3, 'Massive First Bet', 'Detects unusually large bets from brand new accounts', '{\"max_first_bet\": 500, \"max_account_age_hours\": 1}', 'suspend', 1, '2026-04-21 02:30:53'),
@@ -1693,7 +1769,7 @@ INSERT INTO `fraud_rules` (`id`, `name`, `description`, `criteria_json`, `action
 -- Table structure for table `games`
 --
 
-CREATE TABLE `games` (
+CREATE TABLE IF NOT EXISTS `games` (
   `id` int(11) NOT NULL,
   `slug` varchar(200) NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -1713,7 +1789,7 @@ CREATE TABLE `games` (
 -- Dumping data for table `games`
 --
 
-INSERT INTO `games` (`id`, `slug`, `title`, `image`, `category`, `provider_id`, `user_count`, `is_new`, `is_featured`, `is_hot`, `rtp`, `created_at`, `is_maintenance`) VALUES
+INSERT IGNORE INTO `games` (`id`, `slug`, `title`, `image`, `category`, `provider_id`, `user_count`, `is_new`, `is_featured`, `is_hot`, `rtp`, `created_at`, `is_maintenance`) VALUES
 (1, 'crash', 'Crash', 'https://imgxcut.com/game/image/a016f83c71.png?_v=4,dpr=1,width=200', 'original', 1, 5600, 0, 1, 1, NULL, '2026-03-04 06:24:00', 1),
 (2, 'limbo', 'Limbo', 'https://imgxcut.com/game/image/a09aa93f72.png?_v=4,dpr=1,width=200', 'original', 1, 880, 0, 1, 0, NULL, '2026-03-04 06:24:00', 0),
 (3, 'hash-dice', 'Hash Dice', 'https://imgxcut.com/game/image/329847a6f1.png?_v=4,dpr=1,width=200', 'original', 1, 120, 1, 0, 0, NULL, '2026-03-04 06:24:00', 0),
@@ -1746,7 +1822,7 @@ INSERT INTO `games` (`id`, `slug`, `title`, `image`, `category`, `provider_id`, 
 -- Table structure for table `game_types`
 --
 
-CREATE TABLE `game_types` (
+CREATE TABLE IF NOT EXISTS `game_types` (
   `id` int(11) NOT NULL,
   `code` varchar(50) NOT NULL,
   `name_ko` varchar(100) NOT NULL,
@@ -1757,7 +1833,7 @@ CREATE TABLE `game_types` (
 -- Dumping data for table `game_types`
 --
 
-INSERT INTO `game_types` (`id`, `code`, `name_ko`, `display_order`) VALUES
+INSERT IGNORE INTO `game_types` (`id`, `code`, `name_ko`, `display_order`) VALUES
 (1, 'casino', '카지노', 1),
 (2, 'slot', '슬롯', 2),
 (3, 'board', '보드게임', 3),
@@ -1770,7 +1846,7 @@ INSERT INTO `game_types` (`id`, `code`, `name_ko`, `display_order`) VALUES
 -- Table structure for table `guides`
 --
 
-CREATE TABLE `guides` (
+CREATE TABLE IF NOT EXISTS `guides` (
   `id` int(11) NOT NULL,
   `category` varchar(100) NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -1785,7 +1861,7 @@ CREATE TABLE `guides` (
 -- Dumping data for table `guides`
 --
 
-INSERT INTO `guides` (`id`, `category`, `title`, `content`, `is_active`, `display_order`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `guides` (`id`, `category`, `title`, `content`, `is_active`, `display_order`, `created_at`, `updated_at`) VALUES
 (1, 'Beginner', 'How to play Casino', '<p>To play casino games, first deposit funds...</p>', 1, 1, '2026-05-07 08:12:45', '2026-05-07 08:12:45'),
 (2, 'Beginner', 'How to play Sports', '<p>Choose your favorite sport and place a bet...</p>', 1, 2, '2026-05-07 08:12:45', '2026-05-07 08:12:45'),
 (3, 'Advanced', 'VIP Benefits', '<p>As a VIP member, you get access to...</p>', 1, 3, '2026-05-07 08:12:45', '2026-05-07 08:12:45'),
@@ -1799,7 +1875,7 @@ INSERT INTO `guides` (`id`, `category`, `title`, `content`, `is_active`, `displa
 -- Table structure for table `ip_blacklist`
 --
 
-CREATE TABLE `ip_blacklist` (
+CREATE TABLE IF NOT EXISTS `ip_blacklist` (
   `id` int(11) NOT NULL,
   `ip_address` varchar(45) NOT NULL,
   `reason` varchar(255) DEFAULT NULL,
@@ -1811,7 +1887,7 @@ CREATE TABLE `ip_blacklist` (
 -- Dumping data for table `ip_blacklist`
 --
 
-INSERT INTO `ip_blacklist` (`id`, `ip_address`, `reason`, `blocked_at`, `expires_at`) VALUES
+INSERT IGNORE INTO `ip_blacklist` (`id`, `ip_address`, `reason`, `blocked_at`, `expires_at`) VALUES
 (1, '1.2.3.4', 'Frequent failed login attempts', '2026-05-02 00:57:02', '2026-06-01 00:57:02'),
 (2, '5.6.7.8', 'Suspicious betting patterns', '2026-05-02 00:57:02', NULL),
 (3, '11.22.33.44', 'VPN/Proxy usage detected', '2026-05-02 00:57:02', '2026-05-09 00:57:02'),
@@ -1823,7 +1899,7 @@ INSERT INTO `ip_blacklist` (`id`, `ip_address`, `reason`, `blocked_at`, `expires
 -- Table structure for table `kyc_submissions`
 --
 
-CREATE TABLE `kyc_submissions` (
+CREATE TABLE IF NOT EXISTS `kyc_submissions` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `id_type` varchar(50) NOT NULL,
@@ -1842,7 +1918,7 @@ CREATE TABLE `kyc_submissions` (
 -- Dumping data for table `kyc_submissions`
 --
 
-INSERT INTO `kyc_submissions` (`id`, `user_id`, `id_type`, `id_number`, `full_name`, `status`, `id_front_url`, `id_back_url`, `selfie_url`, `rejection_reason`, `submitted_at`, `processed_at`) VALUES
+INSERT IGNORE INTO `kyc_submissions` (`id`, `user_id`, `id_type`, `id_number`, `full_name`, `status`, `id_front_url`, `id_back_url`, `selfie_url`, `rejection_reason`, `submitted_at`, `processed_at`) VALUES
 (1, 2, 'National ID', 'ID-478175371', 'Test User 2', 'pending', 'https://via.placeholder.com/150?text=ID+Front', 'https://via.placeholder.com/150?text=ID+Back', 'https://via.placeholder.com/150?text=Selfie', NULL, '2026-07-03 07:58:40', NULL),
 (2, 4, 'Passport', 'ID-517012888', 'Test User 4', 'approved', 'https://via.placeholder.com/150?text=ID+Front', 'https://via.placeholder.com/150?text=ID+Back', 'https://via.placeholder.com/150?text=Selfie', NULL, '2026-07-03 07:58:40', NULL),
 (3, 10, 'Driver License', 'ID-734805', 'Test User 10', 'rejected', 'https://via.placeholder.com/150?text=ID+Front', 'https://via.placeholder.com/150?text=ID+Back', 'https://via.placeholder.com/150?text=Selfie', NULL, '2026-07-03 07:58:40', NULL);
@@ -1853,7 +1929,7 @@ INSERT INTO `kyc_submissions` (`id`, `user_id`, `id_type`, `id_number`, `full_na
 -- Table structure for table `leagues`
 --
 
-CREATE TABLE `leagues` (
+CREATE TABLE IF NOT EXISTS `leagues` (
   `id` int(11) NOT NULL,
   `sport_id` int(11) NOT NULL,
   `slug` varchar(200) NOT NULL,
@@ -1875,7 +1951,7 @@ CREATE TABLE `leagues` (
 -- Dumping data for table `leagues`
 --
 
-INSERT INTO `leagues` (`id`, `sport_id`, `slug`, `name`, `display_name`, `region`, `region_id`, `logo`, `is_popular`, `order_index`, `is_main`, `prematch_use_yn`, `live_use_yn`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `leagues` (`id`, `sport_id`, `slug`, `name`, `display_name`, `region`, `region_id`, `logo`, `is_popular`, `order_index`, `is_main`, `prematch_use_yn`, `live_use_yn`, `created_at`, `updated_at`) VALUES
 (1, 1, 'serie-a', 'Serie A', 'Serie A', 'Italy', NULL, NULL, 1, 0, 1, 1, 1, '2026-03-05 03:44:41', '2026-05-02 10:18:34'),
 (2, 1, 'premier-league', 'Premier League', 'Premier League', 'England', NULL, NULL, 1, 0, 1, 1, 1, '2026-03-05 03:44:41', '2026-05-02 10:18:34'),
 (3, 2, 'nba', 'USA NBA', 'USA NBA', 'USA', NULL, NULL, 1, 0, 1, 1, 1, '2026-03-05 03:44:41', '2026-05-02 10:18:34'),
@@ -1918,7 +1994,7 @@ INSERT INTO `leagues` (`id`, `sport_id`, `slug`, `name`, `display_name`, `region
 -- Table structure for table `login_attempts`
 --
 
-CREATE TABLE `login_attempts` (
+CREATE TABLE IF NOT EXISTS `login_attempts` (
   `id` int(11) NOT NULL,
   `ip_address` varchar(45) NOT NULL,
   `username` varchar(100) NOT NULL,
@@ -1933,7 +2009,7 @@ CREATE TABLE `login_attempts` (
 -- Table structure for table `lotteries`
 --
 
-CREATE TABLE `lotteries` (
+CREATE TABLE IF NOT EXISTS `lotteries` (
   `id` int(11) NOT NULL,
   `slug` varchar(255) NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -1953,7 +2029,7 @@ CREATE TABLE `lotteries` (
 -- Dumping data for table `lotteries`
 --
 
-INSERT INTO `lotteries` (`id`, `slug`, `title`, `draw_time`, `prize_pool`, `winning_numbers`, `is_drawn`, `icon_src`, `icon_offset_y`, `is_exclusive`, `is_popular`, `category`, `created_at`) VALUES
+INSERT IGNORE INTO `lotteries` (`id`, `slug`, `title`, `draw_time`, `prize_pool`, `winning_numbers`, `is_drawn`, `icon_src`, `icon_offset_y`, `is_exclusive`, `is_popular`, `category`, `created_at`) VALUES
 (1, 'poland-keno', 'Poland Keno 20/70', '2026-03-15 12:00:00', '₩2,180,877', NULL, 0, 'https://bc.game/modules/lottery2/assets/countries-BwR1Q6Zz.png', -2600, 0, 0, 'lottery', '2026-03-13 06:20:48'),
 (2, 'slovakia-eklub-keno', 'Slovakia EKlub Keno 20/80', '2026-03-15 12:05:00', '₩14,539,182', NULL, 0, 'https://bc.game/modules/lottery2/assets/countries-BwR1Q6Zz.png', -3000, 0, 0, 'lottery', '2026-03-13 06:20:48'),
 (3, 'fast-keno', 'FAST KENO 20/80', '2026-03-15 12:10:00', '₩8,723,509', NULL, 0, 'https://bc.game/modules/lottery2/assets/countries-BwR1Q6Zz.png', -2000, 0, 0, 'lottery', '2026-03-13 06:20:48'),
@@ -1968,7 +2044,7 @@ INSERT INTO `lotteries` (`id`, `slug`, `title`, `draw_time`, `prize_pool`, `winn
 -- Table structure for table `lottery_bets`
 --
 
-CREATE TABLE `lottery_bets` (
+CREATE TABLE IF NOT EXISTS `lottery_bets` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `lottery_id` int(11) NOT NULL,
@@ -1984,7 +2060,7 @@ CREATE TABLE `lottery_bets` (
 -- Dumping data for table `lottery_bets`
 --
 
-INSERT INTO `lottery_bets` (`id`, `user_id`, `lottery_id`, `balls`, `amount`, `payout`, `currency`, `status`, `created_at`) VALUES
+INSERT IGNORE INTO `lottery_bets` (`id`, `user_id`, `lottery_id`, `balls`, `amount`, `payout`, `currency`, `status`, `created_at`) VALUES
 (1, 5, 4, '[1,2,3,4,5]', 5.00000000, 0.00000000, 'BCD', 'won', '2026-03-21 09:24:28'),
 (2, 11, 5, '[1,2,3,4,5]', 5.00000000, 0.00000000, 'BCD', 'pending', '2026-03-21 09:24:28'),
 (3, 8, 4, '[1,2,3,4,5]', 5.00000000, 0.00000000, 'BCD', 'won', '2026-03-21 09:24:28'),
@@ -2092,7 +2168,7 @@ INSERT INTO `lottery_bets` (`id`, `user_id`, `lottery_id`, `balls`, `amount`, `p
 -- Table structure for table `match_events`
 --
 
-CREATE TABLE `match_events` (
+CREATE TABLE IF NOT EXISTS `match_events` (
   `id` int(11) NOT NULL,
   `league_id` int(11) NOT NULL,
   `home_team_id` int(11) NOT NULL,
@@ -2119,7 +2195,7 @@ CREATE TABLE `match_events` (
 -- Dumping data for table `match_events`
 --
 
-INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
+INSERT IGNORE INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
 (1, 1, 1, 2, '2026-03-05 11:44:41', 'upcoming', 0, 1, 1, 0, 'Tomorrow, 03:45', 'como-1907-ac-milan', '2026-03-05 03:44:41', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (2, 2, 3, 4, '2026-03-05 11:44:41', 'upcoming', 0, 1, 0, 0, '19 Jan, 00:30', 'arsenal-liverpool', '2026-03-05 03:44:41', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (5, 5, 9, 10, '2026-03-05 11:44:41', 'live', 1, 1, 3, 3, '74\' 2nd half', 'mancity-manutd', '2026-03-05 03:44:41', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
@@ -2349,7 +2425,7 @@ INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `
 (1353, 768, 2072, 2073, '2026-03-30 01:41:00', 'finished', 0, 1, 3, 4, 'Final', 'mlb-dcc3bfcf77ed21831942e88a0c03ac20', '2026-03-31 08:43:39', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (1354, 768, 2076, 2077, '2026-03-30 02:11:00', 'finished', 0, 1, 9, 7, 'Final', 'mlb-24c5b56e3ca8ad6f391c82da33200b32', '2026-03-31 08:43:39', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (1355, 768, 2078, 2079, '2026-03-30 02:11:00', 'finished', 0, 1, 9, 7, 'Final', 'mlb-efc716ec5ed02ff75164fec236e0d60b', '2026-03-31 08:43:39', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02');
-INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
+INSERT IGNORE INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
 (1356, 768, 2060, 2061, '2026-03-30 02:16:00', 'finished', 0, 1, 7, 11, 'Final', 'mlb-7082df2b4cf69fb66b014bcf17e6e2d4', '2026-03-31 08:43:40', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (1357, 768, 2062, 2063, '2026-03-30 02:21:00', 'finished', 0, 1, 3, 6, 'Final', 'mlb-1cc0a701f7797bb7a857a7b86d813bc3', '2026-03-31 08:43:40', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (1358, 768, 2088, 2089, '2026-03-30 07:21:00', 'finished', 0, 1, 8, 0, 'Final', 'mlb-691a2e76d0dd8b75857aa006417cd71f', '2026-03-31 08:43:40', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
@@ -2580,7 +2656,7 @@ INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `
 (1583, 3, 1893, 1883, '2026-04-01 08:00:00', 'finished', 0, 1, 127, 116, 'Final', 'nba-api-sports-470580', '2026-04-01 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (1584, 3, 1880, 1899, '2026-04-01 08:00:00', 'finished', 0, 1, 111, 94, 'Final', 'nba-api-sports-470581', '2026-04-01 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (1585, 3, 1874, 14, '2026-04-01 10:30:00', 'finished', 0, 1, 127, 113, 'Final', 'nba-api-sports-470582', '2026-04-01 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02');
-INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
+INSERT IGNORE INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
 (1586, 3, 1878, 1888, '2026-04-01 11:00:00', 'finished', 0, 1, 104, 114, 'Final', 'nba-api-sports-470583', '2026-04-01 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (1587, 3, 1887, 1895, '2026-04-02 07:00:00', 'live', 1, 1, 0, 0, 'Live', 'nba-api-sports-470584', '2026-04-01 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (1588, 3, 1898, 12, '2026-04-02 07:00:00', 'live', 1, 1, 0, 0, 'Live', 'nba-api-sports-470586', '2026-04-01 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
@@ -2838,7 +2914,7 @@ INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `
 (1840, 3, 15, 1884, '2026-04-11 07:30:00', 'live', 1, 1, 0, 0, 'Live', 'nba-api-sports-473478', '2026-04-09 00:24:48', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (1841, 3, 1877, 1895, '2026-04-11 07:30:00', 'live', 1, 1, 0, 0, 'Live', 'nba-api-sports-473479', '2026-04-09 00:24:48', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (1842, 3, 1899, 1883, '2026-04-11 07:30:00', 'live', 1, 1, 0, 0, 'Live', 'nba-api-sports-473480', '2026-04-09 00:24:48', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02');
-INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
+INSERT IGNORE INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
 (1843, 2, 2347, 2348, '2026-04-11 03:00:00', 'live', 1, 1, 0, 0, 'Live', 'premier-league-api-sports-1379288', '2026-04-09 00:24:49', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (1844, 763, 1919, 1971, '2026-04-11 03:00:00', 'live', 1, 1, 0, 0, 'Live', 'la-liga-api-sports-1391126', '2026-04-09 00:24:50', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (1845, 764, 2339, 2340, '2026-04-11 02:30:00', 'live', 1, 1, 0, 0, 'Live', 'bundesliga-api-sports-1388560', '2026-04-09 00:24:50', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
@@ -3094,7 +3170,7 @@ INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `
 (2095, 3, 1885, 1892, '2026-04-21 10:30:00', 'live', 1, 1, 87, 81, 'Live', 'nba-api-sports-497903', '2026-04-20 00:15:23', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (2096, 3, 15, 1895, '2026-04-22 07:00:00', 'live', 1, 1, 0, 0, 'Live', 'nba-api-sports-497904', '2026-04-20 00:15:23', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (2097, 2, 1912, 2347, '2026-04-21 03:00:00', 'live', 1, 1, 0, 0, 'Live', 'premier-league-api-sports-1379292', '2026-04-20 00:15:23', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02');
-INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
+INSERT IGNORE INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
 (2098, 2, 2353, 1915, '2026-04-22 03:00:00', 'live', 1, 1, 0, 0, 'Live', 'premier-league-api-sports-1379301', '2026-04-20 00:15:23', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (2099, 763, 2336, 2337, '2026-04-22 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'la-liga-api-sports-1391139', '2026-04-20 00:15:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
 (2100, 763, 1960, 1965, '2026-04-22 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'la-liga-api-sports-1391144', '2026-04-20 00:15:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:02'),
@@ -3340,7 +3416,7 @@ INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `
 (2340, 774, 2288, 2297, '2026-04-30 17:31:00', 'finished', 0, 1, 93, 93, 'Final', 'afl-8b7bddfbb4660e4177b19a4ac59dc0b7', '2026-05-02 08:43:35', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:35'),
 (2341, 774, 2295, 2291, '2026-05-01 17:32:00', 'finished', 0, 1, 102, 114, 'Final', 'afl-fa2c82d5b65b170c8d8b1422f631e527', '2026-05-02 08:43:35', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:35'),
 (2342, 774, 2290, 2283, '2026-05-01 18:10:00', 'finished', 0, 1, 76, 75, 'Final', 'afl-841ff100cac01c53080c4903d09690f4', '2026-05-02 08:43:35', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:35');
-INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
+INSERT IGNORE INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
 (2343, 774, 2296, 2287, '2026-05-02 10:35:00', 'finished', 0, 1, 79, 143, 'Final', 'afl-14aaf5d9a17e50953aa6c11d9ae47158', '2026-05-02 08:43:35', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 08:43:35'),
 (2344, 774, 2284, 2292, '2026-05-02 14:15:00', 'finished', 0, 1, 88, 99, 'Final', 'afl-a8016fb25cd737a30c93bc39589f6ed5', '2026-05-02 08:43:35', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 09:01:16'),
 (2345, 774, 2298, 2289, '2026-05-02 14:35:00', 'finished', 0, 1, 135, 86, 'Final', 'afl-f6a5603f1452c172e2e2e9605626d584', '2026-05-02 08:43:35', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-02 09:15:45'),
@@ -3593,7 +3669,7 @@ INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `
 (2592, 768, 2070, 2063, '2026-05-14 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-178650', '2026-05-12 07:21:12', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-12 07:21:12'),
 (2593, 768, 2071, 2068, '2026-05-14 06:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-178652', '2026-05-12 07:21:12', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-12 07:21:12'),
 (2594, 768, 2064, 2061, '2026-05-14 07:07:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-178641', '2026-05-12 07:21:12', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-12 07:21:12');
-INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
+INSERT IGNORE INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
 (2595, 768, 2072, 2085, '2026-05-14 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-178644', '2026-05-12 07:21:12', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-12 07:21:12'),
 (2596, 768, 2082, 2062, '2026-05-14 07:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-178654', '2026-05-12 07:21:12', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-12 07:21:12'),
 (2597, 768, 2067, 2074, '2026-05-14 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-178645', '2026-05-12 07:21:12', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-05-12 07:21:12'),
@@ -3841,7 +3917,7 @@ INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `
 (2839, 768, 2062, 2080, '2026-06-08 08:30:00', 'finished', 0, 1, 1, 2, 'Final', 'mlb-api-sports-178992', '2026-06-08 00:11:55', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-08 04:26:13'),
 (2840, 768, 2066, 2088, '2026-06-09 06:35:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179000', '2026-06-08 00:11:55', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-08 00:11:55'),
 (2841, 768, 2061, 2071, '2026-06-09 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-178996', '2026-06-08 00:11:55', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-08 00:11:55');
-INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
+INSERT IGNORE INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
 (2842, 768, 2089, 2081, '2026-06-09 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179002', '2026-06-08 00:11:55', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-08 00:11:55'),
 (2843, 768, 2064, 2068, '2026-06-09 07:07:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-178995', '2026-06-08 00:11:55', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-08 00:11:55'),
 (2844, 768, 2079, 2078, '2026-06-09 09:38:00', 'finished', 0, 1, 4, 5, 'Final', 'mlb-api-sports-178998', '2026-06-08 00:11:55', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-09 06:17:29'),
@@ -3964,7 +4040,7 @@ INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `
 (2961, 768, 2064, 2069, '2026-06-26 07:07:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179222', '2026-06-25 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-25 08:21:44'),
 (2962, 768, 2072, 2062, '2026-06-26 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179226', '2026-06-25 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-25 08:21:44'),
 (2963, 768, 2071, 2081, '2026-06-26 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179228', '2026-06-25 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-25 08:21:44'),
-(2964, 768, 2334, 2087, '2026-06-26 07:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179220', '2026-06-25 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-25 08:21:44'),
+(2964, 768, 2334, 2087, '2026-07-24 05:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179220', '2026-06-25 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
 (2965, 768, 2073, 2070, '2026-06-27 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179235', '2026-06-25 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-25 08:21:44'),
 (2966, 768, 2085, 2078, '2026-06-27 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179239', '2026-06-25 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-25 08:21:44'),
 (2967, 768, 2066, 2063, '2026-06-27 07:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179243', '2026-06-25 08:21:44', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-06-25 08:21:44'),
@@ -4093,7 +4169,7 @@ INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `
 (3090, 773, 2637, 2638, '2026-07-05 00:00:00', 'upcoming', 0, 1, 0, 0, 'Upcoming', 'boxing-76006514d8bd6bda391f0d7bf6bddda8', '2026-07-03 07:05:03', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-03 07:05:03'),
 (3091, 773, 2639, 2640, '2026-07-05 08:00:00', 'upcoming', 0, 1, 0, 0, 'Upcoming', 'boxing-de9576d47661b21a3d5d2ee81c120223', '2026-07-03 07:05:03', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-03 07:05:03'),
 (3092, 773, 2641, 2642, '2026-07-05 08:00:00', 'upcoming', 0, 1, 0, 0, 'Upcoming', 'boxing-6b62f39ef3be05f4a3bf104a65486717', '2026-07-03 07:05:03', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-03 07:05:03');
-INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
+INSERT IGNORE INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
 (3093, 773, 2643, 2644, '2026-07-05 08:00:00', 'upcoming', 0, 1, 0, 0, 'Upcoming', 'boxing-1da331bff8a18ed0862b8eb125152eae', '2026-07-03 07:05:04', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-03 07:05:04'),
 (3094, 775, 2314, 2311, '2026-07-10 18:00:00', 'upcoming', 0, 1, 0, 0, 'Upcoming', 'nrl-a5a61826a82ba0823e95e496486681d9', '2026-07-03 07:05:11', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-03 07:05:11'),
 (3095, 775, 2303, 2300, '2026-07-11 13:00:00', 'upcoming', 0, 1, 0, 0, 'Upcoming', 'nrl-8a44c8e2ae918bdca3d9978a0387349a', '2026-07-03 07:05:11', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-03 07:05:11'),
@@ -4118,9 +4194,9 @@ INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `
 (3114, 768, 2063, 2078, '2026-07-07 06:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179368', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:24'),
 (3115, 768, 2082, 2072, '2026-07-07 07:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179375', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:24'),
 (3116, 768, 2334, 2076, '2026-07-07 07:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179370', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:24'),
-(3117, 768, 2084, 2087, '2026-07-07 09:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179371', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:24'),
-(3118, 768, 2080, 2064, '2026-07-07 09:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179372', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:24'),
-(3119, 768, 2086, 2075, '2026-07-07 10:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179373', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:24'),
+(3117, 768, 2084, 2087, '2026-07-07 09:40:00', 'finished', 0, 1, 0, 8, 'Final', 'mlb-api-sports-179371', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:50'),
+(3118, 768, 2080, 2064, '2026-07-07 09:45:00', 'finished', 0, 1, 10, 1, 'Final', 'mlb-api-sports-179372', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:50'),
+(3119, 768, 2086, 2075, '2026-07-07 10:10:00', 'finished', 0, 1, 8, 7, 'Final', 'mlb-api-sports-179373', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:50'),
 (3120, 768, 2066, 2062, '2026-07-08 06:35:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179387', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:24'),
 (3121, 768, 2073, 2082, '2026-07-08 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179376', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:24'),
 (3122, 768, 2061, 2081, '2026-07-08 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179382', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:24'),
@@ -4134,7 +4210,260 @@ INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `
 (3130, 768, 2334, 2076, '2026-07-08 07:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179379', '2026-07-06 07:52:24', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:24'),
 (3131, 770, 2677, 2678, '2026-07-05 01:35:00', 'finished', 0, 1, 1, 0, 'Final', 'ufc-8a00050cc2df1b9ce7cd51fae96b877f', '2026-07-06 07:52:27', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:27'),
 (3132, 770, 2679, 2680, '2026-07-05 02:25:00', 'finished', 0, 1, 1, 0, 'Final', 'ufc-1b4c0eeb2a155f581327801fa5591d56', '2026-07-06 07:52:27', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:27'),
-(3133, 773, 2682, 2683, '2026-07-13 04:00:00', 'upcoming', 0, 1, 0, 0, 'Upcoming', 'boxing-ad5348361b424a629a4bb068d1afffce', '2026-07-06 07:52:29', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:29');
+(3133, 773, 2682, 2683, '2026-07-13 04:00:00', 'upcoming', 0, 1, 0, 0, 'Upcoming', 'boxing-ad5348361b424a629a4bb068d1afffce', '2026-07-06 07:52:29', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-06 07:52:29'),
+(3134, 762, 2684, 2685, '2026-07-08 23:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1554365', '2026-07-07 08:19:47', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:47'),
+(3135, 762, 2686, 2687, '2026-07-09 00:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1554363', '2026-07-07 08:19:47', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:47'),
+(3136, 762, 2688, 2689, '2026-07-09 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1554369', '2026-07-07 08:19:47', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:47'),
+(3137, 762, 2690, 2691, '2026-07-09 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1554370', '2026-07-07 08:19:47', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:47'),
+(3138, 768, 2069, 2079, '2026-07-08 08:05:00', 'finished', 0, 1, 8, 3, 'Final', 'mlb-api-sports-179378', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 02:56:49'),
+(3139, 768, 2084, 2087, '2026-07-08 09:40:00', 'live', 1, 1, 4, 1, 'Live', 'mlb-api-sports-179381', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 02:16:50'),
+(3140, 768, 2080, 2064, '2026-07-08 09:45:00', 'live', 1, 1, 3, 8, 'Live', 'mlb-api-sports-179380', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 03:16:48'),
+(3141, 768, 2086, 2075, '2026-07-08 10:10:00', 'live', 1, 1, 2, 0, 'Live', 'mlb-api-sports-179385', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 03:36:48'),
+(3142, 768, 2080, 2064, '2026-07-09 03:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179395', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:51'),
+(3143, 768, 2066, 2062, '2026-07-09 06:35:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179404', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:51'),
+(3144, 768, 2073, 2082, '2026-07-09 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179391', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:51'),
+(3145, 768, 2061, 2081, '2026-07-09 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179393', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:51'),
+(3146, 768, 2074, 2088, '2026-07-09 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179400', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:51'),
+(3147, 768, 2085, 2065, '2026-07-09 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179402', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:51'),
+(3148, 768, 2063, 2078, '2026-07-09 06:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179392', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:51'),
+(3149, 768, 2072, 2083, '2026-07-09 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179398', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:51'),
+(3150, 768, 2070, 2068, '2026-07-09 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179403', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:51'),
+(3151, 768, 2067, 2089, '2026-07-09 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179399', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:51'),
+(3152, 768, 2077, 2071, '2026-07-09 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179405', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:51'),
+(3153, 768, 2334, 2076, '2026-07-09 07:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179394', '2026-07-07 08:19:51', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-07 08:19:51'),
+(3154, 766, 2692, 2693, '2026-07-10 00:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1554444', '2026-07-08 01:02:04', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:04'),
+(3155, 766, 2694, 2695, '2026-07-10 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1554442', '2026-07-08 01:02:04', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:04'),
+(3156, 766, 2696, 2697, '2026-07-10 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1554445', '2026-07-08 01:02:04', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:04'),
+(3157, 766, 2698, 2699, '2026-07-10 02:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1554441', '2026-07-08 01:02:04', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:04'),
+(3158, 766, 2700, 2701, '2026-07-10 02:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1554443', '2026-07-08 01:02:04', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:04'),
+(3159, 766, 2702, 2703, '2026-07-10 02:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1554446', '2026-07-08 01:02:04', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:04'),
+(3160, 768, 2069, 2079, '2026-07-09 08:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179397', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3161, 768, 2084, 2087, '2026-07-09 10:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179396', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3162, 768, 2086, 2075, '2026-07-09 10:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179401', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3163, 768, 2073, 2082, '2026-07-10 00:35:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179411', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3164, 768, 2061, 2081, '2026-07-10 01:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179407', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3165, 768, 2072, 2083, '2026-07-10 01:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179412', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3166, 768, 2067, 2089, '2026-07-10 01:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179413', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3167, 768, 2077, 2071, '2026-07-10 02:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179417', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3168, 768, 2066, 2062, '2026-07-10 06:35:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179418', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3169, 768, 2074, 2088, '2026-07-10 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179414', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3170, 768, 2085, 2065, '2026-07-10 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179415', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3171, 768, 2070, 2068, '2026-07-10 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179416', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3172, 768, 2334, 2076, '2026-07-10 07:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179408', '2026-07-08 01:02:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-08 01:02:05'),
+(3173, 768, 2062, 2067, '2026-07-18 08:05:00', 'finished', 0, 1, 2, 5, 'Final', 'mlb-api-sports-179475', '2026-07-18 08:35:14', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:14'),
+(3174, 768, 2083, 2084, '2026-07-18 08:10:00', 'finished', 0, 1, 7, 6, 'Final', 'mlb-api-sports-179465', '2026-07-18 08:35:14', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:14'),
+(3175, 768, 2078, 2066, '2026-07-18 08:10:00', 'finished', 0, 1, 2, 3, 'Final', 'mlb-api-sports-179472', '2026-07-18 08:35:14', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:14'),
+(3176, 768, 2075, 2070, '2026-07-18 08:40:00', 'finished', 0, 1, 2, 7, 'Final', 'mlb-api-sports-179473', '2026-07-18 08:35:14', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:14'),
+(3177, 768, 2079, 2085, '2026-07-18 09:38:00', 'finished', 0, 1, 1, 2, 'Final', 'mlb-api-sports-179479', '2026-07-18 08:35:14', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:14'),
+(3178, 768, 2087, 2334, '2026-07-18 09:40:00', 'finished', 0, 1, 4, 5, 'Final', 'mlb-api-sports-179470', '2026-07-18 08:35:14', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:14'),
+(3179, 768, 2065, 2063, '2026-07-18 09:40:00', 'finished', 0, 1, 4, 23, 'Final', 'mlb-api-sports-179478', '2026-07-18 08:35:14', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:14'),
+(3180, 768, 2088, 2080, '2026-07-18 10:10:00', 'finished', 0, 1, 0, 7, 'Final', 'mlb-api-sports-179467', '2026-07-18 08:35:14', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:14'),
+(3181, 768, 2089, 2073, '2026-07-19 01:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179474', '2026-07-18 08:35:14', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:14'),
+(3182, 768, 2062, 2067, '2026-07-19 02:20:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179490', '2026-07-18 08:35:14', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:14'),
+(3183, 768, 2064, 2077, '2026-07-19 03:07:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179481', '2026-07-18 08:35:14', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:14'),
+(3184, 768, 2075, 2070, '2026-07-19 03:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179488', '2026-07-18 08:35:14', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:14'),
+(3185, 768, 2068, 2072, '2026-07-19 04:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179483', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3186, 768, 2083, 2084, '2026-07-19 04:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179480', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3187, 768, 2076, 2074, '2026-07-19 04:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179485', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3188, 768, 2078, 2066, '2026-07-19 04:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179487', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3189, 768, 2071, 2061, '2026-07-19 04:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179491', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3190, 768, 2082, 2069, '2026-07-19 04:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179492', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3191, 768, 2087, 2334, '2026-07-19 04:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179494', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3192, 768, 2089, 2073, '2026-07-19 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179489', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3193, 768, 2088, 2080, '2026-07-19 08:08:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179482', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3194, 768, 2081, 2086, '2026-07-19 08:08:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179484', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3195, 768, 2065, 2063, '2026-07-19 10:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179493', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3196, 768, 2079, 2085, '2026-07-19 10:07:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179486', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3197, 768, 2064, 2077, '2026-07-20 00:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179495', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3198, 768, 2068, 2072, '2026-07-20 01:35:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179497', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3199, 768, 2071, 2061, '2026-07-20 01:35:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179506', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3200, 768, 2082, 2069, '2026-07-20 01:35:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179507', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3201, 768, 2089, 2073, '2026-07-20 01:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179504', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3202, 768, 2076, 2074, '2026-07-20 02:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179499', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3203, 768, 2078, 2066, '2026-07-20 02:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179501', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3204, 768, 2083, 2084, '2026-07-20 02:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179502', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3205, 768, 2062, 2067, '2026-07-20 02:20:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179505', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3206, 768, 2075, 2070, '2026-07-20 03:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179503', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3207, 768, 2065, 2063, '2026-07-20 04:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179508', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3208, 768, 2079, 2085, '2026-07-20 04:07:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179500', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3209, 768, 2088, 2080, '2026-07-20 04:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179496', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3210, 768, 2087, 2334, '2026-07-20 04:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179509', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3211, 768, 2081, 2086, '2026-07-20 07:20:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179498', '2026-07-18 08:35:15', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-18 08:35:15'),
+(3212, 762, 2657, 2668, '2026-07-22 00:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1589415', '2026-07-20 09:14:09', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:09'),
+(3213, 762, 2687, 2704, '2026-07-22 00:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1589416', '2026-07-20 09:14:09', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:09'),
+(3214, 762, 2705, 2661, '2026-07-22 00:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1589418', '2026-07-20 09:14:09', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:09'),
+(3215, 762, 2663, 2666, '2026-07-22 00:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1589419', '2026-07-20 09:14:09', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:09'),
+(3216, 762, 2706, 2707, '2026-07-22 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1556501', '2026-07-20 09:14:09', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:09'),
+(3217, 762, 2708, 2709, '2026-07-22 02:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1556502', '2026-07-20 09:14:09', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:09'),
+(3218, 762, 2710, 2711, '2026-07-22 02:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1556504', '2026-07-20 09:14:09', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:09'),
+(3219, 762, 2712, 2713, '2026-07-22 02:30:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1556503', '2026-07-20 09:14:09', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:09'),
+(3220, 762, 2673, 2659, '2026-07-22 02:45:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1591934', '2026-07-20 09:14:09', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:09'),
+(3221, 762, 2672, 2714, '2026-07-22 03:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1589417', '2026-07-20 09:14:09', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:09'),
+(3222, 762, 2675, 2715, '2026-07-22 03:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1589420', '2026-07-20 09:14:09', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:09'),
+(3223, 768, 2089, 2067, '2026-07-21 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179519', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3224, 768, 2081, 2073, '2026-07-21 07:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179514', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3225, 768, 2064, 2061, '2026-07-21 07:07:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179510', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3226, 768, 2068, 2086, '2026-07-21 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179513', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3227, 768, 2071, 2066, '2026-07-21 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179521', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3228, 768, 2082, 2084, '2026-07-21 07:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179522', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3229, 768, 2076, 2072, '2026-07-21 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179516', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3230, 768, 2083, 2080, '2026-07-21 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179517', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3231, 768, 2069, 2077, '2026-07-21 08:05:00', 'finished', 0, 1, 3, 10, 'Final', 'mlb-api-sports-179511', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3232, 768, 2062, 2085, '2026-07-21 08:05:00', 'finished', 0, 1, 6, 8, 'Final', 'mlb-api-sports-179520', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3233, 768, 2078, 2074, '2026-07-21 08:10:00', 'finished', 0, 1, 8, 5, 'Final', 'mlb-api-sports-179524', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3234, 768, 2075, 2063, '2026-07-21 08:40:00', 'finished', 0, 1, 3, 7, 'Final', 'mlb-api-sports-179518', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3235, 768, 2088, 2070, '2026-07-21 09:40:00', 'finished', 0, 1, 8, 0, 'Final', 'mlb-api-sports-179512', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3236, 768, 2087, 2065, '2026-07-21 09:40:00', 'finished', 0, 1, 2, 5, 'Final', 'mlb-api-sports-179523', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3237, 768, 2079, 2334, '2026-07-21 10:10:00', 'finished', 0, 1, 3, 2, 'Final', 'mlb-api-sports-179515', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3238, 768, 2068, 2086, '2026-07-22 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179529', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3239, 768, 2089, 2067, '2026-07-22 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179535', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3240, 768, 2081, 2073, '2026-07-23 07:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179530', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3241, 768, 2064, 2061, '2026-07-22 07:07:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179526', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3242, 768, 2071, 2066, '2026-07-23 01:35:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179537', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3243, 768, 2082, 2084, '2026-07-22 07:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179538', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3244, 768, 2076, 2072, '2026-07-22 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179531', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3245, 768, 2083, 2080, '2026-07-22 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179533', '2026-07-20 09:14:13', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-20 09:14:13'),
+(3246, 762, 2716, 2684, '2026-07-23 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1591936', '2026-07-21 09:09:28', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:28'),
+(3247, 762, 2670, 2689, '2026-07-23 01:30:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1591935', '2026-07-21 09:09:28', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:28'),
+(3248, 762, 2691, 2717, '2026-07-23 03:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1591933', '2026-07-21 09:09:28', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:28'),
+(3249, 768, 2069, 2077, '2026-07-22 08:05:00', 'finished', 0, 1, 10, 0, 'Final', 'mlb-api-sports-179527', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3250, 768, 2062, 2085, '2026-07-22 08:05:00', 'finished', 0, 1, 11, 2, 'Final', 'mlb-api-sports-179536', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3251, 768, 2078, 2074, '2026-07-22 08:10:00', 'finished', 0, 1, 5, 3, 'Final', 'mlb-api-sports-179532', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3252, 768, 2075, 2063, '2026-07-22 08:40:00', 'finished', 0, 1, 8, 7, 'Final', 'mlb-api-sports-179534', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3253, 768, 2079, 2334, '2026-07-22 09:38:00', 'finished', 0, 1, 5, 1, 'Final', 'mlb-api-sports-179525', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3254, 768, 2088, 2070, '2026-07-22 09:40:00', 'finished', 0, 1, 2, 4, 'Final', 'mlb-api-sports-179528', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3255, 768, 2087, 2065, '2026-07-22 09:40:00', 'finished', 0, 1, 6, 5, 'Final', 'mlb-api-sports-179539', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3256, 768, 2081, 2073, '2026-07-23 01:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179544', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3257, 768, 2076, 2072, '2026-07-23 02:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179545', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3258, 768, 2083, 2080, '2026-07-23 02:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179547', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3259, 768, 2075, 2063, '2026-07-23 03:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179548', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3260, 768, 2088, 2070, '2026-07-23 03:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179542', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3261, 768, 2087, 2065, '2026-07-23 03:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179553', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3262, 768, 2079, 2334, '2026-07-23 04:07:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179546', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3263, 768, 2068, 2086, '2026-07-23 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179543', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3264, 768, 2089, 2067, '2026-07-23 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179549', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3265, 768, 2064, 2061, '2026-07-23 07:07:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179540', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3266, 768, 2071, 2066, '2026-07-23 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179551', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3267, 768, 2082, 2084, '2026-07-23 07:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179552', '2026-07-21 09:09:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-21 09:09:32'),
+(3268, 766, 2692, 2698, '2026-07-24 00:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1593521', '2026-07-22 08:26:47', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:47'),
+(3269, 766, 2718, 2719, '2026-07-24 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1556544', '2026-07-22 08:26:48', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:48'),
+(3270, 766, 2720, 2721, '2026-07-24 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1556546', '2026-07-22 08:26:48', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:48'),
+(3271, 766, 2694, 2722, '2026-07-24 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1593519', '2026-07-22 08:26:48', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:48'),
+(3272, 766, 2696, 2723, '2026-07-24 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1593522', '2026-07-22 08:26:48', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:48'),
+(3273, 766, 2724, 2725, '2026-07-24 02:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1556543', '2026-07-22 08:26:48', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:48'),
+(3274, 766, 2726, 2727, '2026-07-24 02:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1556545', '2026-07-22 08:26:48', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:48'),
+(3275, 766, 2728, 2703, '2026-07-24 02:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1593523', '2026-07-22 08:26:48', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:48'),
+(3276, 766, 2700, 2729, '2026-07-24 03:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1593520', '2026-07-22 08:26:48', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:48'),
+(3277, 768, 2069, 2077, '2026-07-23 08:05:00', 'finished', 0, 1, 2, 4, 'Final', 'mlb-api-sports-179541', '2026-07-22 08:26:49', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3278, 768, 2062, 2085, '2026-07-23 08:10:00', 'finished', 0, 1, 1, 5, 'Final', 'mlb-api-sports-179550', '2026-07-22 08:26:49', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3279, 768, 2078, 2074, '2026-07-23 08:10:00', 'finished', 0, 1, 5, 2, 'Final', 'mlb-api-sports-179554', '2026-07-22 08:26:49', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3280, 768, 2082, 2084, '2026-07-24 00:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179557', '2026-07-22 08:26:49', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3281, 768, 2089, 2067, '2026-07-24 01:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179556', '2026-07-22 08:26:49', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3282, 768, 2064, 2061, '2026-07-24 03:07:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179555', '2026-07-22 08:26:49', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3283, 768, 2085, 2083, '2026-07-24 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179558', '2026-07-22 08:26:49', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-22 08:26:49'),
+(3284, 768, 2076, 2075, '2026-07-25 04:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179569', '2026-07-23 08:22:42', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3285, 768, 2073, 2062, '2026-07-25 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179565', '2026-07-23 08:22:42', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3286, 768, 2085, 2083, '2026-07-25 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179570', '2026-07-23 08:22:42', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3287, 768, 2068, 2081, '2026-07-25 06:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179559', '2026-07-23 08:22:42', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3288, 768, 2063, 2087, '2026-07-25 06:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179560', '2026-07-23 08:22:42', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3289, 768, 2066, 2082, '2026-07-25 07:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179573', '2026-07-23 08:22:42', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3290, 768, 2061, 2089, '2026-07-25 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179562', '2026-07-23 08:22:42', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3291, 768, 2074, 2084, '2026-07-25 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179566', '2026-07-23 08:22:42', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3292, 768, 2072, 2086, '2026-07-25 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179567', '2026-07-23 08:22:42', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3293, 768, 2071, 2064, '2026-07-25 07:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179572', '2026-07-23 08:22:42', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3294, 768, 2077, 2078, '2026-07-25 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179571', '2026-07-23 08:22:42', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-23 08:22:42'),
+(3295, 768, 2069, 2088, '2026-07-25 08:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179561', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3296, 768, 2067, 2065, '2026-07-25 08:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179568', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3297, 768, 2334, 2070, '2026-07-25 08:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179563', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3298, 768, 2080, 2079, '2026-07-25 10:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179564', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3299, 768, 2085, 2083, '2026-07-26 01:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179584', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3300, 768, 2080, 2079, '2026-07-26 04:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179578', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3301, 768, 2063, 2087, '2026-07-26 04:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179580', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3302, 768, 2074, 2084, '2026-07-26 04:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179583', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3303, 768, 2071, 2064, '2026-07-26 04:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179586', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3304, 768, 2068, 2081, '2026-07-26 06:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179574', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3305, 768, 2061, 2089, '2026-07-26 06:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179576', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3306, 768, 2073, 2062, '2026-07-26 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179579', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3307, 768, 2066, 2082, '2026-07-26 07:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179587', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3308, 768, 2076, 2075, '2026-07-26 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179582', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3309, 768, 2077, 2078, '2026-07-26 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179585', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3310, 768, 2067, 2065, '2026-07-26 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179588', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3311, 768, 2069, 2088, '2026-07-26 07:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179575', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3312, 768, 2334, 2070, '2026-07-26 07:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179577', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3313, 768, 2072, 2086, '2026-07-26 07:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179581', '2026-07-24 08:56:30', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-24 08:56:30'),
+(3314, 762, 2666, 2663, '2026-07-28 23:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1589423', '2026-07-27 09:07:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:32'),
+(3315, 762, 2661, 2705, '2026-07-29 00:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1589424', '2026-07-27 09:07:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:32'),
+(3316, 762, 2711, 2710, '2026-07-29 02:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1556505', '2026-07-27 09:07:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:32'),
+(3317, 762, 2717, 2691, '2026-07-29 02:15:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1591937', '2026-07-27 09:07:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:32'),
+(3318, 762, 2713, 2712, '2026-07-29 02:45:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1556507', '2026-07-27 09:07:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:32'),
+(3319, 762, 2668, 2657, '2026-07-29 03:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1589425', '2026-07-27 09:07:32', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:32'),
+(3320, 768, 2069, 2088, '2026-07-28 02:35:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179605', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3321, 768, 2073, 2087, '2026-07-28 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179608', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3322, 768, 2074, 2068, '2026-07-28 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179610', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3323, 768, 2085, 2066, '2026-07-28 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179611', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3324, 768, 2063, 2064, '2026-07-28 06:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179609', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3325, 768, 2072, 2082, '2026-07-28 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179604', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3326, 768, 2070, 2089, '2026-07-29 01:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179612', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3327, 768, 2077, 2081, '2026-07-28 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179613', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3328, 768, 2334, 2062, '2026-07-28 07:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179606', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3329, 768, 2079, 2078, '2026-07-28 09:38:00', 'finished', 0, 1, 4, 6, 'Final', 'mlb-api-sports-179615', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:04'),
+(3330, 768, 2065, 2071, '2026-07-28 09:40:00', 'finished', 0, 1, 2, 4, 'Final', 'mlb-api-sports-179614', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:04'),
+(3331, 768, 2080, 2076, '2026-07-28 09:45:00', 'finished', 0, 1, 3, 0, 'Final', 'mlb-api-sports-179607', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3332, 768, 2061, 2069, '2026-07-29 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179617', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3333, 768, 2073, 2087, '2026-07-29 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179621', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3334, 768, 2085, 2066, '2026-07-29 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179626', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3335, 768, 2074, 2068, '2026-07-29 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179630', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3336, 768, 2063, 2064, '2026-07-29 06:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179622', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3337, 768, 2072, 2082, '2026-07-30 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179616', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:37'),
+(3338, 768, 2070, 2089, '2026-07-29 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179627', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3339, 768, 2067, 2083, '2026-07-29 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179623', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3340, 768, 2077, 2081, '2026-07-29 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179628', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3341, 768, 2334, 2062, '2026-07-29 07:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179618', '2026-07-27 09:07:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-27 09:07:36'),
+(3342, 762, 2684, 2716, '2026-07-29 23:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1591938', '2026-07-28 05:47:01', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:01'),
+(3343, 762, 2659, 2673, '2026-07-30 00:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1591939', '2026-07-28 05:47:01', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:01'),
+(3344, 762, 2707, 2706, '2026-07-30 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1556508', '2026-07-28 05:47:01', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:01');
+INSERT IGNORE INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `start_time`, `status`, `is_live`, `is_popular`, `home_score`, `away_score`, `period_info`, `slug`, `created_at`, `max_bet`, `admin_is_suspended`, `admin_status`, `wait_live`, `type_flag`, `betting_status`, `updated_at`) VALUES
+(3345, 762, 2715, 2675, '2026-07-30 01:30:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1589422', '2026-07-28 05:47:01', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:01'),
+(3346, 762, 2689, 2670, '2026-07-30 01:30:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1591940', '2026-07-28 05:47:01', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:01'),
+(3347, 762, 2709, 2708, '2026-07-30 02:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1556506', '2026-07-28 05:47:01', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:01'),
+(3348, 762, 2714, 2672, '2026-07-30 02:00:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1589421', '2026-07-28 05:47:01', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:01'),
+(3349, 762, 2704, 2687, '2026-07-30 02:15:00', 'live', 1, 1, 0, 0, 'Live', 'champions-league-api-sports-1589426', '2026-07-28 05:47:01', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:01'),
+(3350, 768, 2079, 2078, '2026-07-29 09:38:00', 'finished', 0, 1, 2, 3, 'Final', 'mlb-api-sports-179625', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:37'),
+(3351, 768, 2084, 2075, '2026-07-29 09:40:00', 'finished', 0, 1, 8, 7, 'Final', 'mlb-api-sports-179620', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:37'),
+(3352, 768, 2065, 2071, '2026-07-29 09:40:00', 'finished', 0, 1, 4, 3, 'Final', 'mlb-api-sports-179629', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:37'),
+(3353, 768, 2080, 2076, '2026-07-29 09:45:00', 'finished', 0, 1, 2, 8, 'Final', 'mlb-api-sports-179619', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:37'),
+(3354, 768, 2086, 2088, '2026-07-29 10:10:00', 'finished', 0, 1, 6, 7, 'Final', 'mlb-api-sports-179624', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:37'),
+(3355, 768, 2074, 2068, '2026-07-30 00:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179640', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3356, 768, 2073, 2087, '2026-07-30 00:35:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179637', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3357, 768, 2063, 2064, '2026-07-30 01:05:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179632', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3358, 768, 2072, 2082, '2026-07-30 01:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179631', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3359, 768, 2085, 2066, '2026-07-30 01:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179642', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3360, 768, 2080, 2076, '2026-07-30 03:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179635', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3361, 768, 2084, 2075, '2026-07-30 04:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179636', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3362, 768, 2061, 2069, '2026-07-30 06:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179633', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3363, 768, 2070, 2089, '2026-07-30 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179643', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3364, 768, 2067, 2083, '2026-07-30 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179639', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3365, 768, 2077, 2081, '2026-07-30 07:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179644', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3366, 768, 2334, 2062, '2026-07-30 07:45:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179634', '2026-07-28 05:47:05', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-28 05:47:05'),
+(3367, 766, 2723, 2696, '2026-07-31 00:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1593526', '2026-07-29 07:23:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:36'),
+(3368, 766, 2725, 2724, '2026-07-31 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1556549', '2026-07-29 07:23:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:36'),
+(3369, 766, 2721, 2720, '2026-07-31 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1556550', '2026-07-29 07:23:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:36'),
+(3370, 766, 2729, 2700, '2026-07-31 01:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1593527', '2026-07-29 07:23:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:36'),
+(3371, 766, 2722, 2694, '2026-07-31 01:45:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1593528', '2026-07-29 07:23:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:36'),
+(3372, 766, 2698, 2692, '2026-07-31 02:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1593524', '2026-07-29 07:23:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:36'),
+(3373, 766, 2719, 2718, '2026-07-31 02:30:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1556547', '2026-07-29 07:23:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:36'),
+(3374, 766, 2703, 2728, '2026-07-31 02:30:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1593525', '2026-07-29 07:23:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:36'),
+(3375, 766, 2727, 2726, '2026-07-31 03:00:00', 'live', 1, 1, 0, 0, 'Live', 'europa-league-api-sports-1556548', '2026-07-29 07:23:36', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:36'),
+(3376, 768, 2079, 2078, '2026-07-30 09:38:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179641', '2026-07-29 07:23:37', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:37'),
+(3377, 768, 2065, 2071, '2026-07-30 09:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179645', '2026-07-29 07:23:37', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:37'),
+(3378, 768, 2086, 2088, '2026-07-30 10:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179638', '2026-07-29 07:23:37', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:37'),
+(3379, 768, 2061, 2069, '2026-07-31 00:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179647', '2026-07-29 07:23:37', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:37'),
+(3380, 768, 2067, 2083, '2026-07-31 01:40:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179651', '2026-07-29 07:23:38', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:38'),
+(3381, 768, 2077, 2081, '2026-07-31 02:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179650', '2026-07-29 07:23:38', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:38'),
+(3382, 768, 2334, 2062, '2026-07-31 02:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179648', '2026-07-29 07:23:38', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:38'),
+(3383, 768, 2072, 2074, '2026-07-31 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179646', '2026-07-29 07:23:38', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:38'),
+(3384, 768, 2070, 2073, '2026-07-31 07:10:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179652', '2026-07-29 07:23:38', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:38'),
+(3385, 768, 2082, 2063, '2026-07-31 07:15:00', 'live', 1, 1, 0, 0, 'Live', 'mlb-api-sports-179654', '2026-07-29 07:23:38', 1000.00000000, 0, 'active', 0, 1, 'available', '2026-07-29 07:23:38');
 
 -- --------------------------------------------------------
 
@@ -4142,7 +4471,7 @@ INSERT INTO `match_events` (`id`, `league_id`, `home_team_id`, `away_team_id`, `
 -- Table structure for table `match_odds`
 --
 
-CREATE TABLE `match_odds` (
+CREATE TABLE IF NOT EXISTS `match_odds` (
   `id` int(11) NOT NULL,
   `match_id` int(11) NOT NULL,
   `market_name` varchar(100) DEFAULT '1x2',
@@ -4157,7 +4486,7 @@ CREATE TABLE `match_odds` (
 -- Dumping data for table `match_odds`
 --
 
-INSERT INTO `match_odds` (`id`, `match_id`, `market_name`, `outcome_name`, `odds_value`, `created_at`, `original_odds`, `is_overridden`) VALUES
+INSERT IGNORE INTO `match_odds` (`id`, `match_id`, `market_name`, `outcome_name`, `odds_value`, `created_at`, `original_odds`, `is_overridden`) VALUES
 (185, 1, '1x2', '1', 2.92, '2026-03-06 07:46:13', NULL, 0),
 (186, 1, '1x2', 'draw', 3.15, '2026-03-06 07:46:13', NULL, 0),
 (187, 1, '1x2', '2', 2.48, '2026-03-06 07:46:13', NULL, 0),
@@ -4962,7 +5291,7 @@ INSERT INTO `match_odds` (`id`, `match_id`, `market_name`, `outcome_name`, `odds
 (3673, 1578, '1x2', '2', 2.64, '2026-04-01 07:25:34', NULL, 0),
 (3674, 1579, '1x2', '1', 1.81, '2026-04-01 07:25:34', NULL, 0),
 (3675, 1579, '1x2', 'X', 3.82, '2026-04-01 07:25:34', NULL, 0);
-INSERT INTO `match_odds` (`id`, `match_id`, `market_name`, `outcome_name`, `odds_value`, `created_at`, `original_odds`, `is_overridden`) VALUES
+INSERT IGNORE INTO `match_odds` (`id`, `match_id`, `market_name`, `outcome_name`, `odds_value`, `created_at`, `original_odds`, `is_overridden`) VALUES
 (3676, 1579, '1x2', '2', 2.37, '2026-04-01 07:25:34', NULL, 0),
 (3677, 1580, '1x2', '1', 1.83, '2026-04-01 07:25:34', NULL, 0),
 (3678, 1580, '1x2', 'X', 3.33, '2026-04-01 07:25:34', NULL, 0),
@@ -5361,7 +5690,7 @@ INSERT INTO `match_odds` (`id`, `match_id`, `market_name`, `outcome_name`, `odds
 -- Table structure for table `messages`
 --
 
-CREATE TABLE `messages` (
+CREATE TABLE IF NOT EXISTS `messages` (
   `id` int(11) NOT NULL,
   `sender_id` int(11) DEFAULT NULL,
   `sender_type` enum('admin','user') DEFAULT 'admin',
@@ -5378,12 +5707,14 @@ CREATE TABLE `messages` (
 -- Dumping data for table `messages`
 --
 
-INSERT INTO `messages` (`id`, `sender_id`, `sender_type`, `receiver_id`, `subject`, `content`, `is_read`, `read_at`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `messages` (`id`, `sender_id`, `sender_type`, `receiver_id`, `subject`, `content`, `is_read`, `read_at`, `created_at`, `updated_at`) VALUES
 (1, 2, 'admin', 1, '환영합니다!', '가입을 축하드립니다. 즐거운 게임 되세요!', 0, NULL, '2026-05-11 09:07:11', '2026-05-11 09:07:11'),
 (2, 2, 'admin', 5, '입금 확인 완료', '요청하신 입금이 정상적으로 처리되었습니다.', 0, NULL, '2026-05-11 09:07:11', '2026-05-11 09:07:11'),
 (3, 2, 'admin', 6, '이벤트 당첨 안내', '주말 보너스 이벤트에 당첨되셨습니다. 보너스를 확인해주세요.', 0, NULL, '2026-05-11 09:07:11', '2026-05-11 09:07:11'),
 (4, 2, 'admin', 7, '시스템 점검 안내', '내일 새벽 2시부터 4시까지 시스템 점검이 있을 예정입니다.', 0, NULL, '2026-05-11 09:07:11', '2026-05-11 09:07:11'),
-(5, 2, 'admin', 8, '문의하신 내용에 대한 답변입니다.', '요청하신 계좌 정보 변경이 완료되었습니다.', 0, NULL, '2026-05-11 09:07:11', '2026-05-11 09:07:11');
+(5, 2, 'admin', 8, '문의하신 내용에 대한 답변입니다.', '요청하신 계좌 정보 변경이 완료되었습니다.', 0, NULL, '2026-05-11 09:07:11', '2026-05-11 09:07:11'),
+(6, 3, 'admin', 36, 'Withdrawal Processed', '<p>Your&nbsp;withdrawal&nbsp;request&nbsp;has&nbsp;been&nbsp;completed...</p>', 0, NULL, '2026-07-07 08:20:35', '2026-07-07 08:20:35'),
+(7, 3, 'admin', 12, 'Withdrawal Processed', '<p>Your&nbsp;withdrawal&nbsp;request&nbsp;has&nbsp;been&nbsp;completed...</p>', 0, NULL, '2026-07-29 07:26:29', '2026-07-29 07:26:29');
 
 -- --------------------------------------------------------
 
@@ -5391,7 +5722,7 @@ INSERT INTO `messages` (`id`, `sender_id`, `sender_type`, `receiver_id`, `subjec
 -- Table structure for table `message_templates`
 --
 
-CREATE TABLE `message_templates` (
+CREATE TABLE IF NOT EXISTS `message_templates` (
   `id` int(11) NOT NULL,
   `template_name` varchar(100) NOT NULL,
   `subject` varchar(255) NOT NULL,
@@ -5407,7 +5738,7 @@ CREATE TABLE `message_templates` (
 -- Dumping data for table `message_templates`
 --
 
-INSERT INTO `message_templates` (`id`, `template_name`, `subject`, `content`, `created_by`, `is_active`, `usage_count`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `message_templates` (`id`, `template_name`, `subject`, `content`, `created_by`, `is_active`, `usage_count`, `created_at`, `updated_at`) VALUES
 (1, 'Welcome', 'Welcome to BC Game!', '<p>Hello! Welcome to our platform. Enjoy your bonus...</p>', NULL, 1, 0, '2026-05-07 08:17:29', '2026-05-07 08:17:29'),
 (2, 'Deposit', 'Deposit Successful', '<p>Your deposit has been successfully processed...</p>', NULL, 1, 0, '2026-05-07 08:17:29', '2026-05-07 08:17:29'),
 (3, 'Withdrawal', 'Withdrawal Processed', '<p>Your withdrawal request has been completed...</p>', NULL, 1, 0, '2026-05-07 08:17:29', '2026-05-07 08:17:29'),
@@ -5423,7 +5754,7 @@ INSERT INTO `message_templates` (`id`, `template_name`, `subject`, `content`, `c
 -- Table structure for table `migrations`
 --
 
-CREATE TABLE `migrations` (
+CREATE TABLE IF NOT EXISTS `migrations` (
   `id` int(11) NOT NULL,
   `file_name` varchar(255) NOT NULL,
   `executed_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -5433,7 +5764,7 @@ CREATE TABLE `migrations` (
 -- Dumping data for table `migrations`
 --
 
-INSERT INTO `migrations` (`id`, `file_name`, `executed_at`) VALUES
+INSERT IGNORE INTO `migrations` (`id`, `file_name`, `executed_at`) VALUES
 (1, '01_migration_login_and_register.sql', '2026-03-18 02:51:15'),
 (2, '02_migration_casino_tables.sql', '2026-03-18 02:51:15'),
 (3, '03_seed_casino_data.sql', '2026-03-18 02:51:16'),
@@ -5575,7 +5906,7 @@ INSERT INTO `migrations` (`id`, `file_name`, `executed_at`) VALUES
 -- Table structure for table `money_logs`
 --
 
-CREATE TABLE `money_logs` (
+CREATE TABLE IF NOT EXISTS `money_logs` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `group_idx` int(11) NOT NULL,
@@ -5591,7 +5922,7 @@ CREATE TABLE `money_logs` (
 -- Dumping data for table `money_logs`
 --
 
-INSERT INTO `money_logs` (`id`, `user_id`, `group_idx`, `type_idx`, `amount`, `before_amount`, `after_amount`, `memo`, `created_at`) VALUES
+INSERT IGNORE INTO `money_logs` (`id`, `user_id`, `group_idx`, `type_idx`, `amount`, `before_amount`, `after_amount`, `memo`, `created_at`) VALUES
 (1, 9, 8, 13, 167000.00000000, 1000000.00000000, 1167000.00000000, 'Seed money log for 13', '2026-04-23 01:29:30'),
 (2, 11, 7, 37, 89000.00000000, 1000000.00000000, 1089000.00000000, 'Seed money log for 37', '2026-04-30 01:29:30'),
 (3, 9, 3, 5, 141000.00000000, 1000000.00000000, 1141000.00000000, 'Seed money log for 5', '2026-04-16 01:29:30'),
@@ -5695,7 +6026,7 @@ INSERT INTO `money_logs` (`id`, `user_id`, `group_idx`, `type_idx`, `amount`, `b
 -- Table structure for table `notifications`
 --
 
-CREATE TABLE `notifications` (
+CREATE TABLE IF NOT EXISTS `notifications` (
   `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `title` varchar(255) NOT NULL,
@@ -5713,7 +6044,7 @@ CREATE TABLE `notifications` (
 -- Dumping data for table `notifications`
 --
 
-INSERT INTO `notifications` (`id`, `user_id`, `title`, `message`, `type`, `is_read`, `created_at`, `scheduled_for`, `status`, `send_email`, `send_push`) VALUES
+INSERT IGNORE INTO `notifications` (`id`, `user_id`, `title`, `message`, `type`, `is_read`, `created_at`, `scheduled_for`, `status`, `send_email`, `send_push`) VALUES
 (2, NULL, 'Updated Info', 'Hi', 'info', 0, '2026-04-23 00:09:50', NULL, 'sent', 1, 0);
 
 -- --------------------------------------------------------
@@ -5722,7 +6053,7 @@ INSERT INTO `notifications` (`id`, `user_id`, `title`, `message`, `type`, `is_re
 -- Table structure for table `partner_statistics`
 --
 
-CREATE TABLE `partner_statistics` (
+CREATE TABLE IF NOT EXISTS `partner_statistics` (
   `id` int(11) NOT NULL,
   `partner_id` int(11) NOT NULL,
   `stat_date` date NOT NULL,
@@ -5763,7 +6094,7 @@ CREATE TABLE `partner_statistics` (
 -- Dumping data for table `partner_statistics`
 --
 
-INSERT INTO `partner_statistics` (`id`, `partner_id`, `stat_date`, `game_type_id`, `site_balance`, `casino_balance`, `holdem_balance`, `mini_balance`, `total_points`, `user_deposit`, `user_withdrawal`, `user_profit`, `partner_deposit`, `partner_deposit_received`, `partner_withdrawal`, `partner_withdrawal_received`, `partner_profit`, `admin_deposit`, `admin_withdrawal`, `total_bet_amount`, `invalid_bet_amount`, `public_bet_amount`, `total_win_amount`, `betting_profit`, `rolling`, `member_comp`, `first_deposit_bonus`, `regular_deposit_bonus`, `final_profit`, `money_deposit`, `money_withdrawal`, `point_deposit`, `point_withdrawal`, `created_at`) VALUES
+INSERT IGNORE INTO `partner_statistics` (`id`, `partner_id`, `stat_date`, `game_type_id`, `site_balance`, `casino_balance`, `holdem_balance`, `mini_balance`, `total_points`, `user_deposit`, `user_withdrawal`, `user_profit`, `partner_deposit`, `partner_deposit_received`, `partner_withdrawal`, `partner_withdrawal_received`, `partner_profit`, `admin_deposit`, `admin_withdrawal`, `total_bet_amount`, `invalid_bet_amount`, `public_bet_amount`, `total_win_amount`, `betting_profit`, `rolling`, `member_comp`, `first_deposit_bonus`, `regular_deposit_bonus`, `final_profit`, `money_deposit`, `money_withdrawal`, `point_deposit`, `point_withdrawal`, `created_at`) VALUES
 (106, 2, '2026-05-02', 1, 106415.73996976, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 4785.23731077, 507.13750421, 4278.09980657, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 30156.41553948, 0.00000000, 0.00000000, 31613.73795470, -1457.32241521, 301.56415539, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
 (107, 2, '2026-05-02', 2, 107511.74295053, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 1642.36599145, 1053.86896932, 588.49702213, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 6217.46778884, 0.00000000, 0.00000000, 5992.65812986, 224.80965898, 62.17467789, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
 (108, 2, '2026-05-02', 3, 107068.47956489, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 5323.27311578, 3706.12738140, 1617.14573438, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 49726.59822377, 0.00000000, 0.00000000, 45868.96711380, 3857.63110997, 497.26598224, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
@@ -5881,7 +6212,7 @@ INSERT INTO `partner_statistics` (`id`, `partner_id`, `stat_date`, `game_type_id
 (220, 3, '2026-04-27', 5, 103107.66513714, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 1640.40720467, 1306.65641040, 333.75079427, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 771.15541598, 0.00000000, 0.00000000, 720.67167569, 50.48374030, 7.71155416, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
 (221, 3, '2026-04-26', 1, 103155.15351987, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 5109.18633725, 1286.10270560, 3823.08363165, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 26817.81822724, 0.00000000, 0.00000000, 25182.87191345, 1634.94631380, 268.17818227, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
 (222, 3, '2026-04-26', 2, 106915.94241358, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 1414.58894326, 4142.12800767, -2727.53906441, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 30092.40278551, 0.00000000, 0.00000000, 30878.72789858, -786.32511308, 300.92402786, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19');
-INSERT INTO `partner_statistics` (`id`, `partner_id`, `stat_date`, `game_type_id`, `site_balance`, `casino_balance`, `holdem_balance`, `mini_balance`, `total_points`, `user_deposit`, `user_withdrawal`, `user_profit`, `partner_deposit`, `partner_deposit_received`, `partner_withdrawal`, `partner_withdrawal_received`, `partner_profit`, `admin_deposit`, `admin_withdrawal`, `total_bet_amount`, `invalid_bet_amount`, `public_bet_amount`, `total_win_amount`, `betting_profit`, `rolling`, `member_comp`, `first_deposit_bonus`, `regular_deposit_bonus`, `final_profit`, `money_deposit`, `money_withdrawal`, `point_deposit`, `point_withdrawal`, `created_at`) VALUES
+INSERT IGNORE INTO `partner_statistics` (`id`, `partner_id`, `stat_date`, `game_type_id`, `site_balance`, `casino_balance`, `holdem_balance`, `mini_balance`, `total_points`, `user_deposit`, `user_withdrawal`, `user_profit`, `partner_deposit`, `partner_deposit_received`, `partner_withdrawal`, `partner_withdrawal_received`, `partner_profit`, `admin_deposit`, `admin_withdrawal`, `total_bet_amount`, `invalid_bet_amount`, `public_bet_amount`, `total_win_amount`, `betting_profit`, `rolling`, `member_comp`, `first_deposit_bonus`, `regular_deposit_bonus`, `final_profit`, `money_deposit`, `money_withdrawal`, `point_deposit`, `point_withdrawal`, `created_at`) VALUES
 (223, 3, '2026-04-26', 3, 108812.49246683, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 1357.35186255, 2678.04211630, -1320.69025375, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 11178.74129252, 0.00000000, 0.00000000, 11133.16678533, 45.57450719, 111.78741293, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
 (224, 3, '2026-04-26', 4, 106247.66215967, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 2897.59282025, 4774.20590763, -1876.61308738, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 18462.81217532, 0.00000000, 0.00000000, 16983.49387049, 1479.31830483, 184.62812175, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
 (225, 3, '2026-04-26', 5, 107511.15439643, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 9050.02278140, 308.91327084, 8741.10951055, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 21761.48609920, 0.00000000, 0.00000000, 20647.17870514, 1114.30739405, 217.61486099, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
@@ -5999,7 +6330,7 @@ INSERT INTO `partner_statistics` (`id`, `partner_id`, `stat_date`, `game_type_id
 (337, 4, '2025-03-06', 2, 108114.39057036, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 9639.68156380, 3058.16511587, 6581.51644793, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 13393.31974229, 0.00000000, 0.00000000, 13321.31219058, 72.00755171, 133.93319742, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
 (338, 4, '2025-03-06', 3, 101610.68644995, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 2433.74862028, 2384.46089412, 49.28772616, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 30385.30274743, 0.00000000, 0.00000000, 27560.16100447, 2825.14174296, 303.85302747, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
 (339, 4, '2025-03-06', 4, 103047.29117380, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 8270.29340667, 1127.66728561, 7142.62612106, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 28185.97243851, 0.00000000, 0.00000000, 28586.41108285, -400.43864435, 281.85972439, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19');
-INSERT INTO `partner_statistics` (`id`, `partner_id`, `stat_date`, `game_type_id`, `site_balance`, `casino_balance`, `holdem_balance`, `mini_balance`, `total_points`, `user_deposit`, `user_withdrawal`, `user_profit`, `partner_deposit`, `partner_deposit_received`, `partner_withdrawal`, `partner_withdrawal_received`, `partner_profit`, `admin_deposit`, `admin_withdrawal`, `total_bet_amount`, `invalid_bet_amount`, `public_bet_amount`, `total_win_amount`, `betting_profit`, `rolling`, `member_comp`, `first_deposit_bonus`, `regular_deposit_bonus`, `final_profit`, `money_deposit`, `money_withdrawal`, `point_deposit`, `point_withdrawal`, `created_at`) VALUES
+INSERT IGNORE INTO `partner_statistics` (`id`, `partner_id`, `stat_date`, `game_type_id`, `site_balance`, `casino_balance`, `holdem_balance`, `mini_balance`, `total_points`, `user_deposit`, `user_withdrawal`, `user_profit`, `partner_deposit`, `partner_deposit_received`, `partner_withdrawal`, `partner_withdrawal_received`, `partner_profit`, `admin_deposit`, `admin_withdrawal`, `total_bet_amount`, `invalid_bet_amount`, `public_bet_amount`, `total_win_amount`, `betting_profit`, `rolling`, `member_comp`, `first_deposit_bonus`, `regular_deposit_bonus`, `final_profit`, `money_deposit`, `money_withdrawal`, `point_deposit`, `point_withdrawal`, `created_at`) VALUES
 (340, 4, '2025-03-06', 5, 109738.46150095, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 2807.93165339, 3653.15717392, -845.22552053, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 26803.02536643, 0.00000000, 0.00000000, 27806.04031649, -1003.01495007, 268.03025366, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
 (341, 4, '2025-03-07', 1, 100610.26375771, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 2951.36731255, 2400.46726573, 550.90004682, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 28148.57739646, 0.00000000, 0.00000000, 28625.23530157, -476.65790512, 281.48577396, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
 (342, 4, '2025-03-07', 2, 105205.46885879, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 4386.99569670, 4222.30878844, 164.68690826, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 36507.88708000, 0.00000000, 0.00000000, 38222.99578082, -1715.10870082, 365.07887080, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, 0.00000000, '2026-05-02 08:53:19'),
@@ -6028,7 +6359,7 @@ INSERT INTO `partner_statistics` (`id`, `partner_id`, `stat_date`, `game_type_id
 -- Table structure for table `payback_requests`
 --
 
-CREATE TABLE `payback_requests` (
+CREATE TABLE IF NOT EXISTS `payback_requests` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `type` int(11) DEFAULT 1,
@@ -6050,7 +6381,7 @@ CREATE TABLE `payback_requests` (
 -- Dumping data for table `payback_requests`
 --
 
-INSERT INTO `payback_requests` (`id`, `user_id`, `type`, `amount`, `percent`, `status`, `total_betting_amount`, `total_win_amount`, `charge_amount`, `exchange_amount`, `balance_amount`, `apply_date`, `request_available_date`, `created_at`, `processed_at`) VALUES
+INSERT IGNORE INTO `payback_requests` (`id`, `user_id`, `type`, `amount`, `percent`, `status`, `total_betting_amount`, `total_win_amount`, `charge_amount`, `exchange_amount`, `balance_amount`, `apply_date`, `request_available_date`, `created_at`, `processed_at`) VALUES
 (1, 4, 2, 38000.00000000, 10.00, 1, 380000.00000000, 76000.00000000, 50000.00000000, 10000.00000000, 5000.00000000, '2026-04-24', '2026-04-24', '2026-05-02 09:20:17', NULL),
 (2, 5, 2, 32000.00000000, 10.00, 1, 320000.00000000, 64000.00000000, 50000.00000000, 10000.00000000, 5000.00000000, '2026-04-27', '2026-04-27', '2026-05-02 09:20:17', NULL),
 (3, 5, 1, 14000.00000000, 10.00, 4, 140000.00000000, 28000.00000000, 50000.00000000, 10000.00000000, 5000.00000000, '2026-05-02', '2026-05-02', '2026-05-02 09:20:17', NULL),
@@ -6088,7 +6419,7 @@ INSERT INTO `payback_requests` (`id`, `user_id`, `type`, `amount`, `percent`, `s
 -- Table structure for table `payment_webhook_logs`
 --
 
-CREATE TABLE `payment_webhook_logs` (
+CREATE TABLE IF NOT EXISTS `payment_webhook_logs` (
   `id` int(11) NOT NULL,
   `provider_name` varchar(50) NOT NULL,
   `event_type` varchar(50) DEFAULT NULL,
@@ -6105,7 +6436,7 @@ CREATE TABLE `payment_webhook_logs` (
 -- Table structure for table `platform_api_keys`
 --
 
-CREATE TABLE `platform_api_keys` (
+CREATE TABLE IF NOT EXISTS `platform_api_keys` (
   `id` int(11) NOT NULL,
   `provider_name` varchar(100) NOT NULL,
   `api_key` text NOT NULL,
@@ -6121,7 +6452,7 @@ CREATE TABLE `platform_api_keys` (
 -- Dumping data for table `platform_api_keys`
 --
 
-INSERT INTO `platform_api_keys` (`id`, `provider_name`, `api_key`, `api_secret`, `environment`, `is_active`, `provider_type`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `platform_api_keys` (`id`, `provider_name`, `api_key`, `api_secret`, `environment`, `is_active`, `provider_type`, `created_at`, `updated_at`) VALUES
 (1, 'odds_api', '', NULL, 'production', 1, 'odds', '2026-04-21 02:50:58', '2026-04-21 02:50:58'),
 (2, 'nba_stats', '', NULL, 'production', 1, 'sports', '2026-04-21 02:50:58', '2026-04-21 02:50:58'),
 (3, 'nowpayments', '', NULL, 'production', 1, 'payments', '2026-04-21 02:50:58', '2026-04-21 02:50:58');
@@ -6132,7 +6463,7 @@ INSERT INTO `platform_api_keys` (`id`, `provider_name`, `api_key`, `api_secret`,
 -- Table structure for table `platform_currencies`
 --
 
-CREATE TABLE `platform_currencies` (
+CREATE TABLE IF NOT EXISTS `platform_currencies` (
   `id` int(11) NOT NULL,
   `symbol` varchar(20) NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -6149,7 +6480,7 @@ CREATE TABLE `platform_currencies` (
 -- Dumping data for table `platform_currencies`
 --
 
-INSERT INTO `platform_currencies` (`id`, `symbol`, `name`, `type`, `icon_url`, `network`, `is_enabled`, `sort_order`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `platform_currencies` (`id`, `symbol`, `name`, `type`, `icon_url`, `network`, `is_enabled`, `sort_order`, `created_at`, `updated_at`) VALUES
 (1, 'BTC', 'Bitcoin', 'crypto', 'https://cryptologos.cc/logos/bitcoin-btc-logo.png', 'BTC', 1, 1, '2026-04-16 06:05:46', '2026-04-16 06:05:46'),
 (2, 'ETH', 'Ethereum', 'crypto', 'https://cryptologos.cc/logos/ethereum-eth-logo.png', 'ERC20', 1, 2, '2026-04-16 06:05:46', '2026-04-16 06:05:46'),
 (3, 'USDT', 'Tether', 'crypto', 'https://cryptologos.cc/logos/tether-usdt-logo.png', 'ERC20/TRC20', 1, 3, '2026-04-16 06:05:46', '2026-04-16 06:05:46'),
@@ -6162,7 +6493,7 @@ INSERT INTO `platform_currencies` (`id`, `symbol`, `name`, `type`, `icon_url`, `
 -- Table structure for table `platform_languages`
 --
 
-CREATE TABLE `platform_languages` (
+CREATE TABLE IF NOT EXISTS `platform_languages` (
   `id` int(11) NOT NULL,
   `code` varchar(10) NOT NULL,
   `name` varchar(50) NOT NULL,
@@ -6176,7 +6507,7 @@ CREATE TABLE `platform_languages` (
 -- Dumping data for table `platform_languages`
 --
 
-INSERT INTO `platform_languages` (`id`, `code`, `name`, `is_active`, `is_default`, `sort_order`, `created_at`) VALUES
+INSERT IGNORE INTO `platform_languages` (`id`, `code`, `name`, `is_active`, `is_default`, `sort_order`, `created_at`) VALUES
 (1, 'en', 'English', 1, 1, 1, '2026-04-21 02:50:58'),
 (2, 'kr', 'Korean', 1, 0, 2, '2026-04-21 02:50:58'),
 (3, 'vi', 'Vietnamese', 1, 0, 3, '2026-04-21 02:50:58'),
@@ -6189,7 +6520,7 @@ INSERT INTO `platform_languages` (`id`, `code`, `name`, `is_active`, `is_default
 -- Table structure for table `platform_payment_gateways`
 --
 
-CREATE TABLE `platform_payment_gateways` (
+CREATE TABLE IF NOT EXISTS `platform_payment_gateways` (
   `id` int(11) NOT NULL,
   `provider_name` varchar(50) NOT NULL,
   `provider_type` varchar(20) NOT NULL,
@@ -6210,7 +6541,7 @@ CREATE TABLE `platform_payment_gateways` (
 -- Dumping data for table `platform_payment_gateways`
 --
 
-INSERT INTO `platform_payment_gateways` (`id`, `provider_name`, `provider_type`, `api_key`, `api_secret`, `is_sandbox`, `is_active`, `auto_process`, `supported_currencies`, `min_limit`, `max_limit`, `fee_percentage`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `platform_payment_gateways` (`id`, `provider_name`, `provider_type`, `api_key`, `api_secret`, `is_sandbox`, `is_active`, `auto_process`, `supported_currencies`, `min_limit`, `max_limit`, `fee_percentage`, `created_at`, `updated_at`) VALUES
 (1, 'GCash', 'fiat', NULL, NULL, 1, 1, 1, '[\"PHP\"]', NULL, NULL, 0.00, '2026-04-21 03:32:14', '2026-04-24 10:21:12'),
 (2, 'PayMaya', 'fiat', NULL, NULL, 1, 0, 0, '[\"PHP\"]', NULL, NULL, 0.00, '2026-04-21 03:32:14', '2026-04-21 03:32:14'),
 (3, 'BankTransfer', 'fiat', NULL, NULL, 1, 0, 0, '[\"PHP\", \"USD\"]', NULL, NULL, 0.00, '2026-04-21 03:32:14', '2026-04-21 03:32:14'),
@@ -6222,7 +6553,7 @@ INSERT INTO `platform_payment_gateways` (`id`, `provider_name`, `provider_type`,
 -- Table structure for table `platform_settings`
 --
 
-CREATE TABLE `platform_settings` (
+CREATE TABLE IF NOT EXISTS `platform_settings` (
   `setting_key` varchar(50) NOT NULL,
   `setting_value` text DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -6232,7 +6563,7 @@ CREATE TABLE `platform_settings` (
 -- Dumping data for table `platform_settings`
 --
 
-INSERT INTO `platform_settings` (`setting_key`, `setting_value`, `updated_at`) VALUES
+INSERT IGNORE INTO `platform_settings` (`setting_key`, `setting_value`, `updated_at`) VALUES
 ('bc_24h_bets', '7,513,413', '2026-04-15 00:35:14'),
 ('bc_24h_online', '175,783', '2026-04-15 00:35:14'),
 ('bc_24h_wager', '$114,516,543.68', '2026-04-15 00:35:14'),
@@ -6251,18 +6582,36 @@ INSERT INTO `platform_settings` (`setting_key`, `setting_value`, `updated_at`) V
 ('bonus_deposit_min_amount', '10.00', '2026-04-20 00:35:08'),
 ('bonus_welcome_percent', '10.00', '2026-04-20 00:35:08'),
 ('cashback_percent', '5.00', '2026-04-20 00:35:08'),
+('chargeStatus', '0', '2026-07-18 09:38:34'),
 ('default_referral_commission', '25.00', '2026-04-21 04:55:32'),
 ('favicon_url', '/favicon.ico', '2026-03-20 09:58:39'),
 ('fee_deposit_percent', '0.00', '2026-04-20 00:35:08'),
 ('fee_withdraw_percent', '1.00', '2026-04-20 00:35:08'),
+('invalidBettingCommission', '0', '2026-07-18 09:38:04'),
+('isRegisterParentFollow', '0', '2026-07-18 09:31:03'),
 ('is_maintenance', '', '2026-04-21 00:44:10'),
+('loginNotice', '', '2026-07-18 09:30:53'),
 ('maintenance_message', '', '2026-04-21 00:44:12'),
 ('max_daily_withdrawal', '', '2026-04-21 05:09:15'),
+('messageReadRequiredUse', '1', '2026-07-18 09:38:20'),
 ('min_withdrawal_amount', '', '2026-04-21 05:09:17'),
+('moneyInoutTransferAuto', '0', '2026-07-18 09:38:01'),
+('partnerMessageReadRequiredUse', '1', '2026-07-18 09:38:25'),
+('partnerSiteCaptchaUseYN', '0', '2026-07-18 09:38:26'),
+('partnerSiteExchangePasswordUseYN', '1', '2026-07-18 09:38:24'),
+('partnerSiteStatus', '1', '2026-07-18 09:48:56'),
+('partnerUserWebInoutYN', '1', '2026-07-18 09:38:00'),
+('partnerUserWebLoginYN', '0', '2026-07-18 09:37:51'),
+('perfectPairWithdraw', '1', '2026-07-18 09:38:06'),
 ('primary_color', '#2cd97d', '2026-03-26 00:32:38'),
 ('secondary_color', '#2cd97d', '2026-03-26 00:32:46'),
+('siteName', 'Test', '2026-07-18 09:30:50'),
 ('site_logo_type', 'image', '2026-03-26 00:33:08'),
 ('site_name', 'BC.Admin', '2026-03-20 09:58:39'),
+('userSiteCaptchaUseYN', '1', '2026-07-18 09:38:13'),
+('userSiteExchangePasswordUseYN', '0', '2026-07-18 09:38:12'),
+('userSitePasswordEditYN', '1', '2026-07-18 09:30:37'),
+('userSiteStatus', '1', '2026-07-18 09:48:02'),
 ('vault_apr', '25', '2026-04-15 00:35:14');
 
 -- --------------------------------------------------------
@@ -6271,7 +6620,7 @@ INSERT INTO `platform_settings` (`setting_key`, `setting_value`, `updated_at`) V
 -- Table structure for table `point_logs`
 --
 
-CREATE TABLE `point_logs` (
+CREATE TABLE IF NOT EXISTS `point_logs` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `group_idx` int(11) NOT NULL,
@@ -6287,7 +6636,7 @@ CREATE TABLE `point_logs` (
 -- Dumping data for table `point_logs`
 --
 
-INSERT INTO `point_logs` (`id`, `user_id`, `group_idx`, `type_idx`, `amount`, `before_amount`, `after_amount`, `memo`, `created_at`) VALUES
+INSERT IGNORE INTO `point_logs` (`id`, `user_id`, `group_idx`, `type_idx`, `amount`, `before_amount`, `after_amount`, `memo`, `created_at`) VALUES
 (1, 5, 9, 26, 7800.00000000, 50000.00000000, 57800.00000000, 'Seed log for 26', '2026-04-26 01:26:56'),
 (2, 14, 10, 29, 1500.00000000, 50000.00000000, 51500.00000000, 'Seed log for 29', '2026-04-15 01:26:56'),
 (3, 10, 12, 38, 500.00000000, 50000.00000000, 50500.00000000, 'Seed log for 38', '2026-04-16 01:26:56'),
@@ -6345,7 +6694,7 @@ INSERT INTO `point_logs` (`id`, `user_id`, `group_idx`, `type_idx`, `amount`, `b
 -- Table structure for table `promotions`
 --
 
-CREATE TABLE `promotions` (
+CREATE TABLE IF NOT EXISTS `promotions` (
   `id` int(11) NOT NULL,
   `slug` varchar(255) NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -6364,7 +6713,7 @@ CREATE TABLE `promotions` (
 -- Dumping data for table `promotions`
 --
 
-INSERT INTO `promotions` (`id`, `slug`, `title`, `description`, `image_url`, `category`, `status`, `ends_at`, `is_exclusive`, `type`, `config`, `created_at`) VALUES
+INSERT IGNORE INTO `promotions` (`id`, `slug`, `title`, `description`, `image_url`, `category`, `status`, `ends_at`, `is_exclusive`, `type`, `config`, `created_at`) VALUES
 (1, '0-house-edge-instant-rakeback', '0 House Edge • Instant Rakeback', 'Enjoy 0 house edge and instant rakeback on selected games.', 'https://imgxcut.com/bc_event/9e7dec6536.png?_v=4,dpr=1,width=800', 'all', 'active', '2026-03-01 07:59:59', 1, 'general', NULL, '2026-03-16 07:33:07'),
 (2, 'torture-block', 'New BC Exclusive - Torture Block', 'Experience the thrill of our new BC exclusive game, Torture Block.', 'https://imgxcut.com/bc_event/a06ad79be9.png?_v=4,dpr=1,width=800', 'bc-exclusive', 'active', '2026-01-28 09:59:59', 0, 'general', NULL, '2026-03-16 07:33:07'),
 (3, 'gods-go-pew-pew', 'New Release: Gods Go Pew Pew', 'Join the gods in our latest release and win big!', 'https://imgxcut.com/bc_event/8dcbf6e857.png?_v=4,dpr=1,width=800', 'casino', 'active', '2026-01-29 07:59:59', 0, 'general', NULL, '2026-03-16 07:33:07'),
@@ -6380,7 +6729,7 @@ INSERT INTO `promotions` (`id`, `slug`, `title`, `description`, `image_url`, `ca
 -- Table structure for table `promo_codes`
 --
 
-CREATE TABLE `promo_codes` (
+CREATE TABLE IF NOT EXISTS `promo_codes` (
   `id` int(11) NOT NULL,
   `code` varchar(50) NOT NULL,
   `reward_type` varchar(50) NOT NULL,
@@ -6395,7 +6744,7 @@ CREATE TABLE `promo_codes` (
 -- Dumping data for table `promo_codes`
 --
 
-INSERT INTO `promo_codes` (`id`, `code`, `reward_type`, `reward_amount`, `max_uses`, `current_uses`, `expires_at`, `created_at`) VALUES
+INSERT IGNORE INTO `promo_codes` (`id`, `code`, `reward_type`, `reward_amount`, `max_uses`, `current_uses`, `expires_at`, `created_at`) VALUES
 (1, 'WELCOMEBCD', 'BCD', 10.00000000, 1, 0, NULL, '2026-03-19 08:32:02'),
 (87, 'WELCOME2026', 'BCD', 20000.00000000, 100, 0, '2030-05-03 05:02:00', '2026-04-13 07:45:44');
 
@@ -6405,7 +6754,7 @@ INSERT INTO `promo_codes` (`id`, `code`, `reward_type`, `reward_amount`, `max_us
 -- Table structure for table `promo_code_redemptions`
 --
 
-CREATE TABLE `promo_code_redemptions` (
+CREATE TABLE IF NOT EXISTS `promo_code_redemptions` (
   `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `promo_code_id` int(11) DEFAULT NULL,
@@ -6418,7 +6767,7 @@ CREATE TABLE `promo_code_redemptions` (
 -- Table structure for table `providers`
 --
 
-CREATE TABLE `providers` (
+CREATE TABLE IF NOT EXISTS `providers` (
   `id` int(11) NOT NULL,
   `slug` varchar(100) NOT NULL,
   `name` varchar(150) NOT NULL,
@@ -6432,7 +6781,7 @@ CREATE TABLE `providers` (
 -- Dumping data for table `providers`
 --
 
-INSERT INTO `providers` (`id`, `slug`, `name`, `logo`, `game_count`, `created_at`, `is_maintenance`) VALUES
+INSERT IGNORE INTO `providers` (`id`, `slug`, `name`, `logo`, `game_count`, `created_at`, `is_maintenance`) VALUES
 (1, 'bc-originals', 'BC Originals', 'https://imgxcut.com/provider/bc.png', 12, '2026-03-04 06:24:00', 0),
 (2, 'pragmatic-play', 'Pragmatic Play', 'https://imgxcut.com/provider/pragmatic.png', 200, '2026-03-04 06:24:00', 0),
 (3, 'evolution', 'Evolution', 'https://imgxcut.com/provider/evolution.png', 150, '2026-03-04 06:24:00', 0),
@@ -6448,7 +6797,7 @@ INSERT INTO `providers` (`id`, `slug`, `name`, `logo`, `game_count`, `created_at
 -- Table structure for table `quests`
 --
 
-CREATE TABLE `quests` (
+CREATE TABLE IF NOT EXISTS `quests` (
   `id` int(11) NOT NULL,
   `type` enum('daily','weekly') NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -6464,7 +6813,7 @@ CREATE TABLE `quests` (
 -- Dumping data for table `quests`
 --
 
-INSERT INTO `quests` (`id`, `type`, `title`, `description`, `reward_amount`, `reward_currency`, `goal_value`, `is_active`, `created_at`) VALUES
+INSERT IGNORE INTO `quests` (`id`, `type`, `title`, `description`, `reward_amount`, `reward_currency`, `goal_value`, `is_active`, `created_at`) VALUES
 (1, 'daily', 'Baccarat Multiplayer Master', 'Winning streak of 3 rounds in Baccarat Multiplayer with bets greater than $ 0.4.', 0.10000000, 'BCD', 3.00000000, 1, '2026-03-13 07:32:24'),
 (2, 'daily', 'Wheel Master', 'Winning streak of 3 rounds in Wheel with bets greater than $ 0.4.', 0.10000000, 'BCD', 3.00000000, 1, '2026-03-13 07:32:24'),
 (3, 'daily', 'Just wager on', 'Daily wager reaches $ 100.', 0.20000000, 'BCD', 100.00000000, 1, '2026-03-13 07:32:24'),
@@ -6740,7 +7089,7 @@ INSERT INTO `quests` (`id`, `type`, `title`, `description`, `reward_amount`, `re
 (273, 'daily', 'Baccarat Multiplayer Master', 'Winning streak of 3 rounds in Baccarat Multiplayer with bets greater than $ 0.4.', 0.10000000, 'BCD', 3.00000000, 1, '2026-03-16 10:16:23'),
 (274, 'daily', 'Wheel Master', 'Winning streak of 3 rounds in Wheel with bets greater than $ 0.4.', 0.10000000, 'BCD', 3.00000000, 1, '2026-03-16 10:16:23'),
 (275, 'daily', 'Just wager on', 'Daily wager reaches $ 100.', 0.20000000, 'BCD', 100.00000000, 1, '2026-03-16 10:16:23');
-INSERT INTO `quests` (`id`, `type`, `title`, `description`, `reward_amount`, `reward_currency`, `goal_value`, `is_active`, `created_at`) VALUES
+INSERT IGNORE INTO `quests` (`id`, `type`, `title`, `description`, `reward_amount`, `reward_currency`, `goal_value`, `is_active`, `created_at`) VALUES
 (276, 'weekly', 'Activate Rakeback Bonus Boost!', 'Place total bets of at least 700 this week to activate a Rakeback Boost. For the next 60 minutes, all your Rakeback rewards will be increased by 10%!', 700.00000000, 'BCD', 700.00000000, 1, '2026-03-16 10:16:23'),
 (277, 'daily', 'Baccarat Multiplayer Master', 'Winning streak of 3 rounds in Baccarat Multiplayer with bets greater than $ 0.4.', 0.10000000, 'BCD', 3.00000000, 1, '2026-03-16 10:19:18'),
 (278, 'daily', 'Wheel Master', 'Winning streak of 3 rounds in Wheel with bets greater than $ 0.4.', 0.10000000, 'BCD', 3.00000000, 1, '2026-03-16 10:19:18'),
@@ -6901,7 +7250,7 @@ INSERT INTO `quests` (`id`, `type`, `title`, `description`, `reward_amount`, `re
 -- Table structure for table `referral_codes`
 --
 
-CREATE TABLE `referral_codes` (
+CREATE TABLE IF NOT EXISTS `referral_codes` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `code` varchar(50) NOT NULL,
@@ -6915,7 +7264,7 @@ CREATE TABLE `referral_codes` (
 -- Dumping data for table `referral_codes`
 --
 
-INSERT INTO `referral_codes` (`id`, `user_id`, `code`, `link`, `total_friends`, `total_rewards`, `created_at`) VALUES
+INSERT IGNORE INTO `referral_codes` (`id`, `user_id`, `code`, `link`, `total_friends`, `total_rewards`, `created_at`) VALUES
 (1, 1, 'REF-123', 'http://localhost:3000/referral/REF-123', 0, 0.00000000, '2026-03-18 02:51:16'),
 (2, 1, 'BC-VIP-01', 'http://localhost:3000/referral/BC-VIP-01', 0, 0.00000000, '2026-03-18 02:51:16');
 
@@ -6925,7 +7274,7 @@ INSERT INTO `referral_codes` (`id`, `user_id`, `code`, `link`, `total_friends`, 
 -- Table structure for table `referral_friends`
 --
 
-CREATE TABLE `referral_friends` (
+CREATE TABLE IF NOT EXISTS `referral_friends` (
   `id` int(11) NOT NULL,
   `referrer_id` int(11) NOT NULL,
   `friend_user_id` int(11) NOT NULL,
@@ -6940,7 +7289,7 @@ CREATE TABLE `referral_friends` (
 -- Dumping data for table `referral_friends`
 --
 
-INSERT INTO `referral_friends` (`id`, `referrer_id`, `friend_user_id`, `commission_rate`, `total_deposits_7d`, `total_commission`, `friend_vip_level`, `registered_at`) VALUES
+INSERT IGNORE INTO `referral_friends` (`id`, `referrer_id`, `friend_user_id`, `commission_rate`, `total_deposits_7d`, `total_commission`, `friend_vip_level`, `registered_at`) VALUES
 (1, 1, 2, 25.00, 120.00000000, 30.00000000, 5, '2026-03-08 02:51:16'),
 (2, 1, 3, 25.00, 0.00000000, 5.50000000, 2, '2026-02-26 02:51:16');
 
@@ -6950,7 +7299,7 @@ INSERT INTO `referral_friends` (`id`, `referrer_id`, `friend_user_id`, `commissi
 -- Table structure for table `referral_level_up_milestones`
 --
 
-CREATE TABLE `referral_level_up_milestones` (
+CREATE TABLE IF NOT EXISTS `referral_level_up_milestones` (
   `id` int(11) NOT NULL,
   `vip_level` int(11) NOT NULL,
   `wager_threshold` decimal(20,8) NOT NULL,
@@ -6962,7 +7311,7 @@ CREATE TABLE `referral_level_up_milestones` (
 -- Dumping data for table `referral_level_up_milestones`
 --
 
-INSERT INTO `referral_level_up_milestones` (`id`, `vip_level`, `wager_threshold`, `reward_amount`, `currency`) VALUES
+INSERT IGNORE INTO `referral_level_up_milestones` (`id`, `vip_level`, `wager_threshold`, `reward_amount`, `currency`) VALUES
 (1, 4, 1000.00000000, 0.50000000, 'USDT'),
 (2, 8, 5000.00000000, 2.50000000, 'USDT'),
 (3, 14, 17000.00000000, 5.00000000, 'USDT'),
@@ -6980,7 +7329,7 @@ INSERT INTO `referral_level_up_milestones` (`id`, `vip_level`, `wager_threshold`
 -- Table structure for table `referral_live_rewards`
 --
 
-CREATE TABLE `referral_live_rewards` (
+CREATE TABLE IF NOT EXISTS `referral_live_rewards` (
   `id` int(11) NOT NULL,
   `username` varchar(100) NOT NULL,
   `amount` decimal(20,8) NOT NULL,
@@ -6992,7 +7341,7 @@ CREATE TABLE `referral_live_rewards` (
 -- Dumping data for table `referral_live_rewards`
 --
 
-INSERT INTO `referral_live_rewards` (`id`, `username`, `amount`, `currency`, `awarded_at`) VALUES
+INSERT IGNORE INTO `referral_live_rewards` (`id`, `username`, `amount`, `currency`, `awarded_at`) VALUES
 (1, 'ToTheRungkat', 0.08000000, 'USDT', '2026-03-18 02:51:17'),
 (2, 'Bmlorejictcc', 2.50000000, 'USDT', '2026-03-18 02:51:17'),
 (3, 'Shez27', 0.50000000, 'USDT', '2026-03-18 02:51:17'),
@@ -7007,7 +7356,7 @@ INSERT INTO `referral_live_rewards` (`id`, `username`, `amount`, `currency`, `aw
 -- Table structure for table `referral_rewards`
 --
 
-CREATE TABLE `referral_rewards` (
+CREATE TABLE IF NOT EXISTS `referral_rewards` (
   `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `friend_name` varchar(100) DEFAULT NULL,
@@ -7021,7 +7370,7 @@ CREATE TABLE `referral_rewards` (
 -- Dumping data for table `referral_rewards`
 --
 
-INSERT INTO `referral_rewards` (`id`, `user_id`, `friend_name`, `amount`, `currency`, `status`, `created_at`) VALUES
+INSERT IGNORE INTO `referral_rewards` (`id`, `user_id`, `friend_name`, `amount`, `currency`, `status`, `created_at`) VALUES
 (1, 1, 'John Doe', 10.00000000, 'BCD', 'claimed', '2026-03-13 07:53:04'),
 (2, 1, 'Jane Smith', 5.50000000, 'BCD', 'claimed', '2026-03-13 07:53:04'),
 (3, 1, 'Bob Brown', 25.00000000, 'BCD', 'pending', '2026-03-13 07:53:04'),
@@ -7433,7 +7782,7 @@ INSERT INTO `referral_rewards` (`id`, `user_id`, `friend_name`, `amount`, `curre
 -- Table structure for table `referral_stats`
 --
 
-CREATE TABLE `referral_stats` (
+CREATE TABLE IF NOT EXISTS `referral_stats` (
   `user_id` int(11) NOT NULL,
   `total_rewards` decimal(20,8) DEFAULT 0.00000000,
   `total_friends` int(11) DEFAULT 0,
@@ -7447,7 +7796,7 @@ CREATE TABLE `referral_stats` (
 -- Dumping data for table `referral_stats`
 --
 
-INSERT INTO `referral_stats` (`user_id`, `total_rewards`, `total_friends`, `referral_code`, `referral_link`, `available_commission`, `locked_referral`) VALUES
+INSERT IGNORE INTO `referral_stats` (`user_id`, `total_rewards`, `total_friends`, `referral_code`, `referral_link`, `available_commission`, `locked_referral`) VALUES
 (1, 150.50000000, 12, 'REF-12345', 'http://localhost:3000/referral/REF-12345', 25.00000000, 50.00000000);
 
 -- --------------------------------------------------------
@@ -7456,7 +7805,7 @@ INSERT INTO `referral_stats` (`user_id`, `total_rewards`, `total_friends`, `refe
 -- Table structure for table `rules`
 --
 
-CREATE TABLE `rules` (
+CREATE TABLE IF NOT EXISTS `rules` (
   `id` int(11) NOT NULL,
   `category` varchar(100) NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -7471,7 +7820,7 @@ CREATE TABLE `rules` (
 -- Dumping data for table `rules`
 --
 
-INSERT INTO `rules` (`id`, `category`, `title`, `content`, `is_active`, `display_order`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `rules` (`id`, `category`, `title`, `content`, `is_active`, `display_order`, `created_at`, `updated_at`) VALUES
 (1, 'General', 'Service Terms', '<p>Welcome to BC Game. By using our service, you agree to...</p>', 1, 1, '2026-05-07 08:08:42', '2026-05-07 08:08:42'),
 (2, 'Sports', 'Betting Rules', '<p>Sports betting rules are as follows...</p>', 1, 2, '2026-05-07 08:08:42', '2026-05-07 08:08:42'),
 (3, 'Casino', 'Game Rules', '<p>Casino games are subject to...</p>', 1, 3, '2026-05-07 08:08:42', '2026-05-07 08:08:42'),
@@ -7485,7 +7834,7 @@ INSERT INTO `rules` (`id`, `category`, `title`, `content`, `is_active`, `display
 -- Table structure for table `slot_bet_orders`
 --
 
-CREATE TABLE `slot_bet_orders` (
+CREATE TABLE IF NOT EXISTS `slot_bet_orders` (
   `id` int(11) NOT NULL,
   `transaction_id` varchar(100) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -7511,7 +7860,7 @@ CREATE TABLE `slot_bet_orders` (
 -- Dumping data for table `slot_bet_orders`
 --
 
-INSERT INTO `slot_bet_orders` (`id`, `transaction_id`, `user_id`, `api_provider`, `vendor_id`, `vendor_name`, `game_type`, `table_name`, `before_bet_money`, `bet_money`, `after_bet_money`, `before_win_money`, `win_money`, `after_win_money`, `bet_status`, `note`, `bet_time`, `result_time`, `created_at`) VALUES
+INSERT IGNORE INTO `slot_bet_orders` (`id`, `transaction_id`, `user_id`, `api_provider`, `vendor_id`, `vendor_name`, `game_type`, `table_name`, `before_bet_money`, `bet_money`, `after_bet_money`, `before_win_money`, `win_money`, `after_win_money`, `bet_status`, `note`, `bet_time`, `result_time`, `created_at`) VALUES
 (1, 'TXN-SLOT-UHCD6BX5L', 11, 'Provider X', NULL, 'Vendor Y', 'Slot Game', 'Table A', 52013.00, 2013.00, 50000.00, 50000.00, 0.00, 50000.00, 2, 'Note', '2026-04-16 09:42:46', '2026-04-16 09:42:46', '2026-05-02 09:42:46'),
 (2, 'TXN-SLOT-498G1IW19', 8, 'Provider X', NULL, 'Vendor Y', 'Slot Game', 'Table A', 69150.00, 19150.00, 50000.00, 50000.00, 95750.00, 145750.00, 1, 'Note', '2026-04-15 09:42:46', '2026-04-15 09:42:46', '2026-05-02 09:42:46'),
 (3, 'TXN-SLOT-GJXFFIQ4A', 5, 'Provider X', NULL, 'Vendor Y', 'Slot Game', 'Table A', 64966.00, 14966.00, 50000.00, 50000.00, 0.00, 50000.00, 2, 'Note', '2026-04-07 09:42:46', '2026-04-07 09:42:46', '2026-05-02 09:42:46'),
@@ -7619,7 +7968,7 @@ INSERT INTO `slot_bet_orders` (`id`, `transaction_id`, `user_id`, `api_provider`
 -- Table structure for table `sponsorships`
 --
 
-CREATE TABLE `sponsorships` (
+CREATE TABLE IF NOT EXISTS `sponsorships` (
   `id` int(11) NOT NULL,
   `slug` varchar(100) NOT NULL,
   `partner_name` varchar(100) DEFAULT NULL,
@@ -7635,7 +7984,7 @@ CREATE TABLE `sponsorships` (
 -- Dumping data for table `sponsorships`
 --
 
-INSERT INTO `sponsorships` (`id`, `slug`, `partner_name`, `title`, `logo_url`, `banner_url`, `description`, `content_json`, `created_at`) VALUES
+INSERT IGNORE INTO `sponsorships` (`id`, `slug`, `partner_name`, `title`, `logo_url`, `banner_url`, `description`, `content_json`, `created_at`) VALUES
 (1, 'ohiggins', 'O\'HIGGINS', 'BC.GAME Partners with O’Higgins FC as Official Sponsor', 'https://bc.game/modules/static2/assets/logo-pl6TMsBI.png', 'https://bc.game/modules/static2/assets/banner_w-CUO3JHtv.png', 'We’re proud to announce our latest partnership with O’Higgins FC, one of Chile’s most historic football clubs.', NULL, '2026-03-13 07:53:04'),
 (2, 'pump', 'Lil Pump', 'Lil Pump Joins Forces with BC.GAME to Elevate the Future of Online Gaming', 'https://bc.game/modules/static2/assets/icon-light-DuBEYEJ-.png', 'https://bc.game/modules/static2/assets/person-p-light-DxNt3srQ.png', 'BC.GAME, the leading crypto igaming and sports betting platform, has partnered with chart-topping rapper Lil Pump.', NULL, '2026-03-13 07:53:04');
 
@@ -7645,7 +7994,7 @@ INSERT INTO `sponsorships` (`id`, `slug`, `partner_name`, `title`, `logo_url`, `
 -- Table structure for table `sports`
 --
 
-CREATE TABLE `sports` (
+CREATE TABLE IF NOT EXISTS `sports` (
   `id` int(11) NOT NULL,
   `slug` varchar(100) NOT NULL,
   `name` varchar(150) NOT NULL,
@@ -7663,7 +8012,7 @@ CREATE TABLE `sports` (
 -- Dumping data for table `sports`
 --
 
-INSERT INTO `sports` (`id`, `slug`, `name`, `display_name`, `icon_svg`, `image_url`, `order_index`, `is_active`, `deadline_seconds`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `sports` (`id`, `slug`, `name`, `display_name`, `icon_svg`, `image_url`, `order_index`, `is_active`, `deadline_seconds`, `created_at`, `updated_at`) VALUES
 (1, 'soccer', 'Soccer', 'Soccer', NULL, NULL, 1, 0, 0, '2026-03-05 03:44:41', '2026-05-15 09:05:42'),
 (2, 'basketball', 'Basketball', 'Basketball', NULL, NULL, 2, 1, 0, '2026-03-05 03:44:41', '2026-05-02 10:15:19'),
 (3, 'tennis', 'Tennis', 'Tennis', NULL, NULL, 3, 1, 0, '2026-03-05 03:44:41', '2026-05-02 10:15:19'),
@@ -7700,7 +8049,7 @@ INSERT INTO `sports` (`id`, `slug`, `name`, `display_name`, `icon_svg`, `image_u
 -- Table structure for table `sport_bet_details`
 --
 
-CREATE TABLE `sport_bet_details` (
+CREATE TABLE IF NOT EXISTS `sport_bet_details` (
   `id` int(11) NOT NULL,
   `order_id` int(11) NOT NULL,
   `match_id` int(11) NOT NULL,
@@ -7716,7 +8065,7 @@ CREATE TABLE `sport_bet_details` (
 -- Dumping data for table `sport_bet_details`
 --
 
-INSERT INTO `sport_bet_details` (`id`, `order_id`, `match_id`, `market_name`, `selection`, `odds`, `game_result`, `folder_cancelled`, `result_time`) VALUES
+INSERT IGNORE INTO `sport_bet_details` (`id`, `order_id`, `match_id`, `market_name`, `selection`, `odds`, `game_result`, `folder_cancelled`, `result_time`) VALUES
 (2, 2, 2365, 'Total Goals', 'Home', 1.25, 'lose', 0, NULL),
 (3, 2, 2372, 'Total Goals', 'Home', 2.34, 'lose', 0, NULL),
 (4, 3, 2373, 'Match Winner', 'Home', 2.92, 'win', 0, NULL),
@@ -7827,7 +8176,7 @@ INSERT INTO `sport_bet_details` (`id`, `order_id`, `match_id`, `market_name`, `s
 -- Table structure for table `sport_bet_orders`
 --
 
-CREATE TABLE `sport_bet_orders` (
+CREATE TABLE IF NOT EXISTS `sport_bet_orders` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `bet_status` enum('pending','win','lose','cancelled','cancelled_by_user') NOT NULL DEFAULT 'pending',
@@ -7847,7 +8196,7 @@ CREATE TABLE `sport_bet_orders` (
 -- Dumping data for table `sport_bet_orders`
 --
 
-INSERT INTO `sport_bet_orders` (`id`, `user_id`, `bet_status`, `type_flag`, `type_cross_special`, `folder_count`, `total_odds`, `bet_money`, `expect_win_money`, `win_money`, `bet_time`, `result_time`, `is_deleted`) VALUES
+INSERT IGNORE INTO `sport_bet_orders` (`id`, `user_id`, `bet_status`, `type_flag`, `type_cross_special`, `folder_count`, `total_odds`, `bet_money`, `expect_win_money`, `win_money`, `bet_time`, `result_time`, `is_deleted`) VALUES
 (1, 7, 'lose', 1, 1, 2, 2.32, 43333.00, 100532.56, 0.00, '2026-04-10 09:52:34', NULL, 0),
 (2, 1, 'lose', 1, 1, 2, 5.49, 45339.00, 248911.11, 0.00, '2026-04-29 09:53:45', NULL, 0),
 (3, 11, 'win', 1, 1, 2, 2.57, 59763.00, 153590.91, 153590.91, '2026-04-12 09:53:45', NULL, 0),
@@ -7906,7 +8255,7 @@ INSERT INTO `sport_bet_orders` (`id`, `user_id`, `bet_status`, `type_flag`, `typ
 -- Table structure for table `sport_cross_settings`
 --
 
-CREATE TABLE `sport_cross_settings` (
+CREATE TABLE IF NOT EXISTS `sport_cross_settings` (
   `id` int(11) NOT NULL,
   `typeFlag` varchar(10) NOT NULL,
   `typeSameMatch` varchar(10) NOT NULL,
@@ -7920,7 +8269,7 @@ CREATE TABLE `sport_cross_settings` (
 -- Table structure for table `sport_market_types`
 --
 
-CREATE TABLE `sport_market_types` (
+CREATE TABLE IF NOT EXISTS `sport_market_types` (
   `marketTypeIdx` int(11) NOT NULL,
   `sportIdx` int(11) NOT NULL,
   `sportName` varchar(100) NOT NULL,
@@ -7950,7 +8299,7 @@ CREATE TABLE `sport_market_types` (
 -- Dumping data for table `sport_market_types`
 --
 
-INSERT INTO `sport_market_types` (`marketTypeIdx`, `sportIdx`, `sportName`, `marketTypeName`, `displayName`, `sort`, `specialType`, `division`, `prematchUseYN`, `liveUseYN`, `prematchUsePoint`, `liveUsePoint`, `prematchMinPrice`, `prematchMaxPrice`, `liveMinPrice`, `liveMaxPrice`, `updateUserName`, `updateDate`, `isHandicap`, `isOverUnder`, `typeCrossSpecial`, `useSingle`, `typeFlag`) VALUES
+INSERT IGNORE INTO `sport_market_types` (`marketTypeIdx`, `sportIdx`, `sportName`, `marketTypeName`, `displayName`, `sort`, `specialType`, `division`, `prematchUseYN`, `liveUseYN`, `prematchUsePoint`, `liveUsePoint`, `prematchMinPrice`, `prematchMaxPrice`, `liveMinPrice`, `liveMaxPrice`, `updateUserName`, `updateDate`, `isHandicap`, `isOverUnder`, `typeCrossSpecial`, `useSingle`, `typeFlag`) VALUES
 (1, 1, '축구', '1X2', '승무패', 1, NULL, NULL, 1, 1, '1,1.5', '1,1.5', 1.01, 100.00, 1.01, 100.00, 'System', '2026-05-04 17:15:51', 0, 0, 1, 0, 1),
 (2, 1, '축구', 'Handicap', '핸디캡', 2, NULL, NULL, 1, 1, '0.5,1,1.5', '0.5,1,1.5', 1.01, 100.00, 1.01, 100.00, 'System', '2026-05-04 17:15:51', 1, 0, 1, 0, 1),
 (3, 1, '축구', 'Over/Under', '언더오버', 3, NULL, NULL, 1, 1, '0.5,1,1.5,2.5', '0.5,1,1.5,2.5', 1.01, 100.00, 1.01, 100.00, 'System', '2026-05-04 17:15:51', 0, 1, 1, 0, 1),
@@ -7968,7 +8317,7 @@ INSERT INTO `sport_market_types` (`marketTypeIdx`, `sportIdx`, `sportName`, `mar
 -- Table structure for table `sport_odds_settings`
 --
 
-CREATE TABLE `sport_odds_settings` (
+CREATE TABLE IF NOT EXISTS `sport_odds_settings` (
   `id` int(11) NOT NULL,
   `sportIdx` int(11) NOT NULL,
   `typeFlagIdx` int(11) NOT NULL,
@@ -7985,7 +8334,7 @@ CREATE TABLE `sport_odds_settings` (
 -- Dumping data for table `sport_odds_settings`
 --
 
-INSERT INTO `sport_odds_settings` (`id`, `sportIdx`, `typeFlagIdx`, `levelIdx`, `groupIdx`, `marketIdx`, `fromOdds`, `toOdds`, `returnRate`, `updateDate`) VALUES
+INSERT IGNORE INTO `sport_odds_settings` (`id`, `sportIdx`, `typeFlagIdx`, `levelIdx`, `groupIdx`, `marketIdx`, `fromOdds`, `toOdds`, `returnRate`, `updateDate`) VALUES
 (1, 1, 1, 1, 1, 1, NULL, NULL, NULL, '2026-05-04 17:22:23'),
 (2, 1, 1, 1, 1, 2, NULL, NULL, NULL, '2026-05-04 17:22:23'),
 (3, 1, 1, 1, 1, 3, NULL, NULL, NULL, '2026-05-04 17:22:23'),
@@ -8193,7 +8542,7 @@ INSERT INTO `sport_odds_settings` (`id`, `sportIdx`, `typeFlagIdx`, `levelIdx`, 
 -- Table structure for table `sport_sum_odds_settings`
 --
 
-CREATE TABLE `sport_sum_odds_settings` (
+CREATE TABLE IF NOT EXISTS `sport_sum_odds_settings` (
   `id` int(11) NOT NULL,
   `sportIdx` int(11) NOT NULL,
   `typeFlagIdx` int(11) NOT NULL,
@@ -8208,7 +8557,7 @@ CREATE TABLE `sport_sum_odds_settings` (
 -- Dumping data for table `sport_sum_odds_settings`
 --
 
-INSERT INTO `sport_sum_odds_settings` (`id`, `sportIdx`, `typeFlagIdx`, `groupIdx`, `category`, `sumOdds`, `defaultOdds`, `updateDate`) VALUES
+INSERT IGNORE INTO `sport_sum_odds_settings` (`id`, `sportIdx`, `typeFlagIdx`, `groupIdx`, `category`, `sumOdds`, `defaultOdds`, `updateDate`) VALUES
 (9, 1, 2, 1, 2, NULL, NULL, '2026-05-04 17:27:04'),
 (10, 1, 2, 1, 3, NULL, NULL, '2026-05-04 17:27:04'),
 (11, 1, 2, 1, 4, NULL, NULL, '2026-05-04 17:27:04'),
@@ -8512,7 +8861,7 @@ INSERT INTO `sport_sum_odds_settings` (`id`, `sportIdx`, `typeFlagIdx`, `groupId
 -- Table structure for table `swap_rates`
 --
 
-CREATE TABLE `swap_rates` (
+CREATE TABLE IF NOT EXISTS `swap_rates` (
   `id` int(11) NOT NULL,
   `from_currency` varchar(20) NOT NULL,
   `to_currency` varchar(20) NOT NULL,
@@ -8528,7 +8877,7 @@ CREATE TABLE `swap_rates` (
 -- Dumping data for table `swap_rates`
 --
 
-INSERT INTO `swap_rates` (`id`, `from_currency`, `to_currency`, `rate`, `fee_percent`, `min_amount`, `max_amount`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `swap_rates` (`id`, `from_currency`, `to_currency`, `rate`, `fee_percent`, `min_amount`, `max_amount`, `created_at`, `updated_at`) VALUES
 (1, 'USDT', 'BC', 100.000000000000000000, 1.00, 10.000000000000000000, 100000.000000000000000000, '2026-04-16 06:05:46', '2026-04-16 06:05:46'),
 (2, 'BTC', 'BC', 6500000.000000000000000000, 1.50, 0.000100000000000000, 10.000000000000000000, '2026-04-16 06:05:46', '2026-04-16 06:05:46'),
 (3, 'ETH', 'BC', 350000.000000000000000000, 1.50, 0.010000000000000000, 100.000000000000000000, '2026-04-16 06:05:46', '2026-04-16 06:05:46');
@@ -8539,7 +8888,7 @@ INSERT INTO `swap_rates` (`id`, `from_currency`, `to_currency`, `rate`, `fee_per
 -- Table structure for table `system_logs`
 --
 
-CREATE TABLE `system_logs` (
+CREATE TABLE IF NOT EXISTS `system_logs` (
   `id` int(11) NOT NULL,
   `level` enum('info','warning','error','critical') DEFAULT 'info',
   `message` text NOT NULL,
@@ -8551,7 +8900,7 @@ CREATE TABLE `system_logs` (
 -- Dumping data for table `system_logs`
 --
 
-INSERT INTO `system_logs` (`id`, `level`, `message`, `context`, `created_at`) VALUES
+INSERT IGNORE INTO `system_logs` (`id`, `level`, `message`, `context`, `created_at`) VALUES
 (1, 'info', 'System Audit System initialized.', '{\"version\": \"1.0.0\"}', '2026-04-21 05:15:25'),
 (2, 'info', 'Payment Webhook integration verified.', '{\"status\": \"active\"}', '2026-04-21 05:15:25');
 
@@ -8561,7 +8910,7 @@ INSERT INTO `system_logs` (`id`, `level`, `message`, `context`, `created_at`) VA
 -- Table structure for table `teams`
 --
 
-CREATE TABLE `teams` (
+CREATE TABLE IF NOT EXISTS `teams` (
   `id` int(11) NOT NULL,
   `sport_id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -8573,7 +8922,7 @@ CREATE TABLE `teams` (
 -- Dumping data for table `teams`
 --
 
-INSERT INTO `teams` (`id`, `sport_id`, `name`, `logo`, `created_at`) VALUES
+INSERT IGNORE INTO `teams` (`id`, `sport_id`, `name`, `logo`, `created_at`) VALUES
 (1, 1, 'Como 1907', 'https://d1bvoel1nv172p.cloudfront.net/competitors/images/normal/medium/2704.png', '2026-03-05 03:44:41'),
 (2, 1, 'AC Milan', 'https://d1bvoel1nv172p.cloudfront.net/competitors/images/normal/medium/1643.png', '2026-03-05 03:44:41'),
 (3, 1, 'Arsenal FC', 'https://d1bvoel1nv172p.cloudfront.net/competitors/images/normal/medium/42.png', '2026-03-05 03:44:41'),
@@ -8944,7 +9293,7 @@ INSERT INTO `teams` (`id`, `sport_id`, `name`, `logo`, `created_at`) VALUES
 (2226, 13, 'Sam Goodman', 'https://ui-avatars.com/api/?name=Sam%20Goodman&size=100&background=ff0000&color=fff&bold=true&length=2', '2026-03-31 08:48:55'),
 (2227, 13, 'Rodrigo Fabian Ruiz', 'https://ui-avatars.com/api/?name=Rodrigo%20Fabian%20Ruiz&size=100&background=c0c0c0&color=fff&bold=true&length=2', '2026-03-31 08:48:55'),
 (2228, 13, 'Tim Tszyu', 'https://ui-avatars.com/api/?name=Tim%20Tszyu&size=100&background=8b0000&color=fff&bold=true&length=2', '2026-03-31 08:48:55');
-INSERT INTO `teams` (`id`, `sport_id`, `name`, `logo`, `created_at`) VALUES
+INSERT IGNORE INTO `teams` (`id`, `sport_id`, `name`, `logo`, `created_at`) VALUES
 (2229, 13, 'Denis Nurja', 'https://ui-avatars.com/api/?name=Denis%20Nurja&size=100&background=434343&color=fff&bold=true&length=2', '2026-03-31 08:48:55'),
 (2230, 13, 'Chantelle Cameron', 'https://ui-avatars.com/api/?name=Chantelle%20Cameron&size=100&background=000000&color=fff&bold=true&length=2', '2026-03-31 08:48:55'),
 (2231, 13, 'Michaela Kotaskova', 'https://ui-avatars.com/api/?name=Michaela%20Kotaskova&size=100&background=ff0000&color=fff&bold=true&length=2', '2026-03-31 08:48:55'),
@@ -9261,7 +9610,7 @@ INSERT INTO `teams` (`id`, `sport_id`, `name`, `logo`, `created_at`) VALUES
 (2542, 2990, 'Imanol Rodriguez', 'https://ui-avatars.com/api/?name=Imanol%20Rodriguez&size=100&background=003366&color=fff&bold=true&length=2', '2026-06-01 00:10:51'),
 (2543, 2990, 'Iwo Baraniewski', 'https://ui-avatars.com/api/?name=Iwo%20Baraniewski&size=100&background=003366&color=fff&bold=true&length=2', '2026-06-01 00:10:51'),
 (2544, 2990, 'Jeisla Chaves', 'https://ui-avatars.com/api/?name=Jeisla%20Chaves&size=100&background=1a1a1a&color=fff&bold=true&length=2', '2026-06-01 00:10:51');
-INSERT INTO `teams` (`id`, `sport_id`, `name`, `logo`, `created_at`) VALUES
+INSERT IGNORE INTO `teams` (`id`, `sport_id`, `name`, `logo`, `created_at`) VALUES
 (2545, 2990, 'Yuneisy Duben', 'https://ui-avatars.com/api/?name=Yuneisy%20Duben&size=100&background=3d1a00&color=fff&bold=true&length=2', '2026-06-01 00:10:51'),
 (2546, 2990, 'Jordan Leavitt', 'https://ui-avatars.com/api/?name=Jordan%20Leavitt&size=100&background=1a1a1a&color=fff&bold=true&length=2', '2026-06-01 00:10:51'),
 (2547, 2990, 'Joanderson Brito', 'https://ui-avatars.com/api/?name=Joanderson%20Brito&size=100&background=1a1a1a&color=fff&bold=true&length=2', '2026-06-01 00:10:51'),
@@ -9386,7 +9735,53 @@ INSERT INTO `teams` (`id`, `sport_id`, `name`, `logo`, `created_at`) VALUES
 (2679, 2990, 'Luca Borando', 'https://ui-avatars.com/api/?name=Luca%20Borando&size=100&background=002244&color=fff&bold=true&length=2', '2026-07-06 07:52:27'),
 (2680, 2990, 'Leandro Camargo', 'https://ui-avatars.com/api/?name=Leandro%20Camargo&size=100&background=002244&color=fff&bold=true&length=2', '2026-07-06 07:52:27'),
 (2682, 13, 'Megan Redstall', 'https://ui-avatars.com/api/?name=Megan%20Redstall&size=100&background=ff0000&color=fff&bold=true&length=2', '2026-07-06 07:52:29'),
-(2683, 13, 'Maisey Rose Courtney', 'https://ui-avatars.com/api/?name=Maisey%20Rose%20Courtney&size=100&background=ff0000&color=fff&bold=true&length=2', '2026-07-06 07:52:29');
+(2683, 13, 'Maisey Rose Courtney', 'https://ui-avatars.com/api/?name=Maisey%20Rose%20Courtney&size=100&background=ff0000&color=fff&bold=true&length=2', '2026-07-06 07:52:29'),
+(2684, 1, 'Kairat Almaty', 'https://ui-avatars.com/api/?name=Kairat%20Almaty&size=100&background=1a472a&color=fff&bold=true&length=2', '2026-07-07 08:19:47'),
+(2685, 1, 'Sutjeska', 'https://ui-avatars.com/api/?name=Sutjeska&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-07 08:19:47'),
+(2686, 1, 'Flora Tallinn', 'https://ui-avatars.com/api/?name=Flora%20Tallinn&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-07 08:19:47'),
+(2687, 1, 'Saburtalo', 'https://ui-avatars.com/api/?name=Saburtalo&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-07 08:19:47'),
+(2688, 1, 'ML Vitebsk', 'https://ui-avatars.com/api/?name=ML%20Vitebsk&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-07 08:19:47'),
+(2689, 1, 'Universitatea Craiova', 'https://ui-avatars.com/api/?name=Universitatea%20Craiova&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-07 08:19:47'),
+(2690, 1, 'Petrocub', 'https://ui-avatars.com/api/?name=Petrocub&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-07 08:19:47'),
+(2691, 1, 'Egnatia Rrogozhinë', 'https://ui-avatars.com/api/?name=Egnatia%20Rrogozhin%C3%AB&size=100&background=1a472a&color=fff&bold=true&length=2', '2026-07-07 08:19:47'),
+(2692, 1, 'Qarabag', 'https://ui-avatars.com/api/?name=Qarabag&size=100&background=1a472a&color=fff&bold=true&length=2', '2026-07-08 01:02:04'),
+(2693, 1, 'Vestri', 'https://ui-avatars.com/api/?name=Vestri&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-08 01:02:04'),
+(2694, 1, 'Dynamo Kyiv', 'https://ui-avatars.com/api/?name=Dynamo%20Kyiv&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-08 01:02:04'),
+(2695, 1, 'Universitatea Cluj', 'https://ui-avatars.com/api/?name=Universitatea%20Cluj&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-08 01:02:04'),
+(2696, 1, 'Sheriff Tiraspol', 'https://ui-avatars.com/api/?name=Sheriff%20Tiraspol&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-08 01:02:04'),
+(2697, 1, 'Aluminij', 'https://ui-avatars.com/api/?name=Aluminij&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-08 01:02:04'),
+(2698, 1, 'CSKA Sofia', 'https://ui-avatars.com/api/?name=CSKA%20Sofia&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-08 01:02:04'),
+(2699, 1, 'Derry City', 'https://ui-avatars.com/api/?name=Derry%20City&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-08 01:02:04'),
+(2700, 1, 'HNK Hajduk Split', 'https://ui-avatars.com/api/?name=HNK%20Hajduk%20Split&size=100&background=1a472a&color=fff&bold=true&length=2', '2026-07-08 01:02:04'),
+(2701, 1, 'Žilina', 'https://ui-avatars.com/api/?name=%C5%BDilina&size=100&background=1a472a&color=fff&bold=true&length=2', '2026-07-08 01:02:04'),
+(2702, 1, 'Vojvodina', 'https://ui-avatars.com/api/?name=Vojvodina&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-08 01:02:04'),
+(2703, 1, 'Ferencvarosi TC', 'https://ui-avatars.com/api/?name=Ferencvarosi%20TC&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-08 01:02:04'),
+(2704, 1, 'Slovan Bratislava', 'https://ui-avatars.com/api/?name=Slovan%20Bratislava&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-20 09:14:09'),
+(2705, 1, 'Mjallby AIF', 'https://ui-avatars.com/api/?name=Mjallby%20AIF&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-20 09:14:09'),
+(2706, 1, 'Aarhus', 'https://ui-avatars.com/api/?name=Aarhus&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-20 09:14:09'),
+(2707, 1, 'Lech Poznan', 'https://ui-avatars.com/api/?name=Lech%20Poznan&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-20 09:14:09'),
+(2708, 1, 'Fenerbahçe', 'https://ui-avatars.com/api/?name=Fenerbah%C3%A7e&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-20 09:14:09'),
+(2709, 1, 'Gornik Zabrze', 'https://ui-avatars.com/api/?name=Gornik%20Zabrze&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-20 09:14:09'),
+(2710, 1, 'FC Thun', 'https://ui-avatars.com/api/?name=FC%20Thun&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-20 09:14:09'),
+(2711, 1, 'Dinamo Zagreb', 'https://ui-avatars.com/api/?name=Dinamo%20Zagreb&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-20 09:14:09'),
+(2712, 1, 'Sturm Graz', 'https://ui-avatars.com/api/?name=Sturm%20Graz&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-20 09:14:09'),
+(2713, 1, 'Heart Of Midlothian', 'https://ui-avatars.com/api/?name=Heart%20Of%20Midlothian&size=100&background=1a472a&color=fff&bold=true&length=2', '2026-07-20 09:14:09'),
+(2714, 1, 'FK Crvena Zvezda', 'https://ui-avatars.com/api/?name=FK%20Crvena%20Zvezda&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-20 09:14:09'),
+(2715, 1, 'Hapoel Beer Sheva', 'https://ui-avatars.com/api/?name=Hapoel%20Beer%20Sheva&size=100&background=1a472a&color=fff&bold=true&length=2', '2026-07-20 09:14:09'),
+(2716, 1, 'Omonia Nicosia', 'https://ui-avatars.com/api/?name=Omonia%20Nicosia&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-21 09:09:28'),
+(2717, 1, 'Celje', 'https://ui-avatars.com/api/?name=Celje&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-21 09:09:28'),
+(2718, 1, 'Hammarby FF', 'https://ui-avatars.com/api/?name=Hammarby%20FF&size=100&background=1a472a&color=fff&bold=true&length=2', '2026-07-22 08:26:48'),
+(2719, 1, 'Anderlecht', 'https://ui-avatars.com/api/?name=Anderlecht&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-22 08:26:48'),
+(2720, 1, 'Tromso', 'https://ui-avatars.com/api/?name=Tromso&size=100&background=1a472a&color=fff&bold=true&length=2', '2026-07-22 08:26:48'),
+(2721, 1, 'Hradec Králové', 'https://ui-avatars.com/api/?name=Hradec%20Kr%C3%A1lov%C3%A9&size=100&background=1a472a&color=fff&bold=true&length=2', '2026-07-22 08:26:48'),
+(2722, 1, 'PAOK', 'https://ui-avatars.com/api/?name=PAOK&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-22 08:26:48'),
+(2723, 1, 'Maccabi Tel Aviv', 'https://ui-avatars.com/api/?name=Maccabi%20Tel%20Aviv&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-22 08:26:48'),
+(2724, 1, 'Beşiktaş', 'https://ui-avatars.com/api/?name=Be%C5%9Fikta%C5%9F&size=100&background=1a472a&color=fff&bold=true&length=2', '2026-07-22 08:26:48'),
+(2725, 1, 'FC Midtjylland', 'https://ui-avatars.com/api/?name=FC%20Midtjylland&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-22 08:26:48'),
+(2726, 1, 'FC ST. Gallen', 'https://ui-avatars.com/api/?name=FC%20ST.%20Gallen&size=100&background=1e3a5f&color=fff&bold=true&length=2', '2026-07-22 08:26:48'),
+(2727, 1, 'Benfica', 'https://media.api-sports.io/football/teams/211.png', '2026-07-22 08:26:48'),
+(2728, 1, 'Twente', 'https://ui-avatars.com/api/?name=Twente&size=100&background=1a472a&color=fff&bold=true&length=2', '2026-07-22 08:26:48'),
+(2729, 1, 'Pafos', 'https://ui-avatars.com/api/?name=Pafos&size=100&background=5c1a1a&color=fff&bold=true&length=2', '2026-07-22 08:26:48');
 
 -- --------------------------------------------------------
 
@@ -9394,7 +9789,7 @@ INSERT INTO `teams` (`id`, `sport_id`, `name`, `logo`, `created_at`) VALUES
 -- Table structure for table `trading_markets`
 --
 
-CREATE TABLE `trading_markets` (
+CREATE TABLE IF NOT EXISTS `trading_markets` (
   `symbol` varchar(20) NOT NULL,
   `name` varchar(100) NOT NULL,
   `icon` varchar(255) DEFAULT NULL,
@@ -9414,7 +9809,7 @@ CREATE TABLE `trading_markets` (
 -- Dumping data for table `trading_markets`
 --
 
-INSERT INTO `trading_markets` (`symbol`, `name`, `icon`, `price`, `change_24h`, `type`, `payout_multiplier`, `max_leverage`, `spread`, `buy_volume`, `sell_volume`, `is_active`, `created_at`) VALUES
+INSERT IGNORE INTO `trading_markets` (`symbol`, `name`, `icon`, `price`, `change_24h`, `type`, `payout_multiplier`, `max_leverage`, `spread`, `buy_volume`, `sell_volume`, `is_active`, `created_at`) VALUES
 ('AAPL', 'Apple Inc.', NULL, 175.20000000, 1.10, 'stock', 1.96, 1, 0.0000, 0.00000000, 0.00000000, 1, '2026-03-21 09:24:26'),
 ('BNB', 'Binance Coin', NULL, 580.10000000, 0.50, 'crypto', 1.96, 1, 0.0000, 0.00000000, 0.00000000, 1, '2026-03-21 09:24:26'),
 ('BTC', 'Bitcoin', 'https://currency-trade.s3.ap-east-1.amazonaws.com/icons/BTC.png', 68500.50000000, 2.50, 'crypto', 1.96, 200, 15.0000, 0.00000000, 0.00000000, 1, '2026-03-16 10:14:45'),
@@ -9429,7 +9824,7 @@ INSERT INTO `trading_markets` (`symbol`, `name`, `icon`, `price`, `change_24h`, 
 -- Table structure for table `trading_rounds`
 --
 
-CREATE TABLE `trading_rounds` (
+CREATE TABLE IF NOT EXISTS `trading_rounds` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `market_symbol` varchar(20) NOT NULL,
   `round_number` bigint(20) NOT NULL,
@@ -9446,7 +9841,7 @@ CREATE TABLE `trading_rounds` (
 -- Dumping data for table `trading_rounds`
 --
 
-INSERT INTO `trading_rounds` (`id`, `market_symbol`, `round_number`, `start_time`, `end_time`, `start_price`, `end_price`, `status`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `trading_rounds` (`id`, `market_symbol`, `round_number`, `start_time`, `end_time`, `start_price`, `end_price`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'STONKS', 1, '2026-03-16 18:14:45', '2026-03-16 18:19:45', NULL, NULL, 'active', '2026-03-16 18:14:45', '2026-03-16 18:14:45');
 
 -- --------------------------------------------------------
@@ -9455,7 +9850,7 @@ INSERT INTO `trading_rounds` (`id`, `market_symbol`, `round_number`, `start_time
 -- Table structure for table `trading_trades`
 --
 
-CREATE TABLE `trading_trades` (
+CREATE TABLE IF NOT EXISTS `trading_trades` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `symbol` varchar(20) NOT NULL,
@@ -9482,7 +9877,7 @@ CREATE TABLE `trading_trades` (
 -- Dumping data for table `trading_trades`
 --
 
-INSERT INTO `trading_trades` (`id`, `user_id`, `symbol`, `trading_type`, `order_type`, `amount`, `currency`, `direction`, `leverage`, `duration`, `entry_price`, `exit_price`, `tp_price`, `sl_price`, `liq_price`, `payout`, `profit`, `status`, `created_at`, `resolved_at`) VALUES
+INSERT IGNORE INTO `trading_trades` (`id`, `user_id`, `symbol`, `trading_type`, `order_type`, `amount`, `currency`, `direction`, `leverage`, `duration`, `entry_price`, `exit_price`, `tp_price`, `sl_price`, `liq_price`, `payout`, `profit`, `status`, `created_at`, `resolved_at`) VALUES
 (1, 1, 'XAU', 'up-down', 'market', 1.01000000, 'USDT', 'up', 1, 15, 4726.72000000, 4728.49000000, NULL, NULL, NULL, NULL, 0.75700000, 'won', '2026-03-16 10:09:45', NULL),
 (2, 1, 'ETH', 'up-down', 'market', 1.00100000, 'USDT', 'down', 1, 30, 2291.04000000, 2290.60000000, NULL, NULL, NULL, NULL, -1.00100000, 'lost', '2026-03-16 10:04:45', NULL),
 (3, 1, 'STONKS', 'contract', 'market', 4.00100000, 'USDC', 'buy', 10, NULL, 945.37000000, NULL, 960.00000000, 930.00000000, NULL, NULL, NULL, 'pending', '2026-03-16 09:14:45', NULL),
@@ -9697,7 +10092,7 @@ INSERT INTO `trading_trades` (`id`, `user_id`, `symbol`, `trading_type`, `order_
 -- Table structure for table `users`
 --
 
-CREATE TABLE `users` (
+CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL,
   `email_or_phone` varchar(255) NOT NULL,
   `username` varchar(100) NOT NULL,
@@ -9737,14 +10132,14 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email_or_phone`, `username`, `nickname`, `password`, `referral_code`, `created_at`, `role`, `two_factor_secret`, `two_factor_enabled`, `vip_level_id`, `total_wagered`, `last_login`, `last_ip_address`, `status`, `admin_notes`, `kyc_status`, `kyc_notes`, `is_muted`, `is_agent`, `custom_commission`, `agent_level`, `phone_number`, `bank_account`, `bank_depositor`, `bank_idx`, `charge_bank_idx`, `warning_color_idx`, `sport_level`, `casino_level`, `slot_level`, `mini_game_level`, `board_game_level`) VALUES
-(1, 'sample@gmail.com', 'user', 'user', '$2b$10$ygPqB1bRL9tdnFAlRtrOhOQzPUQYD4gif.ucCVDDz5jlBPkdV.t9i', 'Welcome2026', '2026-03-04 07:29:16', 'user', NULL, 0, 0, 0.00000000, '2026-05-14 17:57:59', '::1', 'ACTIVE', NULL, 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
-(2, 'admin@bcgame.com', 'admin', 'admin', '$2b$10$8tpB4.O0eCR4vvvlXXqWcuL/1oZ/usZzD4KIy6DAbk.wiDwN8Rv0q', NULL, '2026-03-18 07:57:22', 'admin', NULL, 0, 0, 0.00000000, '2026-05-08 12:16:33', '::1', 'ACTIVE', NULL, 'none', NULL, 0, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
-(3, 'superadmin@bcgame.com', 'superadmin', 'superadmin', '$2b$10$8tpB4.O0eCR4vvvlXXqWcuL/1oZ/usZzD4KIy6DAbk.wiDwN8Rv0q', NULL, '2026-03-18 07:57:22', 'super_admin', 'EE7FULR6EUTHSMZTHEZHWJB6IUXXUUSUHY4TGILQI5HSYZZGN5WA', 0, 0, 0.00000000, NULL, NULL, 'ACTIVE', NULL, 'none', NULL, 0, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
+INSERT IGNORE INTO `users` (`id`, `email_or_phone`, `username`, `nickname`, `password`, `referral_code`, `created_at`, `role`, `two_factor_secret`, `two_factor_enabled`, `vip_level_id`, `total_wagered`, `last_login`, `last_ip_address`, `status`, `admin_notes`, `kyc_status`, `kyc_notes`, `is_muted`, `is_agent`, `custom_commission`, `agent_level`, `phone_number`, `bank_account`, `bank_depositor`, `bank_idx`, `charge_bank_idx`, `warning_color_idx`, `sport_level`, `casino_level`, `slot_level`, `mini_game_level`, `board_game_level`) VALUES
+(1, 'sample@gmail.com', 'user', 'user', '$2b$10$ygPqB1bRL9tdnFAlRtrOhOQzPUQYD4gif.ucCVDDz5jlBPkdV.t9i', 'Welcome2026', '2026-03-04 07:29:16', 'user', NULL, 0, 0, 0.00000000, '2026-05-14 17:57:59', '::1', 'SUSPENDED', 'dasd', 'none', NULL, 0, 0, NULL, 1, 'dsad', 'dasd', 'das', NULL, NULL, 1, 1, 4, 8, 8, 8),
+(2, 'admin@bcgame.com', 'admin', 'admin', '$2b$10$8tpB4.O0eCR4vvvlXXqWcuL/1oZ/usZzD4KIy6DAbk.wiDwN8Rv0q', '', '2026-03-18 07:57:22', 'admin', NULL, 0, 0, 0.00000000, '2026-05-08 12:16:33', '::1', 'ACTIVE', 'dasd', 'none', NULL, 0, 1, NULL, 1, 'sdsa', 'dsad', 'dsad', NULL, NULL, 1, 5, 1, 1, 1, 5),
+(3, 'superadmin@bcgame.com', 'superadmin', 'superadmin', '$2b$10$8tpB4.O0eCR4vvvlXXqWcuL/1oZ/usZzD4KIy6DAbk.wiDwN8Rv0q', '', '2026-03-18 07:57:22', 'admin', 'EE7FULR6EUTHSMZTHEZHWJB6IUXXUUSUHY4TGILQI5HSYZZGN5WA', 0, 0, 0.00000000, NULL, NULL, 'ACTIVE', '', 'none', NULL, 0, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, 2, 1, 1, 1, 1, 1),
 (4, 'test@gmail.com', 'admin_test', 'admin_test', '$2b$10$8tpB4.O0eCR4vvvlXXqWcuL/1oZ/usZzD4KIy6DAbk.wiDwN8Rv0q', NULL, '2026-03-18 09:24:21', 'admin', NULL, 0, 0, 0.00000000, NULL, NULL, 'ACTIVE', NULL, 'none', NULL, 0, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
 (5, 'johndoe@example.com', 'johndoe', 'johndoe', '$2b$10$7Pol6.stL/zECFLDhZqjn.1sLa/p4b8O..KZafkMXGP.5Z74xYzn.', 'USR100', '2026-03-21 09:12:51', 'user', NULL, 0, 2, 5420.50000000, NULL, NULL, 'ACTIVE', NULL, 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
 (6, 'janedoe@example.com', 'janedoe', 'janedoe', '$2b$10$7Pol6.stL/zECFLDhZqjn.1sLa/p4b8O..KZafkMXGP.5Z74xYzn.', 'USR101', '2026-03-21 09:12:51', 'user', NULL, 0, 1, 1200.00000000, NULL, NULL, 'ACTIVE', NULL, 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
-(7, 'crypto_whale@gmail.com', 'WhaleWatcher', 'WhaleWatcher', '$2b$10$7Pol6.stL/zECFLDhZqjn.1sLa/p4b8O..KZafkMXGP.5Z74xYzn.', 'WHALE', '2026-03-21 09:12:51', 'user', NULL, 0, 5, 850400.00000000, NULL, NULL, 'ACTIVE', NULL, 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
+(7, 'crypto_whale@gmail.com', 'WhaleWatcher', 'WhaleWatcher', '$2b$10$7Pol6.stL/zECFLDhZqjn.1sLa/p4b8O..KZafkMXGP.5Z74xYzn.', 'WHALE', '2026-03-21 09:12:51', 'user', NULL, 0, 5, 850400.00000000, NULL, NULL, 'ACTIVE', 'dasdsa', 'none', NULL, 0, 0, NULL, 1, 'dasd', 'dasd', 'dasdd', NULL, NULL, NULL, 7, 6, 9, 5, 4),
 (8, 'luckygambler@yahoo.com', 'LuckyStrike', 'LuckyStrike', '$2b$10$7Pol6.stL/zECFLDhZqjn.1sLa/p4b8O..KZafkMXGP.5Z74xYzn.', NULL, '2026-03-21 09:12:51', 'user', NULL, 0, 3, 28000.00000000, NULL, NULL, 'ACTIVE', NULL, 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
 (9, 'pro_trader@outlook.com', 'ChartMaster', 'ChartMaster', '$2b$10$7Pol6.stL/zECFLDhZqjn.1sLa/p4b8O..KZafkMXGP.5Z74xYzn.', 'TRADER', '2026-03-21 09:12:51', 'user', NULL, 0, 4, 115000.00000000, NULL, NULL, 'ACTIVE', NULL, 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
 (10, 'betty_boop@gmail.com', 'BettyB', 'BettyB', '$2b$10$7Pol6.stL/zECFLDhZqjn.1sLa/p4b8O..KZafkMXGP.5Z74xYzn.', NULL, '2026-03-21 09:12:51', 'user', NULL, 0, 0, 50.00000000, NULL, NULL, 'ACTIVE', NULL, 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
@@ -9753,8 +10148,11 @@ INSERT INTO `users` (`id`, `email_or_phone`, `username`, `nickname`, `password`,
 (13, 'lottery_fan@example.com', 'LottoKing', 'LottoKing', '$2b$10$7Pol6.stL/zECFLDhZqjn.1sLa/p4b8O..KZafkMXGP.5Z74xYzn.', NULL, '2026-03-21 09:12:51', 'user', NULL, 0, 2, 6000.00000000, NULL, NULL, 'ACTIVE', NULL, 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
 (14, 'sports_fanatic@example.com', 'GoalGetter', 'GoalGetter', '$2b$10$7Pol6.stL/zECFLDhZqjn.1sLa/p4b8O..KZafkMXGP.5Z74xYzn.', 'SPORTS', '2026-03-21 09:12:51', 'admin', NULL, 0, 2, 4500.00000000, NULL, NULL, 'ACTIVE', '', 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
 (35, 'techcode187@gmail.com', 'code', 'code', '$2b$10$0YkO8glucmygyEylowiLg.rT6AS7Px52y1sA6ViRGCyp180YFm.96', '', '2026-04-23 00:08:47', 'user', NULL, 0, 0, 0.00000000, NULL, NULL, 'ACTIVE', '', 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 13, 1, 1, 1, 1),
-(36, 'test1@gmail.com', 'user1', NULL, '$2b$10$7I46R3He5B5vTPPTkXsqA.oaYVq58YiagmQ4WVQl6o0ShP94zX8Rm', NULL, '2026-05-14 10:02:57', 'user', NULL, 0, 0, 0.00000000, '2026-06-26 10:34:24', '::1', 'ACTIVE', NULL, 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
-(37, 'code@gmail.com', 'user2', '', '$2b$10$A7AdgsB3NSA2UHhsNbOPbu764XUL7v/DscCz7TCswEPS1heoV5MR.', '', '2026-05-15 04:20:29', 'admin', NULL, 0, 0, 0.00000000, '2026-05-15 12:20:44', '::1', 'ACTIVE', 'dasd', 'none', NULL, 0, 0, NULL, 1, 'ewe', 'sad', 'dasd', 1, NULL, NULL, 6, 8, 1, 1, 5);
+(36, 'test1@gmail.com', 'user1', '', '$2b$10$7I46R3He5B5vTPPTkXsqA.oaYVq58YiagmQ4WVQl6o0ShP94zX8Rm', '', '2026-05-14 10:02:57', 'user', NULL, 0, 0, 0.00000000, '2026-06-26 10:34:24', '::1', 'ACTIVE', '', 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 6),
+(37, 'code@gmail.com', 'user2', '', '$2b$10$A7AdgsB3NSA2UHhsNbOPbu764XUL7v/DscCz7TCswEPS1heoV5MR.', '', '2026-05-15 04:20:29', 'admin', NULL, 0, 0, 0.00000000, '2026-05-15 12:20:44', '::1', 'ACTIVE', 'dasd', 'none', NULL, 0, 0, NULL, 1, 'ewe', 'sad', 'dasd', 1, NULL, NULL, 6, 8, 1, 1, 5),
+(38, 'Jample@gmail.com', 'TBA12345', NULL, '$2b$10$G0LwOcTvNMcobhDwb5T8X.vRy4W6/GG7fh0bnCnxx9rxCj2.MoweS', NULL, '2026-07-07 09:42:18', 'user', NULL, 0, 0, 0.00000000, NULL, NULL, 'ACTIVE', NULL, 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
+(39, 'das@gmail.com', 'dasd', NULL, '$2b$10$pRnV.bYF4Wk9OrQzFxlGNO.QHDN3TCme2ZUqlQWJ/jgBGjSEMh86a', NULL, '2026-07-08 00:56:27', '', NULL, 0, 0, 0.00000000, NULL, NULL, 'ACTIVE', NULL, 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1),
+(40, 'samp@gmail.com', 'dsad', NULL, '$2b$10$xIfM3l2foNWBuS/2vHt2gukefc0lvalQKZLh/Miw0ack9UsYKph4G', NULL, '2026-07-08 02:14:31', 'user', NULL, 0, 0, 0.00000000, NULL, NULL, 'ACTIVE', NULL, 'none', NULL, 0, 0, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -9762,7 +10160,7 @@ INSERT INTO `users` (`id`, `email_or_phone`, `username`, `nickname`, `password`,
 -- Table structure for table `user_balances`
 --
 
-CREATE TABLE `user_balances` (
+CREATE TABLE IF NOT EXISTS `user_balances` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `currency` varchar(10) NOT NULL,
@@ -9776,7 +10174,7 @@ CREATE TABLE `user_balances` (
 -- Dumping data for table `user_balances`
 --
 
-INSERT INTO `user_balances` (`id`, `user_id`, `currency`, `amount`, `locked_amount`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `user_balances` (`id`, `user_id`, `currency`, `amount`, `locked_amount`, `created_at`, `updated_at`) VALUES
 (1, 1, 'KRW', 1000000.00000000, 0.00000000, '2026-03-17 09:48:19', '2026-03-17 09:48:19'),
 (2, 1, 'USDT', 986.41860501, 0.00000000, '2026-03-17 09:48:19', '2026-04-01 07:25:32'),
 (3, 1, 'BCD', 1606.14148212, 0.00000000, '2026-03-17 09:48:19', '2026-04-01 07:25:32'),
@@ -9840,7 +10238,7 @@ INSERT INTO `user_balances` (`id`, `user_id`, `currency`, `amount`, `locked_amou
 -- Table structure for table `user_bonus_stats`
 --
 
-CREATE TABLE `user_bonus_stats` (
+CREATE TABLE IF NOT EXISTS `user_bonus_stats` (
   `user_id` int(11) NOT NULL,
   `total_claimed` decimal(20,8) DEFAULT 0.00000000,
   `vip_bonus` decimal(20,8) DEFAULT 0.00000000,
@@ -9854,7 +10252,7 @@ CREATE TABLE `user_bonus_stats` (
 -- Dumping data for table `user_bonus_stats`
 --
 
-INSERT INTO `user_bonus_stats` (`user_id`, `total_claimed`, `vip_bonus`, `special_bonus`, `general_bonus`, `locked_bonus`, `deposit_bonus_progress`) VALUES
+INSERT IGNORE INTO `user_bonus_stats` (`user_id`, `total_claimed`, `vip_bonus`, `special_bonus`, `general_bonus`, `locked_bonus`, `deposit_bonus_progress`) VALUES
 (1, 10500.00000000, 2500.00000000, 1000.00000000, 500.00000000, 1429.00000000, 180.00);
 
 -- --------------------------------------------------------
@@ -9863,7 +10261,7 @@ INSERT INTO `user_bonus_stats` (`user_id`, `total_claimed`, `vip_bonus`, `specia
 -- Table structure for table `user_edit_logs`
 --
 
-CREATE TABLE `user_edit_logs` (
+CREATE TABLE IF NOT EXISTS `user_edit_logs` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `change_item` varchar(100) NOT NULL,
@@ -9879,7 +10277,7 @@ CREATE TABLE `user_edit_logs` (
 -- Dumping data for table `user_edit_logs`
 --
 
-INSERT INTO `user_edit_logs` (`id`, `user_id`, `change_item`, `change_column`, `before_value`, `after_value`, `ip_address`, `processor_id`, `updated_at`) VALUES
+INSERT IGNORE INTO `user_edit_logs` (`id`, `user_id`, `change_item`, `change_column`, `before_value`, `after_value`, `ip_address`, `processor_id`, `updated_at`) VALUES
 (1, 1, '닉네임 변경', 'nickname', 'OldNick', 'NewNick', '127.0.0.1', 1, '2026-05-02 08:43:02'),
 (2, 1, '상태 변경', 'status', 'active', 'suspended', '127.0.0.1', 1, '2026-05-02 08:43:02');
 
@@ -9889,7 +10287,7 @@ INSERT INTO `user_edit_logs` (`id`, `user_id`, `change_item`, `change_column`, `
 -- Table structure for table `user_favorites`
 --
 
-CREATE TABLE `user_favorites` (
+CREATE TABLE IF NOT EXISTS `user_favorites` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `game_id` int(11) NOT NULL,
@@ -9900,7 +10298,7 @@ CREATE TABLE `user_favorites` (
 -- Dumping data for table `user_favorites`
 --
 
-INSERT INTO `user_favorites` (`id`, `user_id`, `game_id`, `created_at`) VALUES
+INSERT IGNORE INTO `user_favorites` (`id`, `user_id`, `game_id`, `created_at`) VALUES
 (15, 1, 1, '2026-03-04 07:32:55'),
 (16, 1, 4, '2026-03-04 07:32:55'),
 (17, 1, 17, '2026-03-04 07:32:55'),
@@ -9913,7 +10311,7 @@ INSERT INTO `user_favorites` (`id`, `user_id`, `game_id`, `created_at`) VALUES
 -- Table structure for table `user_gambling_limits`
 --
 
-CREATE TABLE `user_gambling_limits` (
+CREATE TABLE IF NOT EXISTS `user_gambling_limits` (
   `user_id` int(11) NOT NULL,
   `daily_loss_limit` decimal(20,2) DEFAULT NULL,
   `weekly_loss_limit` decimal(20,2) DEFAULT NULL,
@@ -9926,7 +10324,7 @@ CREATE TABLE `user_gambling_limits` (
 -- Dumping data for table `user_gambling_limits`
 --
 
-INSERT INTO `user_gambling_limits` (`user_id`, `daily_loss_limit`, `weekly_loss_limit`, `monthly_loss_limit`, `daily_deposit_limit`, `updated_at`) VALUES
+INSERT IGNORE INTO `user_gambling_limits` (`user_id`, `daily_loss_limit`, `weekly_loss_limit`, `monthly_loss_limit`, `daily_deposit_limit`, `updated_at`) VALUES
 (2, 100000.00, 500000.00, 2000000.00, 500000.00, '2026-07-03 08:05:00'),
 (4, 200000.00, 1000000.00, 4000000.00, 1000000.00, '2026-07-03 08:05:00'),
 (10, 300000.00, 1500000.00, 6000000.00, 1500000.00, '2026-07-03 08:05:00'),
@@ -9938,7 +10336,7 @@ INSERT INTO `user_gambling_limits` (`user_id`, `daily_loss_limit`, `weekly_loss_
 -- Table structure for table `user_login_history`
 --
 
-CREATE TABLE `user_login_history` (
+CREATE TABLE IF NOT EXISTS `user_login_history` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `ip_address` varchar(45) NOT NULL,
@@ -9950,7 +10348,7 @@ CREATE TABLE `user_login_history` (
 -- Dumping data for table `user_login_history`
 --
 
-INSERT INTO `user_login_history` (`id`, `user_id`, `ip_address`, `device_info`, `created_at`) VALUES
+INSERT IGNORE INTO `user_login_history` (`id`, `user_id`, `ip_address`, `device_info`, `created_at`) VALUES
 (1, 2, '192.168.1.55', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/122.0.0.0 Safari/537.36', '2026-05-02 00:55:30'),
 (2, 2, '192.168.1.55', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/122.0.0.0 Safari/537.36', '2026-05-01 00:55:30'),
 (3, 2, '192.168.1.55', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1', '2026-04-30 00:55:30'),
@@ -10024,7 +10422,7 @@ INSERT INTO `user_login_history` (`id`, `user_id`, `ip_address`, `device_info`, 
 -- Table structure for table `user_quest_progress`
 --
 
-CREATE TABLE `user_quest_progress` (
+CREATE TABLE IF NOT EXISTS `user_quest_progress` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `quest_id` int(11) NOT NULL,
@@ -10037,7 +10435,7 @@ CREATE TABLE `user_quest_progress` (
 -- Dumping data for table `user_quest_progress`
 --
 
-INSERT INTO `user_quest_progress` (`id`, `user_id`, `quest_id`, `current_value`, `status`, `period_date`) VALUES
+INSERT IGNORE INTO `user_quest_progress` (`id`, `user_id`, `quest_id`, `current_value`, `status`, `period_date`) VALUES
 (1, 1, 1, 2.00000000, 'pending', '2026-03-16'),
 (2, 1, 2, 3.00000000, 'completed', '2026-03-16'),
 (3, 1, 3, 45.00000000, 'pending', '2026-03-16'),
@@ -10055,7 +10453,7 @@ INSERT INTO `user_quest_progress` (`id`, `user_id`, `quest_id`, `current_value`,
 -- Table structure for table `user_rakeback`
 --
 
-CREATE TABLE `user_rakeback` (
+CREATE TABLE IF NOT EXISTS `user_rakeback` (
   `user_id` int(11) NOT NULL,
   `locked_bcd` decimal(20,8) DEFAULT 0.00000000,
   `unlock_rate` decimal(5,2) DEFAULT 0.00,
@@ -10067,7 +10465,7 @@ CREATE TABLE `user_rakeback` (
 -- Dumping data for table `user_rakeback`
 --
 
-INSERT INTO `user_rakeback` (`user_id`, `locked_bcd`, `unlock_rate`, `ready_to_claim`, `next_claim_time`) VALUES
+INSERT IGNORE INTO `user_rakeback` (`user_id`, `locked_bcd`, `unlock_rate`, `ready_to_claim`, `next_claim_time`) VALUES
 (1, 1.00000000, 20.00, 0.50000000, '2026-03-17 14:35:29');
 
 -- --------------------------------------------------------
@@ -10076,7 +10474,7 @@ INSERT INTO `user_rakeback` (`user_id`, `locked_bcd`, `unlock_rate`, `ready_to_c
 -- Table structure for table `user_self_exclusion`
 --
 
-CREATE TABLE `user_self_exclusion` (
+CREATE TABLE IF NOT EXISTS `user_self_exclusion` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `type` enum('cooldown','exclusion') NOT NULL,
@@ -10090,7 +10488,7 @@ CREATE TABLE `user_self_exclusion` (
 -- Dumping data for table `user_self_exclusion`
 --
 
-INSERT INTO `user_self_exclusion` (`id`, `user_id`, `type`, `duration_days`, `end_date`, `reason`, `created_at`) VALUES
+INSERT IGNORE INTO `user_self_exclusion` (`id`, `user_id`, `type`, `duration_days`, `end_date`, `reason`, `created_at`) VALUES
 (1, 10, 'exclusion', 30, '2026-06-14 09:42:30', 'Testing admin view', '2026-05-15 09:42:30'),
 (2, 2, 'exclusion', 7, '2026-07-10 08:05:00', 'Need a break', '2026-07-03 08:05:00'),
 (3, 4, 'cooldown', 30, '2026-08-02 08:05:00', 'Losses too high', '2026-07-03 08:05:00'),
@@ -10102,7 +10500,7 @@ INSERT INTO `user_self_exclusion` (`id`, `user_id`, `type`, `duration_days`, `en
 -- Table structure for table `user_spins`
 --
 
-CREATE TABLE `user_spins` (
+CREATE TABLE IF NOT EXISTS `user_spins` (
   `user_id` int(11) NOT NULL,
   `daily_spins_available` int(11) DEFAULT 0,
   `last_spin_time` datetime DEFAULT NULL
@@ -10112,7 +10510,7 @@ CREATE TABLE `user_spins` (
 -- Dumping data for table `user_spins`
 --
 
-INSERT INTO `user_spins` (`user_id`, `daily_spins_available`, `last_spin_time`) VALUES
+INSERT IGNORE INTO `user_spins` (`user_id`, `daily_spins_available`, `last_spin_time`) VALUES
 (1, 1, '2026-03-15 15:35:29');
 
 -- --------------------------------------------------------
@@ -10121,7 +10519,7 @@ INSERT INTO `user_spins` (`user_id`, `daily_spins_available`, `last_spin_time`) 
 -- Table structure for table `user_tasks`
 --
 
-CREATE TABLE `user_tasks` (
+CREATE TABLE IF NOT EXISTS `user_tasks` (
   `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `task_name` varchar(255) NOT NULL,
@@ -10133,7 +10531,7 @@ CREATE TABLE `user_tasks` (
 -- Dumping data for table `user_tasks`
 --
 
-INSERT INTO `user_tasks` (`id`, `user_id`, `task_name`, `status`, `reward_amount`) VALUES
+INSERT IGNORE INTO `user_tasks` (`id`, `user_id`, `task_name`, `status`, `reward_amount`) VALUES
 (1, 1, 'Phone Verification', 'pending', 1.00000000),
 (2, 1, 'Telegram Subscription', 'pending', 2.00000000),
 (3, 1, 'Phone Verification', 'pending', 1.00000000),
@@ -10313,7 +10711,7 @@ INSERT INTO `user_tasks` (`id`, `user_id`, `task_name`, `status`, `reward_amount
 -- Table structure for table `user_vault_stats`
 --
 
-CREATE TABLE `user_vault_stats` (
+CREATE TABLE IF NOT EXISTS `user_vault_stats` (
   `user_id` int(11) NOT NULL,
   `balance` decimal(20,8) DEFAULT 0.00000000,
   `total_return` decimal(20,8) DEFAULT 0.00000000
@@ -10323,7 +10721,7 @@ CREATE TABLE `user_vault_stats` (
 -- Dumping data for table `user_vault_stats`
 --
 
-INSERT INTO `user_vault_stats` (`user_id`, `balance`, `total_return`) VALUES
+INSERT IGNORE INTO `user_vault_stats` (`user_id`, `balance`, `total_return`) VALUES
 (1, 50.00000000, 5.25000000);
 
 -- --------------------------------------------------------
@@ -10332,7 +10730,7 @@ INSERT INTO `user_vault_stats` (`user_id`, `balance`, `total_return`) VALUES
 -- Table structure for table `vip_benefits`
 --
 
-CREATE TABLE `vip_benefits` (
+CREATE TABLE IF NOT EXISTS `vip_benefits` (
   `id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
@@ -10344,7 +10742,7 @@ CREATE TABLE `vip_benefits` (
 -- Dumping data for table `vip_benefits`
 --
 
-INSERT INTO `vip_benefits` (`id`, `title`, `description`, `image_url`, `display_order`) VALUES
+INSERT IGNORE INTO `vip_benefits` (`id`, `title`, `description`, `image_url`, `display_order`) VALUES
 (1, 'Instant Lossback', 'Earn rewards back instantly as you play', 'https://bc.game/modules/bonus2/assets/loseback-DluD27UI.png', 1),
 (2, 'Reload Bonuses', 'Receive rewards every day — the more you play, the higher you get.', 'https://bc.game/modules/bonus2/assets/reload-CoCN1P9X.png', 2),
 (3, 'Gameplay Bonuses', 'Play across different game types to unlock richer rewards', 'https://bc.game/modules/bonus2/assets/bonus-B3AOP16q.png', 3),
@@ -10696,7 +11094,7 @@ INSERT INTO `vip_benefits` (`id`, `title`, `description`, `image_url`, `display_
 (349, 'IRL VIP Events & Rewards', 'Exclusive real-world VIP experiences', 'https://bc.game/modules/bonus2/assets/rewards-BUeZTSWJ.png', 6),
 (350, 'Dedicated VIP Host', 'Personalized support whenever you need it', 'https://bc.game/modules/bonus2/assets/host-CGvTeHkv.png', 7),
 (351, 'Instant Lossback', 'Earn rewards back instantly as you play', 'https://bc.game/modules/bonus2/assets/loseback-DluD27UI.png', 1);
-INSERT INTO `vip_benefits` (`id`, `title`, `description`, `image_url`, `display_order`) VALUES
+INSERT IGNORE INTO `vip_benefits` (`id`, `title`, `description`, `image_url`, `display_order`) VALUES
 (352, 'Reload Bonuses', 'Receive rewards every day — the more you play, the higher you get.', 'https://bc.game/modules/bonus2/assets/reload-CoCN1P9X.png', 2),
 (353, 'Gameplay Bonuses', 'Play across different game types to unlock richer rewards', 'https://bc.game/modules/bonus2/assets/bonus-B3AOP16q.png', 3),
 (354, 'Top Player Bonuses', 'Play at the top to unlock exclusive rewards.', 'https://bc.game/modules/bonus2/assets/top-Bj1Butrk.png', 4),
@@ -11047,7 +11445,7 @@ INSERT INTO `vip_benefits` (`id`, `title`, `description`, `image_url`, `display_
 (699, 'IRL VIP Events & Rewards', 'Exclusive real-world VIP experiences', 'https://bc.game/modules/bonus2/assets/rewards-BUeZTSWJ.png', 6),
 (700, 'Dedicated VIP Host', 'Personalized support whenever you need it', 'https://bc.game/modules/bonus2/assets/host-CGvTeHkv.png', 7),
 (701, 'Instant Lossback', 'Earn rewards back instantly as you play', 'https://bc.game/modules/bonus2/assets/loseback-DluD27UI.png', 1);
-INSERT INTO `vip_benefits` (`id`, `title`, `description`, `image_url`, `display_order`) VALUES
+INSERT IGNORE INTO `vip_benefits` (`id`, `title`, `description`, `image_url`, `display_order`) VALUES
 (702, 'Reload Bonuses', 'Receive rewards every day — the more you play, the higher you get.', 'https://bc.game/modules/bonus2/assets/reload-CoCN1P9X.png', 2),
 (703, 'Gameplay Bonuses', 'Play across different game types to unlock richer rewards', 'https://bc.game/modules/bonus2/assets/bonus-B3AOP16q.png', 3),
 (704, 'Top Player Bonuses', 'Play at the top to unlock exclusive rewards.', 'https://bc.game/modules/bonus2/assets/top-Bj1Butrk.png', 4),
@@ -11082,7 +11480,7 @@ INSERT INTO `vip_benefits` (`id`, `title`, `description`, `image_url`, `display_
 -- Table structure for table `vip_faqs`
 --
 
-CREATE TABLE `vip_faqs` (
+CREATE TABLE IF NOT EXISTS `vip_faqs` (
   `id` int(11) NOT NULL,
   `category` varchar(100) DEFAULT 'General',
   `question` text NOT NULL,
@@ -11094,7 +11492,7 @@ CREATE TABLE `vip_faqs` (
 -- Dumping data for table `vip_faqs`
 --
 
-INSERT INTO `vip_faqs` (`id`, `category`, `question`, `answer`, `display_order`) VALUES
+INSERT IGNORE INTO `vip_faqs` (`id`, `category`, `question`, `answer`, `display_order`) VALUES
 (1, 'General', 'How do I become a VIP?', 'Consistent and responsible gameplay helps you stand out as a valued player. No barriers — every player has the opportunity to qualify.', 1),
 (2, 'General', 'What is the VIP Transfer?', 'We offer a VIP transfer service for high-tier members from other platforms. Contact our support for details.', 2),
 (3, 'General', 'What makes the BC.GAME VIP Club different from others?', 'We offer a personalized elite experience with instant withdrawals and dedicated hosts.', 3),
@@ -11389,7 +11787,7 @@ INSERT INTO `vip_faqs` (`id`, `category`, `question`, `answer`, `display_order`)
 (292, 'General', 'How do I become a VIP?', 'Consistent and responsible gameplay helps you stand out as a valued player. No barriers — every player has the opportunity to qualify.', 1),
 (293, 'General', 'What is the VIP Transfer?', 'We offer a VIP transfer service for high-tier members from other platforms. Contact our support for details.', 2),
 (294, 'General', 'What makes the BC.GAME VIP Club different from others?', 'We offer a personalized elite experience with instant withdrawals and dedicated hosts.', 3);
-INSERT INTO `vip_faqs` (`id`, `category`, `question`, `answer`, `display_order`) VALUES
+INSERT IGNORE INTO `vip_faqs` (`id`, `category`, `question`, `answer`, `display_order`) VALUES
 (295, 'General', 'How do I become a VIP?', 'Consistent and responsible gameplay helps you stand out as a valued player. No barriers — every player has the opportunity to qualify.', 1),
 (296, 'General', 'What is the VIP Transfer?', 'We offer a VIP transfer service for high-tier members from other platforms. Contact our support for details.', 2),
 (297, 'General', 'What makes the BC.GAME VIP Club different from others?', 'We offer a personalized elite experience with instant withdrawals and dedicated hosts.', 3),
@@ -11415,7 +11813,7 @@ INSERT INTO `vip_faqs` (`id`, `category`, `question`, `answer`, `display_order`)
 -- Table structure for table `vip_levels`
 --
 
-CREATE TABLE `vip_levels` (
+CREATE TABLE IF NOT EXISTS `vip_levels` (
   `id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL,
   `min_wager` decimal(20,8) DEFAULT 0.00000000,
@@ -11426,7 +11824,7 @@ CREATE TABLE `vip_levels` (
 -- Dumping data for table `vip_levels`
 --
 
-INSERT INTO `vip_levels` (`id`, `name`, `min_wager`, `created_at`) VALUES
+INSERT IGNORE INTO `vip_levels` (`id`, `name`, `min_wager`, `created_at`) VALUES
 (0, 'None', 0.00000000, '2026-03-20 09:54:02'),
 (1, 'Bronze', 1000.00000000, '2026-03-20 09:54:02'),
 (2, 'Silver', 5000.00000000, '2026-03-20 09:54:02'),
@@ -11440,7 +11838,7 @@ INSERT INTO `vip_levels` (`id`, `name`, `min_wager`, `created_at`) VALUES
 -- Table structure for table `wallet_transactions`
 --
 
-CREATE TABLE `wallet_transactions` (
+CREATE TABLE IF NOT EXISTS `wallet_transactions` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `type` varchar(50) NOT NULL,
@@ -11456,7 +11854,7 @@ CREATE TABLE `wallet_transactions` (
 -- Dumping data for table `wallet_transactions`
 --
 
-INSERT INTO `wallet_transactions` (`id`, `user_id`, `type`, `currency`, `amount`, `balance_after`, `status`, `tx_hash`, `created_at`) VALUES
+INSERT IGNORE INTO `wallet_transactions` (`id`, `user_id`, `type`, `currency`, `amount`, `balance_after`, `status`, `tx_hash`, `created_at`) VALUES
 (1, 1, 'deposit', 'USDT', 500.00000000, 500.00000000, 'completed', NULL, '2026-03-17 09:48:19'),
 (2, 1, 'bonus', 'BCD', 100.00000000, 100.00000000, 'completed', NULL, '2026-03-17 09:48:19'),
 (3, 1, 'deposit', 'USDT', 500.00000000, 500.00000000, 'completed', NULL, '2026-03-17 09:56:19'),
@@ -11802,7 +12200,7 @@ INSERT INTO `wallet_transactions` (`id`, `user_id`, `type`, `currency`, `amount`
 -- Table structure for table `weekly_raffle_history`
 --
 
-CREATE TABLE `weekly_raffle_history` (
+CREATE TABLE IF NOT EXISTS `weekly_raffle_history` (
   `id` int(11) NOT NULL,
   `raffle_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -11817,7 +12215,7 @@ CREATE TABLE `weekly_raffle_history` (
 -- Table structure for table `weekly_raffle_tickets`
 --
 
-CREATE TABLE `weekly_raffle_tickets` (
+CREATE TABLE IF NOT EXISTS `weekly_raffle_tickets` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `raffle_id` int(11) NOT NULL,
@@ -11829,7 +12227,7 @@ CREATE TABLE `weekly_raffle_tickets` (
 -- Dumping data for table `weekly_raffle_tickets`
 --
 
-INSERT INTO `weekly_raffle_tickets` (`id`, `user_id`, `raffle_id`, `ticket_count`, `updated_at`) VALUES
+INSERT IGNORE INTO `weekly_raffle_tickets` (`id`, `user_id`, `raffle_id`, `ticket_count`, `updated_at`) VALUES
 (1, 1, 1, 15, '2026-03-16 07:35:29');
 
 --
@@ -12567,7 +12965,7 @@ ALTER TABLE `weekly_raffle_tickets`
 -- AUTO_INCREMENT for table `admin_audit_logs`
 --
 ALTER TABLE `admin_audit_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=184;
 
 --
 -- AUTO_INCREMENT for table `admin_ips`
@@ -12711,7 +13109,7 @@ ALTER TABLE `daily_contest_participants`
 -- AUTO_INCREMENT for table `distributor_levels`
 --
 ALTER TABLE `distributor_levels`
-  MODIFY `idx` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `idx` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `event_settings`
@@ -12789,7 +13187,7 @@ ALTER TABLE `lottery_bets`
 -- AUTO_INCREMENT for table `match_events`
 --
 ALTER TABLE `match_events`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3134;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3386;
 
 --
 -- AUTO_INCREMENT for table `match_odds`
@@ -12801,7 +13199,7 @@ ALTER TABLE `match_odds`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `message_templates`
@@ -13011,7 +13409,7 @@ ALTER TABLE `system_logs`
 -- AUTO_INCREMENT for table `teams`
 --
 ALTER TABLE `teams`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2684;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2730;
 
 --
 -- AUTO_INCREMENT for table `trading_rounds`
@@ -13029,7 +13427,7 @@ ALTER TABLE `trading_trades`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `user_balances`
