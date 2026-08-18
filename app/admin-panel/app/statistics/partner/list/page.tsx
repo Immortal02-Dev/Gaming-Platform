@@ -664,7 +664,7 @@ export default function StatisticsPartnerListPage() {
       )}
 
       {/* Table with Complete Header Structure */}
-      <div className="row">
+      <div className="row g-0">
         <div className="col" style={{ overflowX: "scroll" }}>
           <table
             id="partnerTable"

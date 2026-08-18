@@ -2049,7 +2049,7 @@ progress {
   background-color: var(--bs-table-bg);
   border-bottom-width: 1px;
   box-shadow: inset 0 0 0 9999px var(--bs-table-accent-bg);
-  /* white-space: nowrap; */
+  white-space: nowrap;
 }
 
 .table > tbody {
@@ -20631,7 +20631,7 @@ code {
 
 .modal .modal-header {
   display: flex;
-  flex: 1;
+  /* flex: 1; */
   align-items: center;
 }
 
