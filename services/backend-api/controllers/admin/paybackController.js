@@ -1,5 +1,12 @@
 const db = require("../../config/db");
 
+const formatDate = (d) => {
+  if (!d) return '-';
+  const date = new Date(d);
+  if (isNaN(date.getTime())) return d;
+  return date.toISOString().replace('T', ' ').substring(0, 19);
+};
+
 exports.getAllPaybacks = async (req, res) => {
   try {
     const { page = 1, pageSize = 50, startDate, endDate, paybackType, paybackStatus, searchType, searchText } = req.query;
@@ -58,8 +65,10 @@ exports.getAllPaybacks = async (req, res) => {
         SUM(CASE WHEN status = 3 THEN amount ELSE 0 END) as totalApprovedAmount,
         SUM(CASE WHEN status = 2 THEN amount ELSE 0 END) as waitingAmount,
         SUM(CASE WHEN status = 4 THEN amount ELSE 0 END) as cancelledAmount
-      FROM payback_requests
-    `);
+      FROM payback_requests p
+      JOIN users u ON p.user_id = u.id
+      ${whereClause}
+    `, queryParams);
 
     // Map to frontend structure
     const mappedData = rows.map((r, index) => ({
@@ -76,12 +85,12 @@ exports.getAllPaybacks = async (req, res) => {
         userIdx: r.user_id,
         userID: r.username,
         nickname: r.nickname || r.username,
-        role: r.userRole.toUpperCase(),
+        role: (r.userRole || 'user').toUpperCase(),
         backgroundColor: '#007bff'
       },
       paybackType: r.type === 1 ? 'Bet-Win (Sports)' : (r.type === 2 ? 'In-Out' : 'In-Out-Bal'),
-      applyDate: r.apply_date,
-      requestAvailableDate: r.request_available_date,
+      applyDate: r.apply_date ? new Date(r.apply_date).toISOString().split('T')[0] : '-',
+      requestAvailableDate: r.request_available_date ? new Date(r.request_available_date).toISOString().split('T')[0] : '-',
       requestAmount: Number(r.amount).toLocaleString(),
       paybackPercent: `${r.percent}%`,
       status: r.status,
@@ -94,8 +103,8 @@ exports.getAllPaybacks = async (req, res) => {
       chargeAmount: Number(r.charge_amount).toLocaleString(),
       exchangeAmount: Number(r.exchange_amount).toLocaleString(),
       balanceAmount: Number(r.balance_amount).toLocaleString(),
-      requestDate: r.created_at,
-      processDate: r.processed_at
+      requestDate: formatDate(r.created_at),
+      processDate: formatDate(r.processed_at)
     }));
 
     res.status(200).json({ 

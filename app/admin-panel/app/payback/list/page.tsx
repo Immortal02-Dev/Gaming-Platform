@@ -128,13 +128,8 @@ function PaybackListPageInner() {
       const params = new URLSearchParams();
 
       const qPageSize = searchParams.get("pageSize") || "50";
-      const qStartDate =
-        searchParams.get("startDate") ||
-        new Date(new Date().setMonth(new Date().getMonth() - 1))
-          .toISOString()
-          .split("T")[0];
-      const qEndDate =
-        searchParams.get("endDate") || new Date().toISOString().split("T")[0];
+      const qStartDate = searchParams.get("startDate") || "";
+      const qEndDate = searchParams.get("endDate") || "";
       const qPaybackType = searchParams.get("paybackType") || "";
       const qPaybackStatus = searchParams.get("paybackStatus") || "";
       const qSearchType = searchParams.get("searchType") || "";

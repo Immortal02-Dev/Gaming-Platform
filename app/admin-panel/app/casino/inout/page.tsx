@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback, Suspense } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  Suspense,
+} from "react";
 import Layout from "@/components/Layout";
 import { useSearchParams, useRouter } from "next/navigation";
 
@@ -93,27 +99,33 @@ function CasinoInoutPageInner() {
   const formSearchRef = useRef<HTMLFormElement>(null);
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fpStartRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fpEndRef = useRef<any>(null);
 
-  const [pageSize, setPageSize] = useState<string>(searchParams.get("pageSize") || "50");
-  // Default to last 90 days to ensure we see recent data
-  const getDefaultStartDate = () => {
-    const date = new Date();
-    date.setDate(date.getDate() - 90);
-    return date.toISOString().split('T')[0];
-  };
-  const getDefaultEndDate = () => {
-    const date = new Date();
-    date.setDate(date.getDate() + 1); // Include today
-    return date.toISOString().split('T')[0];
-  };
-  
-  const [startDate, setStartDate] = useState<string>(searchParams.get("startDate") || getDefaultStartDate());
-  const [endDate, setEndDate] = useState<string>(searchParams.get("endDate") || getDefaultEndDate());
-  const [exchangeType, setExchangeType] = useState<string>(searchParams.get("exchangeType") || "");
-  const [exchangeStatusIdx, setExchangeStatusIdx] = useState<string>(searchParams.get("exchangeStatusIdx") || "");
-  const [searchType, setSearchType] = useState<string>(searchParams.get("searchType") || "");
-  const [searchText, setSearchText] = useState<string>(searchParams.get("searchText") || "");
-  
+  const [pageSize, setPageSize] = useState<string>(
+    searchParams.get("pageSize") || "50",
+  );
+  const [startDate, setStartDate] = useState<string>(
+    searchParams.get("startDate") || "",
+  );
+  const [endDate, setEndDate] = useState<string>(
+    searchParams.get("endDate") || "",
+  );
+  const [exchangeType, setExchangeType] = useState<string>(
+    searchParams.get("exchangeType") || "",
+  );
+  const [exchangeStatusIdx, setExchangeStatusIdx] = useState<string>(
+    searchParams.get("exchangeStatusIdx") || "",
+  );
+  const [searchType, setSearchType] = useState<string>(
+    searchParams.get("searchType") || "",
+  );
+  const [searchText, setSearchText] = useState<string>(
+    searchParams.get("searchText") || "",
+  );
+
   const [logs, setLogs] = useState<CasinoInoutLog[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [summary, setSummary] = useState<Summary>({
@@ -145,9 +157,12 @@ function CasinoInoutPageInner() {
       if (searchType) params.set("searchType", searchType);
       if (searchText) params.set("searchText", searchText);
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/casino-inout?${params.toString()}`, {
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/casino-inout?${params.toString()}`,
+        {
+          credentials: "include",
+        },
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch casino inout logs");
@@ -155,21 +170,26 @@ function CasinoInoutPageInner() {
 
       const data: CasinoInoutResponse = await response.json();
       console.log("Casino inout API response:", data);
-      
+
       if (data.success) {
         setLogs(data.data || []);
-        setPagination(data.pagination || {
-          total: 0,
-          page: 1,
-          pageSize: 50,
-          totalPages: 1,
-          hasMore: false,
-        });
+        setPagination(
+          data.pagination || {
+            total: 0,
+            page: 1,
+            pageSize: 50,
+            totalPages: 1,
+            hasMore: false,
+          },
+        );
         if (data.summary) {
           setSummary(data.summary);
         }
       } else {
-        console.error("API returned success=false:", data.error || data.message);
+        console.error(
+          "API returned success=false:",
+          data.error || data.message,
+        );
         setLogs([]);
         setPagination({
           total: 0,
@@ -193,18 +213,41 @@ function CasinoInoutPageInner() {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, pageSize, startDate, endDate, exchangeType, exchangeStatusIdx, searchType, searchText, API_BASE_URL]);
+  }, [
+    searchParams,
+    pageSize,
+    startDate,
+    endDate,
+    exchangeType,
+    exchangeStatusIdx,
+    searchType,
+    searchText,
+    API_BASE_URL,
+  ]);
 
   useEffect(() => {
-    fetchLogs();
+    let ignore = false;
+    const loadLogs = async () => {
+      if (!ignore) {
+        await fetchLogs();
+      }
+    };
+    loadLogs();
+    return () => {
+      ignore = true;
+    };
   }, [fetchLogs]);
 
   useEffect(() => {
     // Handle Enter key on search text input
     let cleanup: (() => void) | undefined;
     const timer = setTimeout(() => {
-      const searchTextInput = document.getElementById("searchText") as HTMLInputElement | null;
-      const btnSearch = document.getElementById("btnSearch") as HTMLButtonElement | null;
+      const searchTextInput = document.getElementById(
+        "searchText",
+      ) as HTMLInputElement | null;
+      const btnSearch = document.getElementById(
+        "btnSearch",
+      ) as HTMLButtonElement | null;
       if (searchTextInput && btnSearch) {
         const handleKeyDown = (e: KeyboardEvent) => {
           if (e.key === "Enter" || e.keyCode === 13) {
@@ -225,37 +268,43 @@ function CasinoInoutPageInner() {
   }, []);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.flatpickr && startDateRef.current && endDateRef.current && startDate && endDate) {
-      const startPicker = window.flatpickr(startDateRef.current, {
+    if (
+      typeof window !== "undefined" &&
+      window.flatpickr &&
+      startDateRef.current &&
+      endDateRef.current
+    ) {
+      fpStartRef.current = window.flatpickr(startDateRef.current, {
         locale: "ko",
         dateFormat: "Y-m-d",
         disableMobile: true,
-        defaultDate: startDate,
-        onChange: (selectedDates: Date[], dateStr: string) => {
-          if (dateStr) {
-            setStartDate(dateStr);
-          }
+        onChange: (_dates: Date[], dateStr: string) => {
+          setStartDate(dateStr);
         },
       });
 
-      const endPicker = window.flatpickr(endDateRef.current, {
+      fpEndRef.current = window.flatpickr(endDateRef.current, {
         locale: "ko",
         dateFormat: "Y-m-d",
         disableMobile: true,
-        defaultDate: endDate,
-        onChange: (selectedDates: Date[], dateStr: string) => {
-          if (dateStr) {
-            setEndDate(dateStr);
-          }
+        onChange: (_dates: Date[], dateStr: string) => {
+          setEndDate(dateStr);
         },
       });
 
       return () => {
-        if (startPicker) startPicker.destroy();
-        if (endPicker) endPicker.destroy();
+        if (fpStartRef.current) {
+          fpStartRef.current.destroy();
+          fpStartRef.current = null;
+        }
+        if (fpEndRef.current) {
+          fpEndRef.current.destroy();
+          fpEndRef.current = null;
+        }
       };
     }
-  }, [startDate, endDate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -313,7 +362,7 @@ function CasinoInoutPageInner() {
             ‹
           </a>
         )}
-      </li>
+      </li>,
     );
 
     // Page numbers
@@ -340,7 +389,7 @@ function CasinoInoutPageInner() {
               {i}
             </a>
           )}
-        </li>
+        </li>,
       );
     }
 
@@ -370,7 +419,7 @@ function CasinoInoutPageInner() {
             ›
           </a>
         )}
-      </li>
+      </li>,
     );
 
     return pages;
@@ -437,7 +486,9 @@ function CasinoInoutPageInner() {
                   name="pageSize"
                   className="form-select w-80px me-2"
                   value={pageSize}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPageSize(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setPageSize(e.target.value)
+                  }
                 >
                   <option value="50">50</option>
                   <option value="100">100</option>
@@ -451,8 +502,8 @@ function CasinoInoutPageInner() {
                     type="text"
                     id="startDate"
                     name="startDate"
-                    className="form-control date flatpickr-input"
-                    value={startDate}
+                    className="form-control date"
+                    defaultValue={startDate}
                     readOnly
                     ref={startDateRef}
                   />
@@ -461,8 +512,8 @@ function CasinoInoutPageInner() {
                     type="text"
                     id="endDate"
                     name="endDate"
-                    className="form-control date flatpickr-input"
-                    value={endDate}
+                    className="form-control date"
+                    defaultValue={endDate}
                     readOnly
                     ref={endDateRef}
                   />
@@ -475,7 +526,9 @@ function CasinoInoutPageInner() {
                   name="exchangeType"
                   className="form-select w-auto me-2"
                   value={exchangeType}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setExchangeType(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setExchangeType(e.target.value)
+                  }
                 >
                   <option value="">선택</option>
                   <option value="deposit">사이트 &gt; 카지노</option>
@@ -488,7 +541,9 @@ function CasinoInoutPageInner() {
                   name="exchangeStatusIdx"
                   className="form-select w-auto me-2"
                   value={exchangeStatusIdx}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setExchangeStatusIdx(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setExchangeStatusIdx(e.target.value)
+                  }
                 >
                   <option value="">전체</option>
                   <option value="3">승인</option>
@@ -499,7 +554,9 @@ function CasinoInoutPageInner() {
                   name="searchType"
                   className="form-select w-auto me-2"
                   value={searchType}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSearchType(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setSearchType(e.target.value)
+                  }
                 >
                   <option value="">전체</option>
                   <option value="id">ID</option>
@@ -515,7 +572,9 @@ function CasinoInoutPageInner() {
                   id="searchText"
                   className="form-control w-150px me-2"
                   value={searchText}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setSearchText(e.target.value)
+                  }
                 />
 
                 <button className="btn btn-lime" id="btnSearch" type="submit">
@@ -525,19 +584,35 @@ function CasinoInoutPageInner() {
             </form>
             <div className="ms-auto">
               <label className="col-form-label">
-                사이트 &gt; 카지노 : <span className="text-primary">{formatAmount(summary.deposit)}</span>원
+                사이트 &gt; 카지노 :{" "}
+                <span className="text-primary">
+                  {formatAmount(summary.deposit)}
+                </span>
+                원
               </label>
               /
               <label className="col-form-label">
-                카지노 &gt; 사이트 : <span className="text-danger">{formatAmount(summary.withdraw)}</span>원
+                카지노 &gt; 사이트 :{" "}
+                <span className="text-danger">
+                  {formatAmount(summary.withdraw)}
+                </span>
+                원
               </label>
               /
               <label className="col-form-label">
-                사이트 &gt; 홀덤 : <span className="text-primary">{formatAmount(summary.depositHoldem)}</span>원
+                사이트 &gt; 홀덤 :{" "}
+                <span className="text-primary">
+                  {formatAmount(summary.depositHoldem)}
+                </span>
+                원
               </label>
               /
               <label className="col-form-label">
-                홀덤 &gt; 사이트 : <span className="text-danger">{formatAmount(summary.withdrawHoldem)}</span>원
+                홀덤 &gt; 사이트 :{" "}
+                <span className="text-danger">
+                  {formatAmount(summary.withdrawHoldem)}
+                </span>
+                원
               </label>
             </div>
           </div>
@@ -590,7 +665,9 @@ function CasinoInoutPageInner() {
                         {log.affiliation && (
                           <div
                             className="input-group-text p-1 d-inline"
-                            style={{ backgroundColor: log.affiliation.backgroundColor }}
+                            style={{
+                              backgroundColor: log.affiliation.backgroundColor,
+                            }}
                           >
                             {log.affiliation.role}
                           </div>
@@ -609,28 +686,99 @@ function CasinoInoutPageInner() {
                           <li
                             className="fw-600 text-white"
                             style={{
-                              padding: "var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)",
+                              padding:
+                                "var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)",
                             }}
                           >
-                            <i className="fa fa-user me-2"></i>{userDisplayName}
+                            <i className="fa fa-user me-2"></i>
+                            {userDisplayName}
                           </li>
                           {dropdownLinks.map((link, idx) => (
                             <li key={idx} className={link.className || ""}>
                               <a
                                 className="dropdown-item"
                                 href="#"
-                                onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                                onClick={(
+                                  e: React.MouseEvent<HTMLAnchorElement>,
+                                ) => {
                                   e.preventDefault();
-                                  if (link.label === "정보수정" && window.userDetail) window.userDetail(log.user?.userIdx || 0, 1);
-                                  else if (link.label === "수수료율" && window.userDetail) window.userDetail(log.user?.userIdx || 0, 17);
-                                  else if (link.label === "머니지급/차감" && window.userDetail) window.userDetail(log.user?.userIdx || 0, 3);
-                                  else if (link.label === "포인트지급/차감" && window.userDetail) window.userDetail(log.user?.userIdx || 0, 6);
-                                  else if (link.label === "쪽지보내기" && window.messageWrite) window.messageWrite(log.user?.userIdx || 0);
-                                  else if (link.label === "베팅내역" && window.userDetail) window.userDetail(log.user?.userIdx || 0, 8);
-                                  else if (link.label === "충환전내역" && window.userDetail) window.userDetail(log.user?.userIdx || 0, 4);
-                                  else if (link.label === "머니거래내역" && window.userDetail) window.userDetail(log.user?.userIdx || 0, 5);
-                                  else if (link.label === "포인트거래내역" && window.userDetail) window.userDetail(log.user?.userIdx || 0, 7);
-                                  else if (link.label === "쿠폰 현황" && window.userDetail) window.userDetail(log.user?.userIdx || 0, 15);
+                                  if (
+                                    link.label === "정보수정" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(
+                                      log.user?.userIdx || 0,
+                                      1,
+                                    );
+                                  else if (
+                                    link.label === "수수료율" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(
+                                      log.user?.userIdx || 0,
+                                      17,
+                                    );
+                                  else if (
+                                    link.label === "머니지급/차감" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(
+                                      log.user?.userIdx || 0,
+                                      3,
+                                    );
+                                  else if (
+                                    link.label === "포인트지급/차감" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(
+                                      log.user?.userIdx || 0,
+                                      6,
+                                    );
+                                  else if (
+                                    link.label === "쪽지보내기" &&
+                                    window.messageWrite
+                                  )
+                                    window.messageWrite(log.user?.userIdx || 0);
+                                  else if (
+                                    link.label === "베팅내역" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(
+                                      log.user?.userIdx || 0,
+                                      8,
+                                    );
+                                  else if (
+                                    link.label === "충환전내역" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(
+                                      log.user?.userIdx || 0,
+                                      4,
+                                    );
+                                  else if (
+                                    link.label === "머니거래내역" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(
+                                      log.user?.userIdx || 0,
+                                      5,
+                                    );
+                                  else if (
+                                    link.label === "포인트거래내역" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(
+                                      log.user?.userIdx || 0,
+                                      7,
+                                    );
+                                  else if (
+                                    link.label === "쿠폰 현황" &&
+                                    window.userDetail
+                                  )
+                                    window.userDetail(
+                                      log.user?.userIdx || 0,
+                                      15,
+                                    );
                                 }}
                               >
                                 {link.label}
@@ -649,7 +797,9 @@ function CasinoInoutPageInner() {
                         ) : log.exchangeStatusIdx === 4 ? (
                           <span className="badge bg-danger">취소</span>
                         ) : (
-                          <span className="badge bg-secondary">{log.status || ""}</span>
+                          <span className="badge bg-secondary">
+                            {log.status || ""}
+                          </span>
                         )}
                       </td>
                       <td>
@@ -667,28 +817,101 @@ function CasinoInoutPageInner() {
                               <li
                                 className="fw-600 text-white"
                                 style={{
-                                  padding: "var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)",
+                                  padding:
+                                    "var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x)",
                                 }}
                               >
-                                <i className="fa fa-user me-2"></i>{handlerDisplayName}
+                                <i className="fa fa-user me-2"></i>
+                                {handlerDisplayName}
                               </li>
                               {dropdownLinks.map((link, idx) => (
                                 <li key={idx} className={link.className || ""}>
                                   <a
                                     className="dropdown-item"
                                     href="#"
-                                    onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                                    onClick={(
+                                      e: React.MouseEvent<HTMLAnchorElement>,
+                                    ) => {
                                       e.preventDefault();
-                                      if (link.label === "정보수정" && window.userDetail) window.userDetail(log.handler?.userIdx || 0, 1);
-                                      else if (link.label === "수수료율" && window.userDetail) window.userDetail(log.handler?.userIdx || 0, 17);
-                                      else if (link.label === "머니지급/차감" && window.userDetail) window.userDetail(log.handler?.userIdx || 0, 3);
-                                      else if (link.label === "포인트지급/차감" && window.userDetail) window.userDetail(log.handler?.userIdx || 0, 6);
-                                      else if (link.label === "쪽지보내기" && window.messageWrite) window.messageWrite(log.handler?.userIdx || 0);
-                                      else if (link.label === "베팅내역" && window.userDetail) window.userDetail(log.handler?.userIdx || 0, 8);
-                                      else if (link.label === "충환전내역" && window.userDetail) window.userDetail(log.handler?.userIdx || 0, 4);
-                                      else if (link.label === "머니거래내역" && window.userDetail) window.userDetail(log.handler?.userIdx || 0, 5);
-                                      else if (link.label === "포인트거래내역" && window.userDetail) window.userDetail(log.handler?.userIdx || 0, 7);
-                                      else if (link.label === "쿠폰 현황" && window.userDetail) window.userDetail(log.handler?.userIdx || 0, 15);
+                                      if (
+                                        link.label === "정보수정" &&
+                                        window.userDetail
+                                      )
+                                        window.userDetail(
+                                          log.handler?.userIdx || 0,
+                                          1,
+                                        );
+                                      else if (
+                                        link.label === "수수료율" &&
+                                        window.userDetail
+                                      )
+                                        window.userDetail(
+                                          log.handler?.userIdx || 0,
+                                          17,
+                                        );
+                                      else if (
+                                        link.label === "머니지급/차감" &&
+                                        window.userDetail
+                                      )
+                                        window.userDetail(
+                                          log.handler?.userIdx || 0,
+                                          3,
+                                        );
+                                      else if (
+                                        link.label === "포인트지급/차감" &&
+                                        window.userDetail
+                                      )
+                                        window.userDetail(
+                                          log.handler?.userIdx || 0,
+                                          6,
+                                        );
+                                      else if (
+                                        link.label === "쪽지보내기" &&
+                                        window.messageWrite
+                                      )
+                                        window.messageWrite(
+                                          log.handler?.userIdx || 0,
+                                        );
+                                      else if (
+                                        link.label === "베팅내역" &&
+                                        window.userDetail
+                                      )
+                                        window.userDetail(
+                                          log.handler?.userIdx || 0,
+                                          8,
+                                        );
+                                      else if (
+                                        link.label === "충환전내역" &&
+                                        window.userDetail
+                                      )
+                                        window.userDetail(
+                                          log.handler?.userIdx || 0,
+                                          4,
+                                        );
+                                      else if (
+                                        link.label === "머니거래내역" &&
+                                        window.userDetail
+                                      )
+                                        window.userDetail(
+                                          log.handler?.userIdx || 0,
+                                          5,
+                                        );
+                                      else if (
+                                        link.label === "포인트거래내역" &&
+                                        window.userDetail
+                                      )
+                                        window.userDetail(
+                                          log.handler?.userIdx || 0,
+                                          7,
+                                        );
+                                      else if (
+                                        link.label === "쿠폰 현황" &&
+                                        window.userDetail
+                                      )
+                                        window.userDetail(
+                                          log.handler?.userIdx || 0,
+                                          15,
+                                        );
                                     }}
                                   >
                                     {link.label}
@@ -715,9 +938,7 @@ function CasinoInoutPageInner() {
         <div className="row">
           <div className="col text-center">
             <nav>
-              <ul className="pagination d-inline-flex">
-                {renderPagination()}
-              </ul>
+              <ul className="pagination d-inline-flex">{renderPagination()}</ul>
             </nav>
           </div>
         </div>
@@ -729,7 +950,10 @@ function CasinoInoutPageInner() {
         data-bs-backdrop="static"
         tabIndex={-1}
         aria-hidden={!loading}
-        style={{ backgroundColor: "rgba(0, 0, 0, 0.4)", display: loading ? "block" : "none" }}
+        style={{
+          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          display: loading ? "block" : "none",
+        }}
       >
         <div className="modal-dialog d-flex justify-content-center modal-dialog-centered">
           <button className="btn btn-primary" type="button" disabled>

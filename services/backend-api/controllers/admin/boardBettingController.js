@@ -44,6 +44,10 @@ exports.getBoardBettings = async (req, res) => {
       } else if (searchType === "nick") {
         whereClause += " AND u.nickname LIKE ?";
         params.push(`%${searchText}%`);
+      } else if (searchType === "parent") {
+        whereClause +=
+          " AND u.referrer_id = (SELECT id FROM users WHERE username = ?)";
+        params.push(searchText);
       } else if (searchType === "transactionID") {
         whereClause += " AND bbo.transaction_id LIKE ?";
         params.push(`%${searchText}%`);
@@ -102,12 +106,17 @@ exports.getBoardBettings = async (req, res) => {
     `;
     const [summaryRows] = await db.query(summaryQuery, params);
 
-    const formattedRows = rows.map((r) => ({
+    const formattedRows = rows.map((r, index) => ({
       ...r,
+      no: total - offset - index,
       betMoney: Number(r.betMoney),
       winMoney: Number(r.winMoney),
       jackpot: Number(r.jackpot),
-      betDetails: typeof r.betDetails === 'string' ? JSON.parse(r.betDetails) : r.betDetails,
+      betDetails: r.betDetails
+        ? typeof r.betDetails === "string"
+          ? JSON.parse(r.betDetails)
+          : r.betDetails
+        : null,
       user: {
         userIdx: r.userIdx,
         userID: r.userID,
@@ -116,7 +125,7 @@ exports.getBoardBettings = async (req, res) => {
       affiliation: {
         role: "회원",
         backgroundColor: "#f4a29c",
-      }
+      },
     }));
 
     res.status(200).json({

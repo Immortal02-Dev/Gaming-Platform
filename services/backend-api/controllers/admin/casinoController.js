@@ -112,6 +112,7 @@ exports.getCasinoTransfers = async (req, res) => {
         IFNULL(SUM(CASE WHEN exchange_type = 'withdrawHoldem' AND status_idx = 3 THEN amount ELSE 0 END), 0) AS withdrawHoldem
       FROM casino_transfers ct
       JOIN users u ON ct.user_id = u.id
+      LEFT JOIN users h ON ct.handler_id = h.id
       ${whereClause}
     `;
     const [summaryRows] = await db.query(summaryQuery, params);

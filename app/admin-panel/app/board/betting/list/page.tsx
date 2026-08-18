@@ -60,24 +60,18 @@ interface BettingSummary {
 }
 
 const gameTypes = [
-  { idx: 5, name: '플레이홀덤' },
-  { idx: 8, name: '파파홀덤' },
-  { idx: 18, name: '와일드홀덤' },
-  { idx: 19, name: '웹맞고' },
-  { idx: 20, name: '웹바둑이' },
-  { idx: 22, name: '로얄홀덤' }
+  { idx: 5, name: "플레이홀덤" },
+  { idx: 8, name: "파파홀덤" },
+  { idx: 18, name: "와일드홀덤" },
+  { idx: 19, name: "웹맞고" },
+  { idx: 20, name: "웹바둑이" },
+  { idx: 22, name: "로얄홀덤" },
 ];
 
 export default function BoardBettingListPage() {
   const [pageSize, setPageSize] = useState("50");
-  const [startDate, setStartDate] = useState(
-    new Date(new Date().setDate(new Date().getDate() - 30))
-      .toISOString()
-      .split("T")[0] + " 00:00"
-  );
-  const [endDate, setEndDate] = useState(
-    new Date().toISOString().split("T")[0] + " 23:59"
-  );
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [gameTypeIdx, setGameTypeIdx] = useState("5");
   const [betStatus, setBetStatus] = useState("");
   const [searchType, setSearchType] = useState("");
@@ -85,7 +79,7 @@ export default function BoardBettingListPage() {
   const [orders, setOrders] = useState<BoardBettingOrder[]>([]);
   const [summary, setSummary] = useState<BettingSummary>({
     totalBetMoney: 0,
-    totalWinMoney: 0
+    totalWinMoney: 0,
   });
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -94,6 +88,10 @@ export default function BoardBettingListPage() {
 
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fpStartRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fpEndRef = useRef<any>(null);
 
   const fetchOrders = useCallback(
     async (page: number = 1, overrideGameTypeIdx?: string) => {
@@ -117,7 +115,7 @@ export default function BoardBettingListPage() {
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         if (!response.ok) {
@@ -130,7 +128,7 @@ export default function BoardBettingListPage() {
           data.summary || {
             totalBetMoney: 0,
             totalWinMoney: 0,
-          }
+          },
         );
         setCurrentPage(data.pagination.page);
         setTotalPages(data.pagination.totalPages);
@@ -149,41 +147,61 @@ export default function BoardBettingListPage() {
       betStatus,
       searchType,
       searchText,
-    ]
+    ],
   );
 
+  // Initialize flatpickr once on mount — separate from fetchOrders to avoid re-init on every state change
   useEffect(() => {
-    // Initialize flatpickr for datetime inputs if available
     if (typeof window !== "undefined" && window.flatpickr) {
       if (startDateRef.current) {
-        window.flatpickr(startDateRef.current, {
+        fpStartRef.current = window.flatpickr(startDateRef.current, {
           locale: "ko",
           dateFormat: "Y-m-d H:i",
           enableTime: true,
           time_24hr: true,
           disableMobile: true,
-          onChange: (selectedDates: Date[], dateStr: string) => {
+          onChange: (_dates: Date[], dateStr: string) => {
             setStartDate(dateStr);
           },
         });
       }
       if (endDateRef.current) {
-        window.flatpickr(endDateRef.current, {
+        fpEndRef.current = window.flatpickr(endDateRef.current, {
           locale: "ko",
           dateFormat: "Y-m-d H:i",
           enableTime: true,
           time_24hr: true,
           disableMobile: true,
-          onChange: (selectedDates: Date[], dateStr: string) => {
+          onChange: (_dates: Date[], dateStr: string) => {
             setEndDate(dateStr);
           },
         });
       }
     }
+    return () => {
+      if (fpStartRef.current) {
+        fpStartRef.current.destroy();
+        fpStartRef.current = null;
+      }
+      if (fpEndRef.current) {
+        fpEndRef.current.destroy();
+        fpEndRef.current = null;
+      }
+    };
+  }, []);
 
-    // Fetch data on initial load
-    fetchOrders(1);
-  }, [fetchOrders]);
+  // Fetch data on initial load
+  useEffect(() => {
+    let ignore = false;
+    const load = async () => {
+      if (!ignore) await fetchOrders(1);
+    };
+    load();
+    return () => {
+      ignore = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,7 +221,7 @@ export default function BoardBettingListPage() {
   };
 
   const formatNumber = (num: number): string => {
-    return new Intl.NumberFormat('ko-KR').format(num);
+    return new Intl.NumberFormat("ko-KR").format(num);
   };
 
   // holdemDetail and holdemRoyalDetail are unused, keeping them as comments for future reference
@@ -273,7 +291,7 @@ export default function BoardBettingListPage() {
             <li key={game.idx} className="nav-item">
               <a
                 href="#"
-                className={`nav-link ${gameTypeIdx === game.idx.toString() ? 'active' : ''}`}
+                className={`nav-link ${gameTypeIdx === game.idx.toString() ? "active" : ""}`}
                 onClick={(e) => {
                   e.preventDefault();
                   handleGameTypeChange(game.idx);
@@ -293,8 +311,8 @@ export default function BoardBettingListPage() {
             <form onSubmit={handleSearch}>
               <input type="hidden" name="gameTypeIdx" value={gameTypeIdx} />
               <div className="d-flex">
-                <select 
-                  name="pageSize" 
+                <select
+                  name="pageSize"
                   className="form-select w-80px me-2"
                   value={pageSize}
                   onChange={(e) => setPageSize(e.target.value)}
@@ -313,8 +331,7 @@ export default function BoardBettingListPage() {
                     name="startDate"
                     ref={startDateRef}
                     className="form-control date_time"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                    defaultValue={startDate}
                     readOnly
                   />
                   <div className="input-group-text">~</div>
@@ -324,8 +341,7 @@ export default function BoardBettingListPage() {
                     name="endDate"
                     ref={endDateRef}
                     className="form-control date_time"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
+                    defaultValue={endDate}
                     readOnly
                   />
                   <div className="input-group-text">
@@ -333,8 +349,8 @@ export default function BoardBettingListPage() {
                   </div>
                 </div>
 
-                <select 
-                  name="betStatus" 
+                <select
+                  name="betStatus"
                   className="form-select w-auto me-2"
                   value={betStatus}
                   onChange={(e) => setBetStatus(e.target.value)}
@@ -345,8 +361,8 @@ export default function BoardBettingListPage() {
                   <option value="3">잭팟</option>
                 </select>
 
-                <select 
-                  name="searchType" 
+                <select
+                  name="searchType"
                   className="form-select w-auto me-2"
                   value={searchType}
                   onChange={(e) => setSearchType(e.target.value)}
@@ -368,19 +384,29 @@ export default function BoardBettingListPage() {
                   onChange={(e) => setSearchText(e.target.value)}
                 />
 
-                <button className="btn btn-lime" type="submit" disabled={loading}>
+                <button
+                  className="btn btn-lime"
+                  type="submit"
+                  disabled={loading}
+                >
                   <i className="fa-solid fa-magnifying-glass me-2"></i>
-                  {loading ? '검색 중...' : '검색'}
+                  {loading ? "검색 중..." : "검색"}
                 </button>
               </div>
             </form>
             <div className="ms-auto">
               <label className="col-form-label">
-                베팅 금액 : <span className="text-primary">{formatNumber(summary.totalBetMoney)}</span>
+                베팅 금액 :{" "}
+                <span className="text-primary">
+                  {formatNumber(summary.totalBetMoney)}
+                </span>
               </label>
               /
               <label className="col-form-label">
-                당첨 금액 : <span className="text-danger">{formatNumber(summary.totalWinMoney)}</span>
+                당첨 금액 :{" "}
+                <span className="text-danger">
+                  {formatNumber(summary.totalWinMoney)}
+                </span>
               </label>
             </div>
           </div>
@@ -438,24 +464,29 @@ export default function BoardBettingListPage() {
                       <td>{order.transactionID}</td>
                       <td>
                         {order.affiliation ? (
-                          <span 
-                            className="badge" 
-                            style={{ backgroundColor: order.affiliation.backgroundColor }}
+                          <span
+                            className="badge"
+                            style={{
+                              backgroundColor:
+                                order.affiliation.backgroundColor,
+                            }}
                           >
                             {order.affiliation.role}
                           </span>
                         ) : (
-                          '-'
+                          "-"
                         )}
                       </td>
-                      <td>{order.user.userID}({order.user.nickname})</td>
+                      <td>
+                        {order.user.userID}({order.user.nickname})
+                      </td>
                       <td>{order.apiProvider}</td>
                       <td>{order.roundID}</td>
                       <td>{formatNumber(order.betMoney)}</td>
-                      <td className={order.winMoney > 0 ? 'text-success' : ''}>
+                      <td className={order.winMoney > 0 ? "text-success" : ""}>
                         {formatNumber(order.winMoney)}
                       </td>
-                      <td className={order.jackpot > 0 ? 'text-warning' : ''}>
+                      <td className={order.jackpot > 0 ? "text-warning" : ""}>
                         {formatNumber(order.jackpot)}
                       </td>
                       <td>
@@ -475,26 +506,38 @@ export default function BoardBettingListPage() {
                         style={{ display: "table-row" }}
                       >
                         <td colSpan={11}>
-                          {order.betDetails.categories.map((category, catIdx) => (
-                            <div key={catIdx} className="row m-2 rounded border">
+                          {order.betDetails.categories.map(
+                            (category, catIdx) => (
                               <div
-                                className="col rounded-top text-white p-2"
-                                style={{ backgroundColor: "#999" }}
+                                key={catIdx}
+                                className="row m-2 rounded border"
                               >
-                                {category.name}
-                              </div>
-                              <div className="row mx-1 my-2">
-                                {category.items.map((item, itemIdx) => (
-                                  <div key={itemIdx} className="col rounded border mx-1">
-                                    <div className="row">
-                                      <div className="bg-gray-300">{item.label}</div>
-                                      <div style={{ color: "#ff8000" }}>{formatNumber(item.value)}</div>
+                                <div
+                                  className="col rounded-top text-white p-2"
+                                  style={{ backgroundColor: "#999" }}
+                                >
+                                  {category.name}
+                                </div>
+                                <div className="row mx-1 my-2">
+                                  {category.items.map((item, itemIdx) => (
+                                    <div
+                                      key={itemIdx}
+                                      className="col rounded border mx-1"
+                                    >
+                                      <div className="row">
+                                        <div className="bg-gray-300">
+                                          {item.label}
+                                        </div>
+                                        <div style={{ color: "#ff8000" }}>
+                                          {formatNumber(item.value)}
+                                        </div>
+                                      </div>
                                     </div>
-                                  </div>
-                                ))}
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            ),
+                          )}
                         </td>
                       </tr>
                     )}
@@ -512,7 +555,9 @@ export default function BoardBettingListPage() {
           <div className="col">
             <nav>
               <ul className="pagination justify-content-center">
-                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <li
+                  className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
+                >
                   <button
                     className="page-link"
                     onClick={() => fetchOrders(currentPage - 1)}
@@ -526,9 +571,9 @@ export default function BoardBettingListPage() {
                   const pageNum = startPage + i + 1;
                   if (pageNum > totalPages) return null;
                   return (
-                    <li 
-                      key={pageNum} 
-                      className={`page-item ${currentPage === pageNum ? 'active' : ''}`}
+                    <li
+                      key={pageNum}
+                      className={`page-item ${currentPage === pageNum ? "active" : ""}`}
                     >
                       <button
                         className="page-link"
@@ -539,7 +584,9 @@ export default function BoardBettingListPage() {
                     </li>
                   );
                 })}
-                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <li
+                  className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}
+                >
                   <button
                     className="page-link"
                     onClick={() => fetchOrders(currentPage + 1)}
