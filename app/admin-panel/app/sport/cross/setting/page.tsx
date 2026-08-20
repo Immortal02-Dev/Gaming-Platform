@@ -5,14 +5,6 @@ import Layout from "@/components/Layout";
 
 const BACKEND_URL = ""; // Use relative path for proxy
 
-// Extend Window interface for jQuery
-declare global {
-  interface Window {
-    $: any;
-    jQuery: any;
-  }
-}
-
 interface CrossMarket {
   value: number;
   text: string;
@@ -58,7 +50,7 @@ const PageContent = () => {
       `${BACKEND_URL}/api/admin/sport-cross-setting/sportCrossMarketTypeList?${params}`,
       {
         credentials: "include",
-      }
+      },
     );
     if (res.ok) {
       const data: MarketType[] = await res.json();
@@ -77,8 +69,11 @@ const PageContent = () => {
   }, []);
 
   useEffect(() => {
-    fetchMarketTypes();
-    fetchCrossSettings();
+    const timeoutId = setTimeout(() => {
+      fetchMarketTypes();
+      fetchCrossSettings();
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, [fetchMarketTypes, fetchCrossSettings]);
 
   const handleSearch = () => {
@@ -90,13 +85,9 @@ const PageContent = () => {
     setSelectedMarkets([...selectedMarkets, market]);
   };
 
-  const removeMarket = (value: number) => {
-    setSelectedMarkets((prev) => prev.filter((m) => m.value !== value));
-  };
-
   const handleSingleToggle = async (
     marketTypeIdx: number,
-    useSingle: number
+    useSingle: number,
   ) => {
     const res = await fetch(
       `${BACKEND_URL}/api/admin/sport-cross-setting/single`,
@@ -106,7 +97,7 @@ const PageContent = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ marketTypeIdx, useSingle }),
-      }
+      },
     );
     if (res.ok) {
       const result = await res.json();
@@ -115,8 +106,8 @@ const PageContent = () => {
           prev.map((m) =>
             m.marketTypeIdx === marketTypeIdx
               ? { ...m, useSingle: useSingle === 1 }
-              : m
-          )
+              : m,
+          ),
         );
       } else {
         alert(result.ReturnMessage);
@@ -171,7 +162,7 @@ const PageContent = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ crossSettingIdx: id }),
-      }
+      },
     );
     if (res.ok) {
       const result = await res.json();
@@ -188,7 +179,7 @@ const PageContent = () => {
     id: string,
     flag: string,
     same: string,
-    settingCross: string
+    settingCross: string,
   ) => {
     const markets = JSON.parse(settingCross || "[]") as CrossMarket[];
     setCrossSettingIdx(id);
@@ -330,7 +321,7 @@ const PageContent = () => {
                         onChange={(e) =>
                           handleSingleToggle(
                             item.marketTypeIdx,
-                            e.target.checked ? 1 : 0
+                            e.target.checked ? 1 : 0,
                           )
                         }
                         value={item.marketTypeIdx}
@@ -402,7 +393,7 @@ const PageContent = () => {
                       />
                     </div>
                   </div>
-                  <div className="text-center mt-2">
+                  <div className="text-center mt-2 d-flex gap-1">
                     <button
                       type="button"
                       className="btn btn-success"
@@ -436,7 +427,7 @@ const PageContent = () => {
                 <tbody>
                   {crossSettings.map((setting) => {
                     const markets = JSON.parse(
-                      setting.crossSetting || "[]"
+                      setting.crossSetting || "[]",
                     ) as CrossMarket[];
                     return (
                       <tr key={setting.id}>
@@ -454,7 +445,7 @@ const PageContent = () => {
                                 setting.id,
                                 setting.typeFlag,
                                 setting.typeSameMatch,
-                                setting.crossSetting
+                                setting.crossSetting,
                               )
                             }
                           >

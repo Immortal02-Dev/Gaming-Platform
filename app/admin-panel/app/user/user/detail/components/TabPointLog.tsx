@@ -242,9 +242,11 @@ export default function TabPointLog({ userIdx }: TabPointLogProps) {
                     <td>{log.no}</td>
                     <td>{log.logTypeGroup}</td>
                     <td>{log.logType}</td>
-                    <td>{log.beforeAmount}</td>
-                    <td className={log.amountClass}>{log.amountDisplay}</td>
-                    <td>{log.afterAmount}</td>
+                    <td className="text-end">{log.beforeAmount}</td>
+                    <td className={log.amountClass + " text-end"}>
+                      {log.amountDisplay}
+                    </td>
+                    <td className="text-end">{log.afterAmount}</td>
                     <td>{log.memo}</td>
                     <td>{log.transactionDate}</td>
                   </tr>

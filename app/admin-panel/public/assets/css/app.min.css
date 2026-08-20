@@ -4954,6 +4954,7 @@ fieldset:disabled .btn {
   position: relative;
   display: inline-flex;
   vertical-align: middle;
+  gap: 5px;
 }
 
 .btn-group-vertical > .btn,

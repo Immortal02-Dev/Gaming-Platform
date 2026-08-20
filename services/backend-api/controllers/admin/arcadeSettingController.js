@@ -14,7 +14,11 @@ exports.getArcadeSettings = async (req, res) => {
 
       // Get game type info
       const [gameTypeRows] = await db.execute(
-        "SELECT id, name, slug, interval_minutes, is_active FROM arcade_game_types WHERE id = ?",
+        `SELECT agt.id, agt.name, agt.slug, agt.interval_minutes, agt.is_active,
+                COALESCE(g.is_maintenance, 0) AS game_type_close
+         FROM arcade_game_types agt
+         LEFT JOIN games g ON g.id = agt.id
+         WHERE agt.id = ?`,
         [gameTypeId],
       );
 
@@ -39,55 +43,48 @@ exports.getArcadeSettings = async (req, res) => {
         settings[row.setting_key] = row.setting_value;
       });
 
-      // Mock gameCodes for now - in a real implementation, this would come from another table
-      const gameCodes = [
-        {
-          gameCodeIdx: 1,
-          codeName: "홀짝",
-          gameCodeUseYN: 1,
-          sortOrder: 1,
-          picks: [
-            {
-              gamePickIdx: 1,
-              label: "홀",
-              value: settings.odds_base || "1.95",
-              sortOrder: 1,
-            },
-            {
-              gamePickIdx: 2,
-              label: "짝",
-              value: settings.odds_base || "1.95",
-              sortOrder: 2,
-            },
-          ],
-        },
-        {
-          gameCodeIdx: 2,
-          codeName: "대중소",
-          gameCodeUseYN: 1,
-          sortOrder: 2,
-          picks: [
-            {
-              gamePickIdx: 3,
-              label: "대",
-              value: settings.odds_base || "1.95",
-              sortOrder: 1,
-            },
-            {
-              gamePickIdx: 4,
-              label: "중",
-              value: settings.odds_base || "1.95",
-              sortOrder: 2,
-            },
-            {
-              gamePickIdx: 5,
-              label: "소",
-              value: settings.odds_base || "1.95",
-              sortOrder: 3,
-            },
-          ],
-        },
-      ];
+      const [gameCodeRows] = await db.execute(
+        `SELECT
+           agc.id AS gameCodeId,
+           agc.game_code_idx AS gameCodeIdx,
+           agc.code_name AS codeName,
+           agc.use_yn AS gameCodeUseYN,
+           agc.sort_order AS codeSortOrder,
+           agp.game_pick_idx AS gamePickIdx,
+           agp.label,
+           agp.odds,
+           agp.sort_order AS pickSortOrder
+         FROM arcade_game_codes agc
+         LEFT JOIN arcade_game_picks agp ON agp.game_code_id = agc.id
+         WHERE agc.game_type_id = ?
+         ORDER BY agc.sort_order, agp.sort_order`,
+        [gameTypeId],
+      );
+
+      const gameCodes = [];
+      const gameCodeMap = new Map();
+      gameCodeRows.forEach((row) => {
+        let gameCode = gameCodeMap.get(row.gameCodeIdx);
+        if (!gameCode) {
+          gameCode = {
+            gameCodeIdx: row.gameCodeIdx,
+            codeName: row.codeName,
+            gameCodeUseYN: Number(row.gameCodeUseYN),
+            sortOrder: Number(row.codeSortOrder),
+            picks: [],
+          };
+          gameCodeMap.set(row.gameCodeIdx, gameCode);
+          gameCodes.push(gameCode);
+        }
+        if (row.gamePickIdx !== null) {
+          gameCode.picks.push({
+            gamePickIdx: row.gamePickIdx,
+            label: row.label,
+            value: row.odds,
+            sortOrder: Number(row.pickSortOrder),
+          });
+        }
+      });
 
       const response = {
         ReturnCode: 0,
@@ -95,20 +92,20 @@ exports.getArcadeSettings = async (req, res) => {
         data: {
           gameType: {
             gameTypeUseYN: gameType.is_active,
-            gameTypeClose: 0, // Mock value
+            gameTypeClose: Number(gameType.game_type_close),
           },
           baseSettings: {
-            endTimeSeconds: gameType.interval_minutes * 60, // Convert minutes to seconds
-            bettingType: "1", // Mock
-            singleBetMinMoney: settings.min_bet || "100",
-            singleBetMaxMoney: settings.max_bet || "100000",
-            singleBetWinMoney: "0", // Mock
-            multiBetMinMoney: settings.min_bet || "100",
-            multiBetMaxMoney: settings.max_bet || "100000",
-            multiBetWinMoney: "0", // Mock
-            gameNotice: "", // Mock
+            endTimeSeconds: settings.end_time_seconds || null,
+            bettingType: settings.betting_type || null,
+            singleBetMinMoney: settings.single_bet_min_money || null,
+            singleBetMaxMoney: settings.single_bet_max_money || null,
+            singleBetWinMoney: settings.single_bet_win_money || null,
+            multiBetMinMoney: settings.multi_bet_min_money || null,
+            multiBetMaxMoney: settings.multi_bet_max_money || null,
+            multiBetWinMoney: settings.multi_bet_win_money || null,
+            gameNotice: settings.game_notice || "",
           },
-          gameCodes: gameCodes,
+          gameCodes,
         },
       };
 
@@ -166,7 +163,7 @@ exports.getArcadeSettings = async (req, res) => {
           agt.interval_minutes AS intervalMinutes,
           agt.is_active AS isActive,
           'Admin' AS updateUserName,
-          agt.updated_at AS updatedAt
+          agt.created_at AS updatedAt
         FROM arcade_game_types agt
         ${whereClause}
         ORDER BY ${orderByField} ${orderByOrder}
@@ -203,6 +200,131 @@ exports.getArcadeSettings = async (req, res) => {
   } catch (error) {
     console.error("Error in getArcadeSettings:", error);
     res.status(500).json({ ReturnCode: 1, ReturnMessage: error.message });
+  }
+};
+
+exports.updateArcadeStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { key, value } = req.body;
+    if (key !== "gameTypeUseYN" && key !== "gameTypeClose") {
+      return res
+        .status(400)
+        .json({ ReturnCode: 1, ReturnMessage: "Invalid key provided" });
+    }
+
+    const table = key === "gameTypeUseYN" ? "arcade_game_types" : "games";
+    const column = key === "gameTypeUseYN" ? "is_active" : "is_maintenance";
+    const [result] = await db.execute(
+      `UPDATE ${table} SET ${column} = ? WHERE id = ?`,
+      [Number(value) === 1 ? 1 : 0, parseInt(id, 10)],
+    );
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ ReturnCode: 1, ReturnMessage: "Game type not found" });
+    }
+    return res.status(200).json({
+      ReturnCode: 0,
+      ReturnMessage: "Game status updated successfully",
+    });
+  } catch (error) {
+    console.error("Error in updateArcadeStatus:", error);
+    return res
+      .status(500)
+      .json({ ReturnCode: 1, ReturnMessage: error.message });
+  }
+};
+
+exports.updateArcadeBaseSettings = async (req, res) => {
+  try {
+    const gameTypeId = parseInt(req.params.id, 10);
+    const settingMap = {
+      endTimeSeconds: "end_time_seconds",
+      bettingType: "betting_type",
+      singleBetMinMoney: "single_bet_min_money",
+      singleBetMaxMoney: "single_bet_max_money",
+      singleBetWinMoney: "single_bet_win_money",
+      multiBetMinMoney: "multi_bet_min_money",
+      multiBetMaxMoney: "multi_bet_max_money",
+      multiBetWinMoney: "multi_bet_win_money",
+      gameNotice: "game_notice",
+    };
+    for (const [requestKey, settingKey] of Object.entries(settingMap)) {
+      if (!(requestKey in req.body)) continue;
+      await db.execute(
+        `INSERT INTO arcade_settings (game_type_id, setting_key, setting_value)
+         VALUES (?, ?, ?)
+         ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)`,
+        [gameTypeId, settingKey, req.body[requestKey] ?? ""],
+      );
+    }
+    return res.status(200).json({
+      ReturnCode: 0,
+      ReturnMessage: "Arcade settings updated successfully",
+    });
+  } catch (error) {
+    console.error("Error in updateArcadeBaseSettings:", error);
+    return res
+      .status(500)
+      .json({ ReturnCode: 1, ReturnMessage: error.message });
+  }
+};
+
+exports.updateArcadeGameCodeStatus = async (req, res) => {
+  try {
+    const gameTypeId = parseInt(req.params.id, 10);
+    const gameCodeIdx = parseInt(req.params.gameCodeIdx, 10);
+    const value = Number(req.body.useYN) === 1 ? 1 : 0;
+
+    await db.execute(
+      `UPDATE arcade_game_codes
+       SET use_yn = ?
+       WHERE game_type_id = ? AND game_code_idx = ?`,
+      [value, gameTypeId, gameCodeIdx],
+    );
+
+    return res.status(200).json({
+      ReturnCode: 0,
+      ReturnMessage: "Game code status updated successfully",
+    });
+  } catch (error) {
+    console.error("Error in updateArcadeGameCodeStatus:", error);
+    return res
+      .status(500)
+      .json({ ReturnCode: 1, ReturnMessage: error.message });
+  }
+};
+
+exports.updateArcadeGameCodePicks = async (req, res) => {
+  try {
+    const gameTypeId = parseInt(req.params.id, 10);
+    const gameCodeIdx = parseInt(req.params.gameCodeIdx, 10);
+    const picks = Array.isArray(req.body.picks) ? req.body.picks : [];
+
+    for (const pick of picks) {
+      const gamePickIdx = parseInt(pick.gamePickIdx, 10);
+      if (Number.isNaN(gamePickIdx)) continue;
+      await db.execute(
+        `UPDATE arcade_game_picks agp
+         INNER JOIN arcade_game_codes agc ON agc.id = agp.game_code_id
+         SET agp.odds = ?
+         WHERE agc.game_type_id = ?
+           AND agc.game_code_idx = ?
+           AND agp.game_pick_idx = ?`,
+        [pick.odds ?? 0, gameTypeId, gameCodeIdx, gamePickIdx],
+      );
+    }
+
+    return res.status(200).json({
+      ReturnCode: 0,
+      ReturnMessage: "Game code picks updated successfully",
+    });
+  } catch (error) {
+    console.error("Error in updateArcadeGameCodePicks:", error);
+    return res
+      .status(500)
+      .json({ ReturnCode: 1, ReturnMessage: error.message });
   }
 };
 

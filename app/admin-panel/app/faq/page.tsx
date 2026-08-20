@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Layout from "@/components/Layout";
 import RichTextEditor from "@/components/RichTextEditor";
 
@@ -41,45 +41,58 @@ export default function FaqPage() {
     return Math.max(1, Math.ceil(total / ps));
   }, [total, pageSize]);
 
-  const fetchFaqs = async (page = 1) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: String(page),
-        pageSize,
-      });
-      if (searchText.trim()) {
-        if (searchType === "title" || searchType === "category" || searchType === "all") {
-          params.set("searchType", searchType);
-          params.set("searchText", searchText.trim());
+  const doFetch = useCallback(
+    async (page: number, ps: string, st: string, sx: string, ac: string) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page: String(page),
+          pageSize: ps,
+        });
+        if (sx.trim()) {
+          if (st === "title" || st === "category" || st === "all") {
+            params.set("searchType", st);
+            params.set("searchText", sx.trim());
+          }
         }
+        if (ac === "true" || ac === "false") params.set("active", ac);
+        const res = await fetch(
+          `${BACKEND_URL}/api/admin/faqs?${params.toString()}`,
+          {
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+        if (!res.ok) throw new Error(String(res.status));
+        const data = await res.json();
+        setItems(data.items || []);
+        setCurrentPage(data.page || page);
+        setTotal(data.total || 0);
+      } catch {
+        setItems([]);
+        setTotal(0);
+      } finally {
+        setLoading(false);
       }
-      if (active === "true" || active === "false") {
-        params.set("active", active);
-      }
-      const res = await fetch(`${BACKEND_URL}/api/admin/faqs?${params.toString()}`, {
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!res.ok) throw new Error(String(res.status));
-      const data = await res.json();
-      setItems(data.items || []);
-      setCurrentPage(data.page || page);
-      setTotal(data.total || 0);
-    } catch (e) {
-      setItems([]);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [],
+  );
+
+  const fetchFaqs = useCallback(
+    (page = 1) => {
+      doFetch(page, pageSize, searchType, searchText, active);
+    },
+    [doFetch, pageSize, searchType, searchText, active],
+  );
 
   useEffect(() => {
-    fetchFaqs(1);
-  }, [pageSize, active]);
+    const timeoutId = setTimeout(() => {
+      fetchFaqs(1);
+    }, 0);
+    return () => clearTimeout(timeoutId);
+  }, [fetchFaqs]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = () => {
     setCurrentPage(1);
     fetchFaqs(1);
   };
@@ -111,7 +124,7 @@ export default function FaqPage() {
 
   const submitForm = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Basic validation
     if (!formCategory.trim()) {
       alert("카테고리를 입력해주세요.");
@@ -121,7 +134,7 @@ export default function FaqPage() {
       alert("제목을 입력해주세요.");
       return;
     }
-    // For RichTextEditor, content might contain HTML tags like <p><br></p> 
+    // For RichTextEditor, content might contain HTML tags like <p><br></p>
     // We check if there's any actual text content or images
     const strippedContent = formContent.replace(/<[^>]*>/g, "").trim();
     if (!strippedContent && !formContent.includes("<img")) {
@@ -151,7 +164,7 @@ export default function FaqPage() {
       if (!res.ok) throw new Error(String(res.status));
       closeModal();
       fetchFaqs(currentPage);
-    } catch (err) {
+    } catch {
       setSubmitting(false);
     }
   };
@@ -166,7 +179,7 @@ export default function FaqPage() {
       });
       if (!res.ok) throw new Error(String(res.status));
       fetchFaqs(currentPage);
-    } catch (err) {}
+    } catch {}
   };
 
   const updateActive = async (id: number, next: boolean) => {
@@ -179,9 +192,9 @@ export default function FaqPage() {
       });
       if (!res.ok) throw new Error(String(res.status));
       setItems((prev) =>
-        prev.map((it) => (it.id === id ? { ...it, isActive: next } : it))
+        prev.map((it) => (it.id === id ? { ...it, isActive: next } : it)),
       );
-    } catch (err) {}
+    } catch {}
   };
 
   const updateOrder = async (id: number, nextOrder: number) => {
@@ -196,9 +209,9 @@ export default function FaqPage() {
       setItems((prev) =>
         prev
           .map((it) => (it.id === id ? { ...it, displayOrder: nextOrder } : it))
-          .sort((a, b) => a.displayOrder - b.displayOrder || a.id - b.id)
+          .sort((a, b) => a.displayOrder - b.displayOrder || a.id - b.id),
       );
-    } catch (err) {}
+    } catch {}
   };
 
   const formatDate = (iso: string) => {
@@ -218,7 +231,12 @@ export default function FaqPage() {
       <div className="row mb-2">
         <div className="col">
           <div className="d-flex bg-white p-2 ">
-            <form onSubmit={handleSearch}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSearch();
+              }}
+            >
               <div className="d-flex align-items-center">
                 <select
                   name="pageSize"
@@ -268,7 +286,11 @@ export default function FaqPage() {
                   onChange={(e) => setSearchText(e.target.value)}
                 />
 
-                <button className="btn btn-lime d-flex align-items-center justify-content-center" type="submit" style={{width: "100%"}}>
+                <button
+                  className="btn btn-lime d-flex align-items-center justify-content-center"
+                  type="submit"
+                  style={{ width: "100%" }}
+                >
                   <i className="fa-solid fa-magnifying-glass me-2"></i>검색
                 </button>
               </div>
@@ -336,8 +358,8 @@ export default function FaqPage() {
                                 prev.map((x) =>
                                   x.id === it.id
                                     ? { ...x, displayOrder: next }
-                                    : x
-                                )
+                                    : x,
+                                ),
                               );
                             }}
                             onBlur={(e) =>
@@ -352,7 +374,9 @@ export default function FaqPage() {
                             className="form-check-input"
                             type="checkbox"
                             checked={it.isActive}
-                            onChange={(e) => updateActive(it.id, e.target.checked)}
+                            onChange={(e) =>
+                              updateActive(it.id, e.target.checked)
+                            }
                           />
                         </div>
                       </td>
@@ -389,7 +413,9 @@ export default function FaqPage() {
           <div className="col text-center">
             <nav>
               <ul className="pagination justify-content-center">
-                <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                <li
+                  className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
+                >
                   <button
                     className="page-link"
                     onClick={() => {
@@ -407,7 +433,7 @@ export default function FaqPage() {
                     (p) =>
                       p === 1 ||
                       p === totalPages ||
-                      (p >= currentPage - 2 && p <= currentPage + 2)
+                      (p >= currentPage - 2 && p <= currentPage + 2),
                   )
                   .map((p, idx, arr) => (
                     <span key={p} className="d-inline-flex">
@@ -416,7 +442,9 @@ export default function FaqPage() {
                           <span className="page-link">...</span>
                         </li>
                       )}
-                      <li className={`page-item ${currentPage === p ? "active" : ""}`}>
+                      <li
+                        className={`page-item ${currentPage === p ? "active" : ""}`}
+                      >
                         <button
                           className="page-link"
                           onClick={() => {
@@ -482,7 +510,9 @@ export default function FaqPage() {
                 <div className="panel-body">
                   <form onSubmit={submitForm}>
                     <div className="form-group row mb-3">
-                      <label className="col-form-label col-md-3">카테고리</label>
+                      <label className="col-form-label col-md-3">
+                        카테고리
+                      </label>
                       <div className="col-md-9">
                         <input
                           type="text"
@@ -527,7 +557,9 @@ export default function FaqPage() {
                       </div>
                     </div>
                     <div className="form-group row mb-3">
-                      <label className="col-form-label col-md-3">운영 여부</label>
+                      <label className="col-form-label col-md-3">
+                        운영 여부
+                      </label>
                       <div className="col-md-9">
                         <div className="form-check form-switch">
                           <input

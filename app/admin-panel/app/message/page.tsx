@@ -249,7 +249,7 @@ export default function MessagePage() {
       {/* begin row */}
       <div className="row mb-2">
         <div className="col">
-          <div className="d-flex bg-white p-2">
+          <div className="d-flex bg-white p-2 flex-wrap gap-2">
             <form onSubmit={handleSearch}>
               <div className="d-flex">
                 <select
@@ -293,7 +293,7 @@ export default function MessagePage() {
                 </button>
               </div>
             </form>
-            <div className="ms-auto">
+            <div className="ms-auto d-flex gap-1 flex-wrap">
               <a onClick={messageWriteNew} className="btn btn-primary">
                 <i className="fas fa-edit me-1"></i>쪽지 발송
               </a>

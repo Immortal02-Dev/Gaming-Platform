@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 
 const BACKEND_URL = ""; // Use relative path for proxy
@@ -29,7 +29,8 @@ export default function ManagerSettingPage() {
   const [showModalManager, setShowModalManager] = useState(false);
   const [showModalAddManager, setShowModalAddManager] = useState(false);
   const [showModalAdminIP, setShowModalAdminIP] = useState(false);
-  const [selectedManager, setSelectedManager] = useState<Manager | null>(null);
+  const [, setSelectedManager] = useState<Manager | null>(null);
+
   const [formData, setFormData] = useState({
     managerIdx: "",
     userID: "",
@@ -48,19 +49,13 @@ export default function ManagerSettingPage() {
     memo: "",
   });
 
-  useEffect(() => {
-    // Load initial data
-    loadAdminIPs();
-    loadManagers();
-  }, []);
-
   const loadAdminIPs = async () => {
     try {
       const response = await fetch(
         `${BACKEND_URL}/api/admin/manager-setting/ips`,
         {
           credentials: "include",
-        }
+        },
       );
       const data = await response.json();
       if (data.success) {
@@ -77,7 +72,7 @@ export default function ManagerSettingPage() {
         `${BACKEND_URL}/api/admin/manager-setting/managers`,
         {
           credentials: "include",
-        }
+        },
       );
       const data = await response.json();
       if (data.success) {
@@ -87,6 +82,15 @@ export default function ManagerSettingPage() {
       console.error("Failed to load managers:", error);
     }
   };
+
+  useEffect(() => {
+    // Load initial data
+    const timeoutId = setTimeout(() => {
+      loadAdminIPs();
+      loadManagers();
+    }, 0);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const handleSetAdminIPDelete = async (adminIPIdx: number) => {
     if (!confirm("정말 삭제하시겠습니까?")) {
@@ -99,7 +103,7 @@ export default function ManagerSettingPage() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
       const data = await response.json();
 
@@ -140,7 +144,7 @@ export default function ManagerSettingPage() {
                 userID: formData.userID,
                 nickName: formData.nickName,
               }),
-            }
+            },
           );
           const ret = await response.json();
           if (ret.ReturnCode !== 0) {
@@ -148,7 +152,7 @@ export default function ManagerSettingPage() {
           } else {
             await handleManagerSubmit();
           }
-        } catch (e: any) {
+        } catch {
           alert("오류가 발생했습니다.");
         }
       }
@@ -202,7 +206,7 @@ export default function ManagerSettingPage() {
 
   const handleRwControlChange = (area: string, checked: boolean) => {
     const checkboxes = document.querySelectorAll(
-      `.${area}`
+      `.${area}`,
     ) as NodeListOf<HTMLInputElement>;
     checkboxes.forEach((checkbox) => {
       checkbox.checked = checked;
@@ -226,7 +230,7 @@ export default function ManagerSettingPage() {
         `${BACKEND_URL}/api/admin/manager-setting/managers/${manager.managerIdx}`,
         {
           credentials: "include",
-        }
+        },
       );
       const data = await response.json();
 
@@ -859,7 +863,7 @@ export default function ManagerSettingPage() {
                                       onChange={(e) =>
                                         handleRwControlChange(
                                           "readYN",
-                                          e.target.checked
+                                          e.target.checked,
                                         )
                                       }
                                     />
@@ -874,7 +878,7 @@ export default function ManagerSettingPage() {
                                       onChange={(e) =>
                                         handleRwControlChange(
                                           "writeYN",
-                                          e.target.checked
+                                          e.target.checked,
                                         )
                                       }
                                     />
@@ -900,7 +904,7 @@ export default function ManagerSettingPage() {
                                         onChange={() =>
                                           handleCheckboxChange(
                                             "readYN",
-                                            item.id
+                                            item.id,
                                           )
                                         }
                                       />
@@ -920,7 +924,7 @@ export default function ManagerSettingPage() {
                                         onChange={() =>
                                           handleCheckboxChange(
                                             "writeYN",
-                                            item.id
+                                            item.id,
                                           )
                                         }
                                       />
@@ -935,7 +939,7 @@ export default function ManagerSettingPage() {
                     </div>
 
                     <div className="row">
-                      <div className="col text-center">
+                      <div className="col text-center d-flex justify-content-center gap-1">
                         <button
                           type="button"
                           className="btn btn-success"
@@ -1312,7 +1316,7 @@ export default function ManagerSettingPage() {
                                       onChange={(e) =>
                                         handleRwControlChange(
                                           "readYN",
-                                          e.target.checked
+                                          e.target.checked,
                                         )
                                       }
                                     />
@@ -1327,7 +1331,7 @@ export default function ManagerSettingPage() {
                                       onChange={(e) =>
                                         handleRwControlChange(
                                           "writeYN",
-                                          e.target.checked
+                                          e.target.checked,
                                         )
                                       }
                                     />
@@ -1353,7 +1357,7 @@ export default function ManagerSettingPage() {
                                         onChange={() =>
                                           handleCheckboxChange(
                                             "readYN",
-                                            item.id
+                                            item.id,
                                           )
                                         }
                                       />
@@ -1373,7 +1377,7 @@ export default function ManagerSettingPage() {
                                         onChange={() =>
                                           handleCheckboxChange(
                                             "writeYN",
-                                            item.id
+                                            item.id,
                                           )
                                         }
                                       />
@@ -1388,7 +1392,7 @@ export default function ManagerSettingPage() {
                     </div>
 
                     <div className="row">
-                      <div className="col text-center">
+                      <div className="col text-center d-flex justify-content-center gap-1">
                         <button
                           type="button"
                           className="btn btn-success"
@@ -1468,7 +1472,7 @@ export default function ManagerSettingPage() {
                               adminIP: adminIPForm.adminIP,
                               memo: adminIPForm.memo,
                             }),
-                          }
+                          },
                         );
                         const data = await response.json();
 
@@ -1517,7 +1521,7 @@ export default function ManagerSettingPage() {
                       }
                     />
                     <div className="row mt-2">
-                      <div className="col text-center">
+                      <div className="col text-center d-flex justify-content-center gap-1">
                         <button
                           type="submit"
                           className="btn btn-success btn-sm text-white"

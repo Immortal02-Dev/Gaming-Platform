@@ -263,10 +263,10 @@ export default function TabBettingLog({ userIdx }: TabBettingLogProps) {
                     <td>{log.vendor}</td>
                     <td>{log.gameType}</td>
                     <td>{log.tableName}</td>
-                    <td className="text-primary">
+                    <td className="text-primary text-end">
                       {log.betMoney?.toLocaleString()}
                     </td>
-                    <td className="text-success">
+                    <td className="text-success text-end">
                       {log.winMoney?.toLocaleString()}
                     </td>
                     <td>{log.betStatusDisplay}</td>

@@ -152,7 +152,7 @@ export default function TabCoupon({ userIdx }: TabCouponProps) {
         <div className="col-12">
           <div className="d-flex bg-white p-2 border rounded align-items-center">
             <form
-              className="w-100 d-flex align-items-center"
+              className="w-auto d-flex align-items-center"
               onSubmit={handleSearch}
             >
               <select
@@ -215,7 +215,7 @@ export default function TabCoupon({ userIdx }: TabCouponProps) {
             <div className="ms-auto">
               <button
                 type="button"
-                className="btn btn-primary"
+                className="btn btn-primary "
                 onClick={() => alert("Issue Coupon")}
               >
                 <i className="fa-solid fa-credit-card me-2" />

@@ -191,16 +191,30 @@ export function UserDetailPageInner({
             </thead>
             <tbody>
               <tr>
-                <td>{userData?.totalCharge?.toLocaleString() || 0}</td>
-                <td>{userData?.totalExchange?.toLocaleString() || 0}</td>
-                <td className="text-red">
+                <td className="text-end">
+                  {userData?.totalCharge?.toLocaleString() || 0}
+                </td>
+                <td className="text-end">
+                  {userData?.totalExchange?.toLocaleString() || 0}
+                </td>
+                <td className="text-red text-end">
                   {userData?.chargeProfit?.toLocaleString() || 0}
                 </td>
-                <td>{userData?.totalBetting?.toLocaleString() || 0}</td>
-                <td>{userData?.totalWin?.toLocaleString() || 0}</td>
-                <td>{userData?.totalEvent?.toLocaleString() || 0}</td>
-                <td>{userData?.money?.toLocaleString() || 0}</td>
-                <td>{userData?.point?.toLocaleString() || 0}</td>
+                <td className="text-end">
+                  {userData?.totalBetting?.toLocaleString() || 0}
+                </td>
+                <td className="text-end">
+                  {userData?.totalWin?.toLocaleString() || 0}
+                </td>
+                <td className="text-end">
+                  {userData?.totalEvent?.toLocaleString() || 0}
+                </td>
+                <td className="text-end">
+                  {userData?.money?.toLocaleString() || 0}
+                </td>
+                <td className="text-end">
+                  {userData?.point?.toLocaleString() || 0}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -243,15 +257,11 @@ export function UserDetailPageInner({
               />
             )}
             {activeTab === "inquiry" && <TabInquiry userIdx={userIdx} />}
-            {activeTab === "permissions" && (
-              <TabPartnerAuth />
-            )}
+            {activeTab === "permissions" && <TabPartnerAuth />}
             {activeTab === "change_log" && <TabChangeLog userIdx={userIdx} />}
             {activeTab === "coupon" && <TabCoupon userIdx={userIdx} />}
             {activeTab === "empty_bet" && <TabEmptyBet />}
-            {activeTab === "holdem_money" && (
-              <TabCasinoMoney />
-            )}
+            {activeTab === "holdem_money" && <TabCasinoMoney />}
             {activeTab === "tree_view" && (
               <div className="p-3 text-center">소속 트리뷰 내용 준비중</div>
             )}
@@ -275,9 +285,7 @@ function UserDetailPageWrapper() {
   return (
     <UserDetailPageInner
       userIdxProp={searchParams.get("userIdx")}
-      tabTypeProp={
-        searchParams.get("tabType") ?? searchParams.get("tab")
-      }
+      tabTypeProp={searchParams.get("tabType") ?? searchParams.get("tab")}
     />
   );
 }

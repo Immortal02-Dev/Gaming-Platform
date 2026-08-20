@@ -54,11 +54,6 @@ export default function EventSettingPage() {
     }
   };
 
-  useEffect(() => {
-    fetchChargeEvents();
-    fetchEventSettings();
-  }, []);
-
   // Fetch general event settings
   const fetchEventSettings = async () => {
     try {
@@ -79,6 +74,14 @@ export default function EventSettingPage() {
       alert("이벤트 설정을 불러오는데 실패했습니다.");
     }
   };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchChargeEvents();
+      fetchEventSettings();
+    }, 0);
+    return () => clearTimeout(timeoutId);
+  }, []);
   // Update general event settings
   const handleUpdateEventSettings = async (
     settings: Record<string, string>,
@@ -148,8 +151,11 @@ export default function EventSettingPage() {
         setModalBonusLimit("");
         setModalUseYN("1");
         // Close modal
-        if (typeof window !== "undefined" && (window as any).$) {
-          (window as any).$("#modalEvent").modal("hide");
+        const win = window as unknown as {
+          $: (selector: string) => { modal: (action: string) => void };
+        };
+        if (typeof window !== "undefined" && win.$) {
+          win.$("#modalEvent").modal("hide");
         }
         fetchChargeEvents();
       } else {
@@ -372,8 +378,13 @@ export default function EventSettingPage() {
                   href="#"
                   className="btn btn-success btn-sm text-white"
                   onClick={() => {
-                    if (typeof window !== "undefined" && (window as any).$) {
-                      (window as any).$("#modalEvent").modal("show");
+                    const win = window as unknown as {
+                      $: (selector: string) => {
+                        modal: (action: string) => void;
+                      };
+                    };
+                    if (typeof window !== "undefined" && win.$) {
+                      win.$("#modalEvent").modal("show");
                     }
                   }}
                 >
@@ -667,7 +678,7 @@ function EventRow({
         </select>
       </td>
       <td>
-        <div className="d-block">
+        <div className="d-flex gap-1">
           <button
             type="button"
             className="btn btn-primary btn-sm text-white"

@@ -125,47 +125,131 @@ router.get("/user-edit-logs", userController.getUserEditLogs);
 router.get("/user/login/list", userController.getLoginLogs);
 
 // User Batch Operations
-router.post("/user/batch/chargeBank",            userBatchController.chargeBank);
-router.post("/user/batch/chargeApiIdx",           userBatchController.chargeApiIdx);
-router.post("/user/batch/firstCharge",            userBatchController.firstCharge);
-router.post("/user/batch/firstChargeCommission",  userBatchController.firstChargeCommission);
-router.post("/user/batch/everyCharge",            userBatchController.everyCharge);
-router.post("/user/batch/everyChargeCommission",  userBatchController.everyChargeCommission);
-router.post("/user/batch/userIntegrateChargeBonusUseYN", userBatchController.userIntegrateChargeBonusUseYN);
-router.post("/user/batch/userIntegrateChargeBonusAuth",  userBatchController.userIntegrateChargeBonusAuth);
-router.post("/user/batch/userIntegrateChargeBonus",      userBatchController.userIntegrateChargeBonus);
-router.post("/user/batch/comp",                   userBatchController.comp);
-router.post("/user/batch/partnerAddAuth",          userBatchController.partnerAddAuth);
-router.post("/user/batch/partnerAddAuthLock",      userBatchController.partnerAddAuthLock);
-router.post("/user/batch/partnerModifyAuth",       userBatchController.partnerModifyAuth);
-router.post("/user/batch/partnerModifyAuthLock",   userBatchController.partnerModifyAuthLock);
-router.post("/user/batch/partnerPasswordModifyAuth",     userBatchController.partnerPasswordModifyAuth);
-router.post("/user/batch/partnerPasswordModifyAuthLock", userBatchController.partnerPasswordModifyAuthLock);
-router.post("/user/batch/partnerCommissionAuth",   userBatchController.partnerCommissionAuth);
-router.post("/user/batch/partnerCommissionAuthLock", userBatchController.partnerCommissionAuthLock);
-router.post("/user/batch/userAddAuth",             userBatchController.userAddAuth);
-router.post("/user/batch/userAddAuthLock",         userBatchController.userAddAuthLock);
-router.post("/user/batch/userMultiRegisterAuth",   userBatchController.userMultiRegisterAuth);
-router.post("/user/batch/userModifyAuth",          userBatchController.userModifyAuth);
-router.post("/user/batch/userModifyAuthLock",      userBatchController.userModifyAuthLock);
-router.post("/user/batch/userPasswordModifyAuth",  userBatchController.userPasswordModifyAuth);
-router.post("/user/batch/userPasswordModifyAuthLock", userBatchController.userPasswordModifyAuthLock);
-router.post("/user/batch/userCommissionAuth",      userBatchController.userCommissionAuth);
-router.post("/user/batch/userCommissionAuthLock",  userBatchController.userCommissionAuthLock);
-router.post("/user/batch/userMoneyChargeAuth",     userBatchController.userMoneyChargeAuth);
-router.post("/user/batch/userMoneyChargeAuthLock", userBatchController.userMoneyChargeAuthLock);
-router.post("/user/batch/userCasinoMoneyChargeAuth",     userBatchController.userCasinoMoneyChargeAuth);
-router.post("/user/batch/userCasinoMoneyChargeAuthLock", userBatchController.userCasinoMoneyChargeAuthLock);
-router.post("/user/batch/pointChangeAuth",         userBatchController.pointChangeAuth);
-router.post("/user/batch/pointChangeAuthLock",     userBatchController.pointChangeAuthLock);
-router.post("/user/batch/pointChangeUserWebAuth",  userBatchController.pointChangeUserWebAuth);
-router.post("/user/batch/pointChangeUserWebAuthLock", userBatchController.pointChangeUserWebAuthLock);
-router.post("/user/batch/exchangePasswordUseYN",   userBatchController.exchangePasswordUseYN);
-router.post("/user/batch/isUseChargeBonus",        userBatchController.isUseChargeBonus);
-router.post("/user/batch/userSitePasswordEditYN",  userBatchController.userSitePasswordEditYN);
-router.post("/user/batch/userGradeModify",         userBatchController.userGradeModify);
-router.post("/user/batch/userGameGrade",           userBatchController.userGameGrade);
-router.post("/user/batch/userStatusIdx",           userBatchController.userStatusIdx);
+router.post("/user/batch/chargeBank", userBatchController.chargeBank);
+router.post("/user/batch/chargeApiIdx", userBatchController.chargeApiIdx);
+router.post("/user/batch/firstCharge", userBatchController.firstCharge);
+router.post(
+  "/user/batch/firstChargeCommission",
+  userBatchController.firstChargeCommission,
+);
+router.post("/user/batch/everyCharge", userBatchController.everyCharge);
+router.post(
+  "/user/batch/everyChargeCommission",
+  userBatchController.everyChargeCommission,
+);
+router.post(
+  "/user/batch/userIntegrateChargeBonusUseYN",
+  userBatchController.userIntegrateChargeBonusUseYN,
+);
+router.post(
+  "/user/batch/userIntegrateChargeBonusAuth",
+  userBatchController.userIntegrateChargeBonusAuth,
+);
+router.post(
+  "/user/batch/userIntegrateChargeBonus",
+  userBatchController.userIntegrateChargeBonus,
+);
+router.post("/user/batch/comp", userBatchController.comp);
+router.post("/user/batch/partnerAddAuth", userBatchController.partnerAddAuth);
+router.post(
+  "/user/batch/partnerAddAuthLock",
+  userBatchController.partnerAddAuthLock,
+);
+router.post(
+  "/user/batch/partnerModifyAuth",
+  userBatchController.partnerModifyAuth,
+);
+router.post(
+  "/user/batch/partnerModifyAuthLock",
+  userBatchController.partnerModifyAuthLock,
+);
+router.post(
+  "/user/batch/partnerPasswordModifyAuth",
+  userBatchController.partnerPasswordModifyAuth,
+);
+router.post(
+  "/user/batch/partnerPasswordModifyAuthLock",
+  userBatchController.partnerPasswordModifyAuthLock,
+);
+router.post(
+  "/user/batch/partnerCommissionAuth",
+  userBatchController.partnerCommissionAuth,
+);
+router.post(
+  "/user/batch/partnerCommissionAuthLock",
+  userBatchController.partnerCommissionAuthLock,
+);
+router.post("/user/batch/userAddAuth", userBatchController.userAddAuth);
+router.post("/user/batch/userAddAuthLock", userBatchController.userAddAuthLock);
+router.post(
+  "/user/batch/userMultiRegisterAuth",
+  userBatchController.userMultiRegisterAuth,
+);
+router.post("/user/batch/userModifyAuth", userBatchController.userModifyAuth);
+router.post(
+  "/user/batch/userModifyAuthLock",
+  userBatchController.userModifyAuthLock,
+);
+router.post(
+  "/user/batch/userPasswordModifyAuth",
+  userBatchController.userPasswordModifyAuth,
+);
+router.post(
+  "/user/batch/userPasswordModifyAuthLock",
+  userBatchController.userPasswordModifyAuthLock,
+);
+router.post(
+  "/user/batch/userCommissionAuth",
+  userBatchController.userCommissionAuth,
+);
+router.post(
+  "/user/batch/userCommissionAuthLock",
+  userBatchController.userCommissionAuthLock,
+);
+router.post(
+  "/user/batch/userMoneyChargeAuth",
+  userBatchController.userMoneyChargeAuth,
+);
+router.post(
+  "/user/batch/userMoneyChargeAuthLock",
+  userBatchController.userMoneyChargeAuthLock,
+);
+router.post(
+  "/user/batch/userCasinoMoneyChargeAuth",
+  userBatchController.userCasinoMoneyChargeAuth,
+);
+router.post(
+  "/user/batch/userCasinoMoneyChargeAuthLock",
+  userBatchController.userCasinoMoneyChargeAuthLock,
+);
+router.post("/user/batch/pointChangeAuth", userBatchController.pointChangeAuth);
+router.post(
+  "/user/batch/pointChangeAuthLock",
+  userBatchController.pointChangeAuthLock,
+);
+router.post(
+  "/user/batch/pointChangeUserWebAuth",
+  userBatchController.pointChangeUserWebAuth,
+);
+router.post(
+  "/user/batch/pointChangeUserWebAuthLock",
+  userBatchController.pointChangeUserWebAuthLock,
+);
+router.post(
+  "/user/batch/exchangePasswordUseYN",
+  userBatchController.exchangePasswordUseYN,
+);
+router.post(
+  "/user/batch/isUseChargeBonus",
+  userBatchController.isUseChargeBonus,
+);
+router.post(
+  "/user/batch/userSitePasswordEditYN",
+  userBatchController.userSitePasswordEditYN,
+);
+router.post("/user/batch/userGradeModify", userBatchController.userGradeModify);
+router.post("/user/batch/userGameGrade", userBatchController.userGameGrade);
+router.post("/user/batch/userStatusIdx", userBatchController.userStatusIdx);
 
 // Finance List Routes (for consistency)
 router.get("/finance/deposits", financeController.getDeposits);
@@ -422,6 +506,26 @@ router.post(
 
 // Arcade Settings Admin (for /arcade/setting)
 router.get("/arcade-setting", arcadeSettingController.getArcadeSettings);
+router.post(
+  "/arcade-setting/:id/status",
+  auditMiddleware("UPDATE_ARCADE_SETTING_STATUS"),
+  arcadeSettingController.updateArcadeStatus,
+);
+router.post(
+  "/arcade-setting/:id/base-settings",
+  auditMiddleware("UPDATE_ARCADE_SETTING_BASE"),
+  arcadeSettingController.updateArcadeBaseSettings,
+);
+router.post(
+  "/arcade-setting/:id/game-codes/:gameCodeIdx/status",
+  auditMiddleware("UPDATE_ARCADE_GAME_CODE_STATUS"),
+  arcadeSettingController.updateArcadeGameCodeStatus,
+);
+router.post(
+  "/arcade-setting/:id/game-codes/:gameCodeIdx/picks",
+  auditMiddleware("UPDATE_ARCADE_GAME_CODE_PICKS"),
+  arcadeSettingController.updateArcadeGameCodePicks,
+);
 router.post(
   "/arcade-setting/:id",
   auditMiddleware("UPDATE_ARCADE_SETTING"),

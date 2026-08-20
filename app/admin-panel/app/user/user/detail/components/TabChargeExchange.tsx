@@ -255,13 +255,17 @@ export default function TabChargeExchange({ userIdx }: TabChargeExchangeProps) {
                     <td>{moneyType === "charge" ? "충전" : "환전"}</td>
                     <td
                       className={
-                        moneyType === "charge" ? "text-primary" : "text-success"
+                        moneyType === "charge"
+                          ? "text-primary text-end"
+                          : "text-success text-end"
                       }
                     >
                       {log.requestAmount?.toLocaleString()}
                     </td>
                     {moneyType === "charge" && (
-                      <td>{log.bonusAmount?.toLocaleString() || 0}</td>
+                      <td className="text-end">
+                        {log.bonusAmount?.toLocaleString() || 0}
+                      </td>
                     )}
                     <td>{log.depositor || log.bankerName}</td>
                     {moneyType === "charge" && (
