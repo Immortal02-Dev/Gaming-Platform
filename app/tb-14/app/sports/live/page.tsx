@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import SportsLayout from "@/components/SportsLayout";
 import Image from "next/image";
@@ -386,7 +386,7 @@ function matchesCountry(matchCountry: string, selectedCountryText: string): bool
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function LiveSportsPage() {
+function LiveSportsPageContent() {
   const searchParams = useSearchParams();
   const sportParam = searchParams.get('sport') || 'all-sports';
   const countryParam = searchParams.get('country') || '';
@@ -562,5 +562,13 @@ export default function LiveSportsPage() {
         </div>
       </div>
     </SportsLayout>
+  );
+}
+
+export default function LiveSportsPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-5">로딩중...</div>}>
+      <LiveSportsPageContent />
+    </Suspense>
   );
 }
