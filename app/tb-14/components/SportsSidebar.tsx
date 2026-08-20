@@ -1,258 +1,471 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Image from 'next/image'
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 interface SportsSidebarProps {
-  isLive?: boolean
+  isLive?: boolean;
 }
 
+const COUNTRY_MAP: Record<string, string> = {
+  세계: "World",
+  대한민국: "Korea",
+  일본: "Japan",
+  미국: "USA",
+  스페인: "Spain",
+  영국: "England",
+  호주: "USA",
+  베트남: "Vietnam",
+};
+
 const SportsSidebar = ({ isLive = false }: SportsSidebarProps) => {
-  const [expandedItems, setExpandedItems] = useState<string[]>([])
-  const [activeItem, setActiveItem] = useState<string>('all-sports')
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const sportParam = searchParams.get("sport") || "all-sports";
+  const countryParam = searchParams.get("country") || "";
+
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [counts, setCounts] = useState<Record<string, Record<string, number>>>(
+    {},
+  );
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const endpoint = isLive ? "/api/live" : "/api/pre-match";
+        const res = await fetch(endpoint);
+        if (!res.ok) return;
+        const data = await res.json();
+        const matches = data.matches || [];
+
+        const newCounts: Record<string, Record<string, number>> = {};
+        for (const m of matches) {
+          const sportKey = m.sport.toLowerCase();
+          newCounts[sportKey] ??= {};
+          const countryKey = m.country.toLowerCase();
+          newCounts[sportKey][countryKey] ??= 0;
+          newCounts[sportKey][countryKey]++;
+        }
+        setCounts(newCounts);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCounts();
+    const timer = setInterval(fetchCounts, 10000);
+    return () => clearInterval(timer);
+  }, [isLive]);
+
+  // Keep expandedItems in sync with sportParam
+  useEffect(() => {
+    if (
+      sportParam &&
+      sportParam !== "all-sports" &&
+      !expandedItems.includes(sportParam)
+    ) {
+      setExpandedItems([sportParam]);
+    }
+  }, [sportParam]);
+
+  const navigateTo = (sportVal?: string | null, countryVal?: string | null) => {
+    const params = new URLSearchParams();
+    if (sportVal && sportVal !== "all-sports") {
+      params.set("sport", sportVal);
+    }
+    if (countryVal) {
+      params.set("country", countryVal);
+    }
+    const query = params.toString();
+    router.push(pathname + (query ? "?" + query : ""));
+  };
 
   const toggleExpanded = (itemId: string) => {
-    setExpandedItems(prev => {
-      const isCurrentlyExpanded = prev.includes(itemId)
-      
-      if (isCurrentlyExpanded) {
-        // Collapsing - go back to all-sports
-        setActiveItem('all-sports')
-        return prev.filter(id => id !== itemId)
-      } else {
-        // Expanding - set as active and close others
-        setActiveItem(itemId)
-        return [itemId]  // Only keep this one expanded
-      }
-    })
-  }
+    const isCurrentlyExpanded = expandedItems.includes(itemId);
+    if (isCurrentlyExpanded) {
+      navigateTo("all-sports");
+      setExpandedItems(expandedItems.filter((id) => id !== itemId));
+    } else {
+      navigateTo(itemId);
+      setExpandedItems([itemId]);
+    }
+  };
 
   const liveSidebarItems = [
     {
-      id: 'all-sports',
-      text: '인플레이 전체',
+      id: "all-sports",
+      text: "인플레이 전체",
       icon: (
-        <svg className="sidebar-icon" width="24" height="24" viewBox="0 0 32 32">
+        <svg
+          className="sidebar-icon"
+          width="24"
+          height="24"
+          viewBox="0 0 32 32"
+        >
           <circle cx="16" cy="8" r="4"></circle>
           <circle cx="8" cy="16" r="4"></circle>
           <circle cx="24" cy="16" r="4"></circle>
           <circle cx="16" cy="24" r="4"></circle>
         </svg>
-      )
+      ),
     },
     {
-      id: 'popular',
-      text: '인기리그',
+      id: "popular",
+      text: "인기리그",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" className="sidebar-icon" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
-            <path d="M17.5 8S19 9.5 19 12s-1.5 4-1.5 4m3-11S23 7.5 23 12s-2.5 7-2.5 7M6.5 8S5 9.5 5 12s1.5 4 1.5 4m-3-11S1 7.5 1 12s2.5 7 2.5 7"/>
-            <path fill="currentColor" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2Z"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          className="sidebar-icon"
+          viewBox="0 0 24 24"
+        >
+          <g
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="1.5"
+          >
+            <path d="M17.5 8S19 9.5 19 12s-1.5 4-1.5 4m3-11S23 7.5 23 12s-2.5 7-2.5 7M6.5 8S5 9.5 5 12s1.5 4 1.5 4m-3-11S1 7.5 1 12s2.5 7 2.5 7" />
+            <path fill="currentColor" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2Z" />
           </g>
         </svg>
       ),
       expandable: true,
       subItems: [
         {
-          text: 'K리그 1',
+          text: "K리그 1",
           icons: [
-            'https://p.staticube.com/common/cd42be37-ea6a-41b0-9469-fb5613e881da.svg',
-            'https://p.staticube.com/common/flags/circle/kr.svg'
+            "https://p.staticube.com/common/cd42be37-ea6a-41b0-9469-fb5613e881da.svg",
+            "https://p.staticube.com/common/flags/circle/kr.svg",
           ],
-          count: 2
-        }
-      ]
+          count: 2,
+        },
+      ],
     },
     {
-      id: 'other',
-      text: '그외리그',
+      id: "other",
+      text: "그외리그",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" className="sidebar-icon" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
-            <path d="M17.5 8S19 9.5 19 12s-1.5 4-1.5 4m3-11S23 7.5 23 12s-2.5 7-2.5 7M6.5 8S5 9.5 5 12s1.5 4 1.5 4m-3-11S1 7.5 1 12s2.5 7 2.5 7"/>
-            <path fill="currentColor" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2Z"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          className="sidebar-icon"
+          viewBox="0 0 24 24"
+        >
+          <g
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="1.5"
+          >
+            <path d="M17.5 8S19 9.5 19 12s-1.5 4-1.5 4m3-11S23 7.5 23 12s-2.5 7-2.5 7M6.5 8S5 9.5 5 12s1.5 4 1.5 4m-3-11S1 7.5 1 12s2.5 7 2.5 7" />
+            <path fill="currentColor" d="M12 13a1 1 0 1 0 0-2a1 1 0 0 0 0 2Z" />
           </g>
         </svg>
       ),
       expandable: true,
       subItems: [
-        { text: 'K리그 1', icons: ['https://p.staticube.com/common/flags/circle/kr.svg'], count: 2 },
-        { text: 'K리그 1', icons: ['https://p.staticube.com/common/flags/circle/kr.svg'], count: 2 },
-        { text: 'K리그 1', icons: ['https://p.staticube.com/common/flags/circle/kr.svg'], count: 2 }
-      ]
-    }
-  ]
+        {
+          text: "K리그 1",
+          icons: ["https://p.staticube.com/common/flags/circle/kr.svg"],
+          count: 2,
+        },
+        {
+          text: "K리그 1",
+          icons: ["https://p.staticube.com/common/flags/circle/kr.svg"],
+          count: 2,
+        },
+        {
+          text: "K리그 1",
+          icons: ["https://p.staticube.com/common/flags/circle/kr.svg"],
+          count: 2,
+        },
+      ],
+    },
+  ];
 
   const preSidebarItems = [
     {
-      id: 'all-sports',
-      text: '스포츠 전체',
+      id: "all-sports",
+      text: "스포츠 전체",
       icon: (
-        <svg className="sidebar-icon" width="24" height="24" viewBox="0 0 32 32">
+        <svg
+          className="sidebar-icon"
+          width="24"
+          height="24"
+          viewBox="0 0 32 32"
+        >
           <circle cx="16" cy="8" r="4"></circle>
           <circle cx="8" cy="16" r="4"></circle>
           <circle cx="24" cy="16" r="4"></circle>
           <circle cx="16" cy="24" r="4"></circle>
         </svg>
-      )
+      ),
     },
     {
-      id: 'popular',
-      text: '인기리그',
+      id: "popular",
+      text: "인기리그",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className="sidebar-icon">
-          <path fill="currentColor" d="m6.156 9.323l-.002.002l-.004.003l-.01.008a1.943 1.943 0 0 0-.126.104a4.557 4.557 0 0 0-.302.291c-.24.253-.548.629-.837 1.132c-.582 1.015-1.071 2.528-.796 4.551c.271 1.997 1.11 3.666 2.528 4.83C8.021 21.404 9.935 22 12.25 22c2.387 0 4.293-.895 5.554-2.43c1.25-1.521 1.808-3.596 1.675-5.864c-.128-2.176-1.313-3.827-2.36-5.285l-.299-.417c-1.142-1.612-2.043-3.097-1.824-5.175A.75.75 0 0 0 14.25 2c-.382 0-.82.118-1.242.296a6.49 6.49 0 0 0-1.373.8c-.925.698-1.85 1.75-2.343 3.156C8.8 7.654 9.05 8.99 9.41 9.963c.237.639-.02 1.27-.407 1.454a.706.706 0 0 1-.927-.31L7.27 9.576a.75.75 0 0 0-1.113-.252Z"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          className="sidebar-icon"
+        >
+          <path
+            fill="currentColor"
+            d="m6.156 9.323l-.002.002l-.004.003l-.01.008a1.943 1.943 0 0 0-.126.104a4.557 4.557 0 0 0-.302.291c-.24.253-.548.629-.837 1.132c-.582 1.015-1.071 2.528-.796 4.551c.271 1.997 1.11 3.666 2.528 4.83C8.021 21.404 9.935 22 12.25 22c2.387 0 4.293-.895 5.554-2.43c1.25-1.521 1.808-3.596 1.675-5.864c-.128-2.176-1.313-3.827-2.36-5.285l-.299-.417c-1.142-1.612-2.043-3.097-1.824-5.175A.75.75 0 0 0 14.25 2c-.382 0-.82.118-1.242.296a6.49 6.49 0 0 0-1.373.8c-.925.698-1.85 1.75-2.343 3.156C8.8 7.654 9.05 8.99 9.41 9.963c.237.639-.02 1.27-.407 1.454a.706.706 0 0 1-.927-.31L7.27 9.576a.75.75 0 0 0-1.113-.252Z"
+          />
         </svg>
       ),
       expandable: true,
       subItems: [
         {
-          text: 'K리그 1',
+          text: "K리그 1",
           icons: [
-            'https://p.staticube.com/common/cd42be37-ea6a-41b0-9469-fb5613e881da.svg',
-            'https://p.staticube.com/common/flags/circle/kr.svg'
+            "https://p.staticube.com/common/cd42be37-ea6a-41b0-9469-fb5613e881da.svg",
+            "https://p.staticube.com/common/flags/circle/kr.svg",
           ],
-          count: 2
-        }
-      ]
+          count: 2,
+        },
+      ],
     },
     {
-      id: 'soccer',
-      text: '축구',
+      id: "soccer",
+      text: "축구",
       icon: (
         <div className="sidebar-icon">
-          <Image src="/assets/svg/soccer.svg" alt="로고이미지" width={19} height={19} />
+          <Image
+            src="/assets/svg/soccer.svg"
+            alt="로고이미지"
+            width={19}
+            height={19}
+          />
         </div>
       ),
       expandable: true,
       subItems: [
-        { text: '세계', icons: ['https://p.staticube.com/common/fe7b60e7-882c-45d8-8038-7f59ab55953e.svg'], count: 37 },
-        { text: '대한민국', icons: ['https://p.staticube.com/common/flags/circle/kr.svg'], count: 2 },
-        { text: '일본', icons: ['/assets/svg/jp.svg'], count: 4 },
-        { text: '호주', icons: ['/assets/svg/au.svg'], count: 22 },
-        { text: '베트남', icons: ['/assets/svg/vn.svg'], count: 1 }
-      ]
+        {
+          text: "세계",
+          icons: [
+            "https://p.staticube.com/common/fe7b60e7-882c-45d8-8038-7f59ab55953e.svg",
+          ],
+          count: 37,
+        },
+        {
+          text: "대한민국",
+          icons: ["https://p.staticube.com/common/flags/circle/kr.svg"],
+          count: 2,
+        },
+        { text: "일본", icons: ["/assets/svg/jp.svg"], count: 4 },
+        { text: "호주", icons: ["/assets/svg/au.svg"], count: 22 },
+        { text: "베트남", icons: ["/assets/svg/vn.svg"], count: 1 },
+      ],
     },
     {
-      id: 'baseball',
-      text: '야구',
+      id: "baseball",
+      text: "야구",
       icon: (
         <div className="sidebar-icon">
-          <Image src="/assets/svg/baseball.svg" alt="로고이미지" width={19} height={19} />
+          <Image
+            src="/assets/svg/baseball.svg"
+            alt="로고이미지"
+            width={19}
+            height={19}
+          />
         </div>
       ),
       expandable: true,
       subItems: [
-        { text: '대한민국', icons: ['https://p.staticube.com/common/flags/circle/kr.svg'], count: 1 },
-        { text: '일본', icons: ['/assets/svg/jp.svg'], count: 2 },
-        { text: '미국', icons: ['/assets/svg/us.svg'], count: 15 }
-      ]
+        {
+          text: "대한민국",
+          icons: ["https://p.staticube.com/common/flags/circle/kr.svg"],
+          count: 1,
+        },
+        { text: "일본", icons: ["/assets/svg/jp.svg"], count: 2 },
+        { text: "미국", icons: ["/assets/svg/us.svg"], count: 15 },
+      ],
     },
     {
-      id: 'basketball',
-      text: '농구',
+      id: "basketball",
+      text: "농구",
       icon: (
         <div className="sidebar-icon">
-          <Image src="/assets/svg/basketball.svg" alt="로고이미지" width={19} height={19} />
+          <Image
+            src="/assets/svg/basketball.svg"
+            alt="로고이미지"
+            width={19}
+            height={19}
+          />
         </div>
       ),
       expandable: true,
       subItems: [
-        { text: '미국', icons: ['/assets/svg/us.svg'], count: 8 },
-        { text: '유럽', icons: ['/assets/svg/eu.svg'], count: 12 },
-        { text: '대한민국', icons: ['https://p.staticube.com/common/flags/circle/kr.svg'], count: 1 }
-      ]
+        { text: "미국", icons: ["/assets/svg/us.svg"], count: 8 },
+        { text: "유럽", icons: ["/assets/svg/eu.svg"], count: 12 },
+        {
+          text: "대한민국",
+          icons: ["https://p.staticube.com/common/flags/circle/kr.svg"],
+          count: 1,
+        },
+      ],
     },
     {
-      id: 'Volleyball',
-      text: '배구',
+      id: "Volleyball",
+      text: "배구",
       icon: (
         <div className="sidebar-icon">
-          <Image src="/assets/svg/volleyball.svg" alt="로고이미지" width={19} height={19} />
+          <Image
+            src="/assets/svg/volleyball.svg"
+            alt="로고이미지"
+            width={19}
+            height={19}
+          />
         </div>
       ),
       expandable: true,
       subItems: [
-        { text: '세계', icons: ['https://p.staticube.com/common/fe7b60e7-882c-45d8-8038-7f59ab55953e.svg'], count: 37 },  
-        { text: '대한민국', icons: ['https://p.staticube.com/common/flags/circle/kr.svg'], count: 2 },
-        { text: '일본', icons: ['/assets/svg/jp.svg'], count: 4 },
-        { text: '호주', icons: ['/assets/svg/au.svg'], count: 22 },
-        { text: '베트남', icons: ['/assets/svg/vn.svg'], count: 1 }
-      ]
+        {
+          text: "세계",
+          icons: [
+            "https://p.staticube.com/common/fe7b60e7-882c-45d8-8038-7f59ab55953e.svg",
+          ],
+          count: 37,
+        },
+        {
+          text: "대한민국",
+          icons: ["https://p.staticube.com/common/flags/circle/kr.svg"],
+          count: 2,
+        },
+        { text: "일본", icons: ["/assets/svg/jp.svg"], count: 4 },
+        { text: "호주", icons: ["/assets/svg/au.svg"], count: 22 },
+        { text: "베트남", icons: ["/assets/svg/vn.svg"], count: 1 },
+      ],
     },
 
     {
-      id: 'Football',
-      text: '미식축구',
+      id: "Football",
+      text: "미식축구",
       icon: (
         <div className="sidebar-icon">
-          <Image src="/assets/svg/football.svg" alt="로고이미지" width={19} height={19} />
+          <Image
+            src="/assets/svg/football.svg"
+            alt="로고이미지"
+            width={19}
+            height={19}
+          />
         </div>
       ),
       expandable: true,
       subItems: [
-        { text: '세계', icons: ['https://p.staticube.com/common/fe7b60e7-882c-45d8-8038-7f59ab55953e.svg'], count: 37 },  
-        { text: '대한민국', icons: ['https://p.staticube.com/common/flags/circle/kr.svg'], count: 2 },
-        { text: '일본', icons: ['/assets/svg/jp.svg'], count: 4 },
-        { text: '호주', icons: ['/assets/svg/au.svg'], count: 22 },
-        { text: '베트남', icons: ['/assets/svg/vn.svg'], count: 1 }
-      ]
+        {
+          text: "세계",
+          icons: [
+            "https://p.staticube.com/common/fe7b60e7-882c-45d8-8038-7f59ab55953e.svg",
+          ],
+          count: 37,
+        },
+        {
+          text: "대한민국",
+          icons: ["https://p.staticube.com/common/flags/circle/kr.svg"],
+          count: 2,
+        },
+        { text: "일본", icons: ["/assets/svg/jp.svg"], count: 4 },
+        { text: "호주", icons: ["/assets/svg/au.svg"], count: 22 },
+        { text: "베트남", icons: ["/assets/svg/vn.svg"], count: 1 },
+      ],
     },
     {
-      id: 'Tennis Table',
-      text: '탁구',
+      id: "Tennis Table",
+      text: "탁구",
       icon: (
         <div className="sidebar-icon">
-          <Image src="/assets/svg/tabletennis.svg" alt="로고이미지" width={19} height={19} />
+          <Image
+            src="/assets/svg/tabletennis.svg"
+            alt="로고이미지"
+            width={19}
+            height={19}
+          />
         </div>
       ),
       expandable: true,
       subItems: [
-        { text: '세계', icons: ['https://p.staticube.com/common/fe7b60e7-882c-45d8-8038-7f59ab55953e.svg'], count: 37 },  
-        { text: '대한민국', icons: ['https://p.staticube.com/common/flags/circle/kr.svg'], count: 2 },
-        { text: '일본', icons: ['/assets/svg/jp.svg'], count: 4 },
-        { text: '호주', icons: ['/assets/svg/au.svg'], count: 22 },
-        { text: '베트남', icons: ['/assets/svg/vn.svg'], count: 1 }
-      ]
+        {
+          text: "세계",
+          icons: [
+            "https://p.staticube.com/common/fe7b60e7-882c-45d8-8038-7f59ab55953e.svg",
+          ],
+          count: 37,
+        },
+        {
+          text: "대한민국",
+          icons: ["https://p.staticube.com/common/flags/circle/kr.svg"],
+          count: 2,
+        },
+        { text: "일본", icons: ["/assets/svg/jp.svg"], count: 4 },
+        { text: "호주", icons: ["/assets/svg/au.svg"], count: 22 },
+        { text: "베트남", icons: ["/assets/svg/vn.svg"], count: 1 },
+      ],
     },
     {
-      id: 'Boxing',
-      text: '복싱',
+      id: "Boxing",
+      text: "복싱",
       icon: (
         <div className="sidebar-icon">
-          <Image src="/assets/svg/boxing.svg" alt="로고이미지" width={19} height={19} />
+          <Image
+            src="/assets/svg/boxing.svg"
+            alt="로고이미지"
+            width={19}
+            height={19}
+          />
         </div>
       ),
       expandable: true,
       subItems: [
-        { text: '세계', icons: ['https://p.staticube.com/common/fe7b60e7-882c-45d8-8038-7f59ab55953e.svg'], count: 37 },  
-        { text: '대한민국', icons: ['https://p.staticube.com/common/flags/circle/kr.svg'], count: 2 },
-        { text: '일본', icons: ['/assets/svg/jp.svg'], count: 4 },
-        { text: '호주', icons: ['/assets/svg/au.svg'], count: 22 },
-        { text: '베트남', icons: ['/assets/svg/vn.svg'], count: 1 }
-      ]
-    }
-  ]
+        {
+          text: "세계",
+          icons: [
+            "https://p.staticube.com/common/fe7b60e7-882c-45d8-8038-7f59ab55953e.svg",
+          ],
+          count: 37,
+        },
+        {
+          text: "대한민국",
+          icons: ["https://p.staticube.com/common/flags/circle/kr.svg"],
+          count: 2,
+        },
+        { text: "일본", icons: ["/assets/svg/jp.svg"], count: 4 },
+        { text: "호주", icons: ["/assets/svg/au.svg"], count: 22 },
+        { text: "베트남", icons: ["/assets/svg/vn.svg"], count: 1 },
+      ],
+    },
+  ];
 
-  const sidebarItems = isLive ? liveSidebarItems : preSidebarItems
-  const isExpanded = (itemId: string) => expandedItems.includes(itemId)
+  const sidebarItems = isLive ? liveSidebarItems : preSidebarItems;
+  const isExpanded = (itemId: string) => expandedItems.includes(itemId);
 
   return (
     <div className="main-sidebar">
       <div className="sidebar-menu">
         {sidebarItems.map((item) => (
           <div key={item.id}>
-            <a 
-              href="#" 
-              className={`sidebar-item ${activeItem === item.id ? 'active' : ''}`} 
+            <a
+              href="#"
+              className={`sidebar-item ${sportParam === item.id ? "active" : ""}`}
               data-sport={item.id}
               onClick={(e) => {
-                e.preventDefault()
+                e.preventDefault();
                 if (item.expandable) {
-                  toggleExpanded(item.id)
+                  toggleExpanded(item.id);
                 } else {
-                  // For non-expandable items (like all-sports), just set as active
-                  setActiveItem(item.id)
+                  navigateTo("all-sports");
                 }
               }}
             >
@@ -261,12 +474,12 @@ const SportsSidebar = ({ isLive = false }: SportsSidebarProps) => {
                 <span className="sidebar-text">{item.text}</span>
               </div>
               {item.expandable && (
-                <button 
+                <button
                   className="sidebar-expansion-btn"
                   onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    toggleExpanded(item.id)
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleExpanded(item.id);
                   }}
                 >
                   {isExpanded(item.id) ? (
@@ -301,31 +514,58 @@ const SportsSidebar = ({ isLive = false }: SportsSidebarProps) => {
                 </button>
               )}
             </a>
-            
+
             {item.expandable && item.subItems && isExpanded(item.id) && (
               <div className="sidebar-subMenu collapsed">
-                {item.subItems.map((subItem, index) => (
-                  <a key={index} href="#" className="sidebar-subItem">
-                    <div className="sidebar-subLabel">
-                      {subItem.icons?.map((iconSrc, iconIndex) => (
-                        <div key={iconIndex} className="sidebar-subIcon">
-                          <Image src={iconSrc} alt="로고이미지" width={19} height={19} />
-                        </div>
-                      ))}
-                      <span className="sidebar-subText">{subItem.text}</span>
-                    </div>
-                    <button className="sidebar-subBadge">
-                      <div className="sidebar-badgeText">{subItem.count}</div>
-                    </button>
-                  </a>
-                ))}
+                {item.subItems.map((subItem, index) => {
+                  const isSubActive =
+                    sportParam === item.id && countryParam === subItem.text;
+                  const sportKey =
+                    item.id.toLowerCase() === "soccer"
+                      ? "football"
+                      : item.id.toLowerCase() === "tennis table"
+                        ? "tennis"
+                        : item.id.toLowerCase();
+                  const englishCountry =
+                    COUNTRY_MAP[subItem.text]?.toLowerCase() || "";
+                  const dynamicCount = counts[sportKey]?.[englishCountry] ?? 0;
+
+                  return (
+                    <a
+                      key={index}
+                      href="#"
+                      className={`sidebar-subItem ${isSubActive ? "active" : ""}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigateTo(item.id, subItem.text);
+                      }}
+                    >
+                      <div className="sidebar-subLabel">
+                        {subItem.icons?.map((iconSrc, iconIndex) => (
+                          <div key={iconIndex} className="sidebar-subIcon">
+                            <Image
+                              src={iconSrc}
+                              alt="로고이미지"
+                              width={19}
+                              height={19}
+                            />
+                          </div>
+                        ))}
+                        <span className="sidebar-subText">{subItem.text}</span>
+                      </div>
+                      <button className="sidebar-subBadge">
+                        <div className="sidebar-badgeText">{dynamicCount}</div>
+                      </button>
+                    </a>
+                  );
+                })}
               </div>
             )}
           </div>
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SportsSidebar
+export default SportsSidebar;
