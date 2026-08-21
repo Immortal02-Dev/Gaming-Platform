@@ -786,7 +786,7 @@ function ChargePageInner() {
                                 aria-expanded="false"
                               >
                                 <div
-                                  className="input-group-text p-1 cursor-pointer d-inline"
+                                  className="input-group-text text-white p-1 cursor-pointer d-inline"
                                   style={{ backgroundColor: parentColor }}
                                 >
                                   {row.parent.role}

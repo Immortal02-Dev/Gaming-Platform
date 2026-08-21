@@ -8,7 +8,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 declare global {
   interface Window {
     couponAdd?: (userIdx?: number) => void;
-    // flatpickr and resizeContent are defined as any in the original
+    resizeContent?: (tableId: string, offset: number) => void;
   }
 }
 
@@ -56,7 +56,8 @@ const formatDate = (dateString: string | null) => {
   return date
     .toLocaleDateString("ko-KR")
     .replace(/\./g, "-")
-    .replace(/\s/g, "");
+    .replace(/\s/g, "")
+    .replace(/-$/, "");
 };
 
 const formatDateTime = (dateString: string | null) => {
@@ -196,6 +197,7 @@ function CouponListPageInner() {
       clearTimeout(timer);
     };
   }, [
+    fetchCoupons,
     searchParams,
     pageSize,
     searchDateType,
@@ -208,23 +210,23 @@ function CouponListPageInner() {
 
   useEffect(() => {
     // Initialize flatpickr for date inputs if available
-    if (typeof window !== "undefined" && (window as any).flatpickr) {
+    if (typeof window !== "undefined" && window.flatpickr) {
       if (startDateRef.current) {
-        (window as any).flatpickr(startDateRef.current, {
+        window.flatpickr(startDateRef.current, {
           locale: "ko",
           dateFormat: "Y-m-d",
           disableMobile: true,
-          onChange: (selectedDates: Date[], dateStr: string) => {
+          onChange: (_selectedDates: Date[], dateStr: string) => {
             setStartDate(dateStr);
           },
         });
       }
       if (endDateRef.current) {
-        (window as any).flatpickr(endDateRef.current, {
+        window.flatpickr(endDateRef.current, {
           locale: "ko",
           dateFormat: "Y-m-d",
           disableMobile: true,
-          onChange: (selectedDates: Date[], dateStr: string) => {
+          onChange: (_selectedDates: Date[], dateStr: string) => {
             setEndDate(dateStr);
           },
         });
@@ -249,8 +251,8 @@ function CouponListPageInner() {
 
     // Handle window resize for table
     const handleResize = () => {
-      if (typeof window !== "undefined" && (window as any).resizeContent) {
-        (window as any).resizeContent("couponTable", 306);
+      if (typeof window !== "undefined" && window.resizeContent) {
+        window.resizeContent("couponTable", 306);
       }
     };
 
@@ -303,7 +305,7 @@ function CouponListPageInner() {
 
   const couponCancel = async (type: string, couponIdx: number | null) => {
     let msg = "쿠폰을 ";
-    const data: any = {};
+    const data: Record<string, string> = {};
 
     if (type === "all") {
       msg = "검색된 조건의 쿠폰을 ";
@@ -355,7 +357,7 @@ function CouponListPageInner() {
     } else {
       data.type = "single";
       if (couponIdx !== null) {
-        data.couponIdx = couponIdx;
+        data.couponIdx = String(couponIdx);
       }
     }
 
@@ -551,7 +553,7 @@ function CouponListPageInner() {
                   <i className="fa-solid fa-eraser me-2"></i>초기화
                 </button>
                 <a
-                  className="btn btn-primary me-2"
+                  className="btn btn-primary me-2 text-white"
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
@@ -564,7 +566,7 @@ function CouponListPageInner() {
             </form>
             <div className="ms-auto d-flex gap-1">
               <a
-                className="btn btn-danger"
+                className="btn btn-danger text-white"
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
@@ -574,7 +576,7 @@ function CouponListPageInner() {
                 <i className="fa-solid fa-check me-2"></i>선택취소
               </a>
               <a
-                className="btn btn-danger"
+                className="btn btn-danger text-white"
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
@@ -691,7 +693,7 @@ function CouponListPageInner() {
         }}
       >
         <div className="modal-dialog d-flex justify-content-center modal-dialog-centered">
-          <button className="btn btn-primary" type="button" disabled>
+          <button className="btn btn-primary text-white" type="button" disabled>
             <span
               className="spinner-border spinner-border-sm"
               role="status"

@@ -307,7 +307,7 @@ export default function BoardBettingListPage() {
       {/* begin row */}
       <div className="row mb-2">
         <div className="col">
-          <div className="d-flex bg-white p-2">
+          <div className="d-flex bg-white p-2 flex-wrap">
             <form onSubmit={handleSearch}>
               <input type="hidden" name="gameTypeIdx" value={gameTypeIdx} />
               <div className="d-flex">

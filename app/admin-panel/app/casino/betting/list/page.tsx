@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Layout from "@/components/Layout";
 
 // Extend Window interface for jQuery and user helper functions
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare global {
   interface Window {
     $: any;
@@ -21,8 +22,10 @@ declare global {
       level: number,
       userIdx: string | number,
     ) => void;
+    flatpickr?: any;
   }
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 const BACKEND_URL = ""; // Use relative path for proxy
 
@@ -84,17 +87,73 @@ export default function CasinoBettingListPage() {
     totalCancelledMoney: 0,
   });
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
 
+  const fetchOrders = useCallback(
+    async (page: number = 1) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          pageSize,
+          ...(startDate && endDate && { startDate, endDate }),
+          ...(vendorIdx && { vendorIdx }),
+          ...(betStatus && { betStatus }),
+          ...(searchType && { searchType }),
+          ...(searchText && { searchText }),
+        });
+
+        const response = await fetch(
+          `${BACKEND_URL}/api/admin/casino-betting?${params.toString()}`,
+          {
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch orders: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setOrders(data.data || []);
+        setSummary(
+          data.summary || {
+            totalBetMoney: 0,
+            totalTieMoney: 0,
+            totalWinMoney: 0,
+            totalEmptyBetMoney: 0,
+            totalEmptyWinMoney: 0,
+            totalCancelledMoney: 0,
+          },
+        );
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      pageSize,
+      startDate,
+      endDate,
+      vendorIdx,
+      betStatus,
+      searchType,
+      searchText,
+    ],
+  );
+
   useEffect(() => {
     // Initialize flatpickr for datetime inputs if available
-    if (typeof window !== "undefined" && (window as any).flatpickr) {
+    if (typeof window !== "undefined" && window.flatpickr) {
       if (startDateRef.current) {
-        (window as any).flatpickr(startDateRef.current, {
+        window.flatpickr(startDateRef.current, {
           locale: "ko",
           dateFormat: "Y-m-d H:i",
           enableTime: true,
@@ -106,7 +165,7 @@ export default function CasinoBettingListPage() {
         });
       }
       if (endDateRef.current) {
-        (window as any).flatpickr(endDateRef.current, {
+        window.flatpickr(endDateRef.current, {
           locale: "ko",
           dateFormat: "Y-m-d H:i",
           enableTime: true,
@@ -120,62 +179,10 @@ export default function CasinoBettingListPage() {
     }
 
     // Fetch data on initial load
-    fetchOrders(1);
-  }, []);
-
-  const fetchOrders = async (page: number = 1) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        pageSize,
-        ...(startDate && endDate && { startDate, endDate }),
-        ...(vendorIdx && { vendorIdx }),
-        ...(betStatus && { betStatus }),
-        ...(searchType && { searchType }),
-        ...(searchText && { searchText }),
-      });
-
-      const response = await fetch(
-        `${BACKEND_URL}/api/admin/casino-betting?${params.toString()}`,
-        {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch orders: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setOrders(data.data || []);
-      setSummary(
-        data.summary || {
-          totalBetMoney: 0,
-          totalTieMoney: 0,
-          totalWinMoney: 0,
-          totalEmptyBetMoney: 0,
-          totalEmptyWinMoney: 0,
-          totalCancelledMoney: 0,
-        },
-      );
-      setCurrentPage(data.pagination.page);
-      setTotalPages(data.pagination.totalPages);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-      setOrders([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOrders(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageSize, startDate, endDate, vendorIdx, betStatus]);
+    void (async () => {
+      await fetchOrders(1);
+    })();
+  }, [fetchOrders]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -366,7 +373,7 @@ export default function CasinoBettingListPage() {
                 </button>
               </div>
             </form>
-            <div className="ms-auto">
+            <div className="d-flex align-items-center justify-content-start flex-wrap">
               <label className="col-form-label">
                 베팅 금액 :{" "}
                 <span className="text-primary">
@@ -511,10 +518,7 @@ export default function CasinoBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  1,
-                                )
+                                window.userDetail?.(order.user.userIdx, 1)
                               }
                             >
                               정보수정
@@ -525,10 +529,7 @@ export default function CasinoBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  17,
-                                )
+                                window.userDetail?.(order.user.userIdx, 17)
                               }
                             >
                               수수료율
@@ -539,10 +540,7 @@ export default function CasinoBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  3,
-                                )
+                                window.userDetail?.(order.user.userIdx, 3)
                               }
                             >
                               머니지급/차감
@@ -553,10 +551,7 @@ export default function CasinoBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  6,
-                                )
+                                window.userDetail?.(order.user.userIdx, 6)
                               }
                             >
                               포인트지급/차감
@@ -579,10 +574,7 @@ export default function CasinoBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  8,
-                                )
+                                window.userDetail?.(order.user.userIdx, 8)
                               }
                             >
                               베팅내역
@@ -593,10 +585,7 @@ export default function CasinoBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  4,
-                                )
+                                window.userDetail?.(order.user.userIdx, 4)
                               }
                             >
                               충환전내역
@@ -607,10 +596,7 @@ export default function CasinoBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  5,
-                                )
+                                window.userDetail?.(order.user.userIdx, 5)
                               }
                             >
                               머니거래내역
@@ -621,10 +607,7 @@ export default function CasinoBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  7,
-                                )
+                                window.userDetail?.(order.user.userIdx, 7)
                               }
                             >
                               포인트거래내역
@@ -635,10 +618,7 @@ export default function CasinoBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  15,
-                                )
+                                window.userDetail?.(order.user.userIdx, 15)
                               }
                             >
                               쿠폰 현황

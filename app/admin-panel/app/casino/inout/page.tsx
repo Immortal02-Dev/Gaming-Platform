@@ -303,7 +303,6 @@ function CasinoInoutPageInner() {
         }
       };
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
@@ -479,9 +478,9 @@ function CasinoInoutPageInner() {
 
       <div className="row mb-2">
         <div className="col">
-          <div className="d-flex bg-white p-2">
+          <div className="d-flex bg-white p-2 flex-wrap">
             <form ref={formSearchRef} onSubmit={handleSearch}>
-              <div className="d-flex">
+              <div className="d-flex flex-wrap gap-2 gap-lg-0">
                 <select
                   name="pageSize"
                   className="form-select w-80px me-2"
@@ -664,7 +663,7 @@ function CasinoInoutPageInner() {
                       <td className="p-1">
                         {log.affiliation && (
                           <div
-                            className="input-group-text p-1 d-inline"
+                            className="badge"
                             style={{
                               backgroundColor: log.affiliation.backgroundColor,
                             }}

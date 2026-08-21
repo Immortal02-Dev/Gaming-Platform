@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  Suspense,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Layout from "@/components/Layout";
 
@@ -101,7 +108,12 @@ const badgeVariantMap: Record<ExchangeStatus, string> = {
 
 const selectConfig: Record<
   2 | 3 | 4,
-  { label: string; status: ExchangeStatus; allowedStatuses: ExchangeStatus[]; error: string }
+  {
+    label: string;
+    status: ExchangeStatus;
+    allowedStatuses: ExchangeStatus[];
+    error: string;
+  }
 > = {
   2: {
     label: "대기",
@@ -184,12 +196,24 @@ function ExchangePageInner() {
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
 
-  const [pageSize, setPageSize] = useState(searchParams.get("pageSize") || "50");
-  const [moneyRequestType, setMoneyRequestType] = useState(searchParams.get("moneyRequestType") || "");
-  const [moneyStatusIdx, setMoneyStatusIdx] = useState(searchParams.get("moneyStatusIdx") || "");
-  const [searchType, setSearchType] = useState(searchParams.get("searchType") || "");
-  const [searchText, setSearchText] = useState(searchParams.get("searchText") || "");
-  const [startDate, setStartDate] = useState(searchParams.get("startDate") || "");
+  const [pageSize, setPageSize] = useState(
+    searchParams.get("pageSize") || "50",
+  );
+  const [moneyRequestType, setMoneyRequestType] = useState(
+    searchParams.get("moneyRequestType") || "",
+  );
+  const [moneyStatusIdx, setMoneyStatusIdx] = useState(
+    searchParams.get("moneyStatusIdx") || "",
+  );
+  const [searchType, setSearchType] = useState(
+    searchParams.get("searchType") || "",
+  );
+  const [searchText, setSearchText] = useState(
+    searchParams.get("searchText") || "",
+  );
+  const [startDate, setStartDate] = useState(
+    searchParams.get("startDate") || "",
+  );
   const [endDate, setEndDate] = useState(searchParams.get("endDate") || "");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
@@ -211,23 +235,31 @@ function ExchangePageInner() {
         });
         if (startDate) params.append("startDate", startDate);
         if (endDate) params.append("endDate", endDate);
-        if (moneyRequestType) params.append("moneyRequestType", moneyRequestType);
+        if (moneyRequestType)
+          params.append("moneyRequestType", moneyRequestType);
         if (moneyStatusIdx) params.append("moneyStatusIdx", moneyStatusIdx);
         if (searchType) params.append("searchType", searchType);
         if (searchText) params.append("searchText", searchText.trim());
 
-        const response = await fetch(`${API_BASE_URL}/api/admin/exchanges?${params.toString()}`, {
-          credentials: "include",
-        });
+        const response = await fetch(
+          `${API_BASE_URL}/api/admin/exchanges?${params.toString()}`,
+          {
+            credentials: "include",
+          },
+        );
 
         if (!response.ok) {
           const errorBody = await response.json().catch(() => ({}));
-          throw new Error(errorBody?.message || "환전 신청 내역을 불러오지 못했습니다.");
+          throw new Error(
+            errorBody?.message || "환전 신청 내역을 불러오지 못했습니다.",
+          );
         }
 
         const data: ExchangeResponse = await response.json();
         if (!data.success) {
-          throw new Error(data.error || "환전 신청 내역을 불러오지 못했습니다.");
+          throw new Error(
+            data.error || "환전 신청 내역을 불러오지 못했습니다.",
+          );
         }
 
         setRows(data.data);
@@ -235,14 +267,27 @@ function ExchangePageInner() {
         setPagination(data.pagination || defaultPagination);
       } catch (error) {
         console.error("Failed to fetch exchange requests:", error);
-        alert(error instanceof Error ? error.message : "환전 신청 내역을 불러오지 못했습니다.");
+        alert(
+          error instanceof Error
+            ? error.message
+            : "환전 신청 내역을 불러오지 못했습니다.",
+        );
       } finally {
         if (showSpinner) {
           setLoading(false);
         }
       }
     },
-    [currentPage, endDate, moneyRequestType, moneyStatusIdx, pageSize, searchText, searchType, startDate]
+    [
+      currentPage,
+      endDate,
+      moneyRequestType,
+      moneyStatusIdx,
+      pageSize,
+      searchText,
+      searchType,
+      startDate,
+    ],
   );
 
   useEffect(() => {
@@ -278,17 +323,27 @@ function ExchangePageInner() {
 
   useEffect(() => {
     setSelectedIds((prev) =>
-      prev.filter((id) => rows.some((row) => row.id === id && statusValueMap[row.status] < statusValueMap.approved))
+      prev.filter((id) =>
+        rows.some(
+          (row) =>
+            row.id === id &&
+            statusValueMap[row.status] < statusValueMap.approved,
+        ),
+      ),
     );
   }, [rows]);
 
   const selectableRows = useMemo(
-    () => rows.filter((row) => statusValueMap[row.status] < statusValueMap.approved),
-    [rows]
+    () =>
+      rows.filter(
+        (row) => statusValueMap[row.status] < statusValueMap.approved,
+      ),
+    [rows],
   );
 
   const isAllChecked =
-    selectableRows.length > 0 && selectableRows.every((row) => selectedIds.includes(row.id));
+    selectableRows.length > 0 &&
+    selectableRows.every((row) => selectedIds.includes(row.id));
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = e.target;
@@ -299,7 +354,10 @@ function ExchangePageInner() {
     setSelectedIds(selectableRows.map((row) => row.id));
   };
 
-  const handleRowCheckboxChange = (row: ExchangeRequestRow, checked: boolean) => {
+  const handleRowCheckboxChange = (
+    row: ExchangeRequestRow,
+    checked: boolean,
+  ) => {
     if (statusValueMap[row.status] >= statusValueMap.approved) return;
 
     setSelectedIds((prev) => {
@@ -324,7 +382,15 @@ function ExchangePageInner() {
       if (searchText) params.set("searchText", searchText.trim());
       return params;
     },
-    [endDate, moneyRequestType, moneyStatusIdx, pageSize, searchText, searchType, startDate]
+    [
+      endDate,
+      moneyRequestType,
+      moneyStatusIdx,
+      pageSize,
+      searchText,
+      searchType,
+      startDate,
+    ],
   );
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
@@ -347,7 +413,9 @@ function ExchangePageInner() {
 
     const config = selectConfig[statusIdx];
     const invalidRows = rows.filter(
-      (row) => selectedIds.includes(row.id) && !config.allowedStatuses.includes(row.status)
+      (row) =>
+        selectedIds.includes(row.id) &&
+        !config.allowedStatuses.includes(row.status),
     );
 
     if (invalidRows.length > 0) {
@@ -363,29 +431,39 @@ function ExchangePageInner() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/exchanges/status/bulk`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/exchanges/status/bulk`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            ids: selectedIds,
+            moneyStatusIdx: String(statusIdx),
+          }),
         },
-        credentials: "include",
-        body: JSON.stringify({
-          ids: selectedIds,
-          moneyStatusIdx: String(statusIdx),
-        }),
-      });
+      );
 
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.success) {
-        throw new Error(result?.message || result?.error || "상태 변경에 실패했습니다.");
+        throw new Error(
+          result?.message || result?.error || "상태 변경에 실패했습니다.",
+        );
       }
 
-      alert(result.message || `${selectedIds.length}건이 ${config.label} 처리되었습니다.`);
+      alert(
+        result.message ||
+          `${selectedIds.length}건이 ${config.label} 처리되었습니다.`,
+      );
       setSelectedIds([]);
       await fetchExchanges({ showSpinner: false });
     } catch (error) {
       console.error("Failed to update exchange statuses:", error);
-      alert(error instanceof Error ? error.message : "상태 변경에 실패했습니다.");
+      alert(
+        error instanceof Error ? error.message : "상태 변경에 실패했습니다.",
+      );
     } finally {
       setLoading(false);
     }
@@ -448,14 +526,42 @@ function ExchangePageInner() {
         <div className="col">
           <div className="d-flex bg-white p-2">
             <div className="input-group">
-              <div className="input-group-text bg-primary text-white">총신청금액</div>
-              <input type="text" className="form-control" value={formatNumber(summary.totalAmount)} readOnly />
-              <div className="input-group-text bg-success text-white">총승인금액</div>
-              <input type="text" className="form-control" value={formatNumber(summary.approvedAmount)} readOnly />
-              <div className="input-group-text bg-info text-white">대기금액</div>
-              <input type="text" className="form-control" value={formatNumber(summary.pendingAmount)} readOnly />
-              <div className="input-group-text bg-danger text-white">취소금액</div>
-              <input type="text" className="form-control" value={formatNumber(summary.cancelledAmount)} readOnly />
+              <div className="input-group-text bg-primary text-white">
+                총신청금액
+              </div>
+              <input
+                type="text"
+                className="form-control"
+                value={formatNumber(summary.totalAmount)}
+                readOnly
+              />
+              <div className="input-group-text bg-success text-white">
+                총승인금액
+              </div>
+              <input
+                type="text"
+                className="form-control"
+                value={formatNumber(summary.approvedAmount)}
+                readOnly
+              />
+              <div className="input-group-text bg-info text-white">
+                대기금액
+              </div>
+              <input
+                type="text"
+                className="form-control"
+                value={formatNumber(summary.pendingAmount)}
+                readOnly
+              />
+              <div className="input-group-text bg-danger text-white">
+                취소금액
+              </div>
+              <input
+                type="text"
+                className="form-control"
+                value={formatNumber(summary.cancelledAmount)}
+                readOnly
+              />
             </div>
           </div>
         </div>
@@ -464,7 +570,12 @@ function ExchangePageInner() {
       <div className="row mb-2">
         <div className="col">
           <div className="d-flex bg-white p-2">
-            <form action="exchange" method="get" className="w-100" onSubmit={handleSearch}>
+            <form
+              action="exchange"
+              method="get"
+              className="w-100"
+              onSubmit={handleSearch}
+            >
               <div className="d-flex">
                 <select
                   name="pageSize"
@@ -633,7 +744,9 @@ function ExchangePageInner() {
                     const isChecked = selectedIds.includes(row.id);
                     const parentColor = row.parent?.color || "#6c757d";
                     const userDisplay = row.user?.display || "";
-                    const warningClass = getWarningClass(row.user?.warningLevel);
+                    const warningClass = getWarningClass(
+                      row.user?.warningLevel,
+                    );
 
                     return (
                       <tr key={row.id} data-status={statusValue}>
@@ -644,7 +757,9 @@ function ExchangePageInner() {
                             value={row.id}
                             disabled={!isSelectable}
                             checked={isChecked}
-                            onChange={(e) => handleRowCheckboxChange(row, e.target.checked)}
+                            onChange={(e) =>
+                              handleRowCheckboxChange(row, e.target.checked)
+                            }
                           />
                         </td>
                         <td>{row.rowNumber ?? pagination.total - index}</td>
@@ -658,7 +773,7 @@ function ExchangePageInner() {
                                 aria-expanded="false"
                               >
                                 <div
-                                  className="input-group-text p-1 cursor-pointer d-inline"
+                                  className="input-group-text text-white p-1 cursor-pointer d-inline"
                                   style={{ backgroundColor: parentColor }}
                                 >
                                   {row.parent.role}
@@ -679,16 +794,25 @@ function ExchangePageInner() {
                                   {row.parent.display}
                                 </li>
                                 {dropdownLinks.map((link, linkIndex) => (
-                                  <li key={`${row.id}-parent-${linkIndex}`} className={link.className}>
+                                  <li
+                                    key={`${row.id}-parent-${linkIndex}`}
+                                    className={link.className}
+                                  >
                                     <a
                                       className="dropdown-item"
                                       href="#"
                                       onClick={() => {
-                                        const userIdx = row.parent?.userIdx || 0;
+                                        const userIdx =
+                                          row.parent?.userIdx || 0;
                                         if ((link as any).isMessage) {
-                                          (window as any).messageWrite?.(userIdx);
+                                          (window as any).messageWrite?.(
+                                            userIdx,
+                                          );
                                         } else {
-                                          (window as any).userDetail?.(userIdx, (link as any).tabType);
+                                          (window as any).userDetail?.(
+                                            userIdx,
+                                            (link as any).tabType,
+                                          );
                                         }
                                       }}
                                     >
@@ -725,16 +849,24 @@ function ExchangePageInner() {
                                   {userDisplay}
                                 </li>
                                 {dropdownLinks.map((link, linkIndex) => (
-                                  <li key={`${row.id}-user-${linkIndex}`} className={link.className}>
+                                  <li
+                                    key={`${row.id}-user-${linkIndex}`}
+                                    className={link.className}
+                                  >
                                     <a
                                       className="dropdown-item"
                                       href="#"
                                       onClick={() => {
                                         const userIdx = row.user?.userIdx || 0;
                                         if ((link as any).isMessage) {
-                                          (window as any).messageWrite?.(userIdx);
+                                          (window as any).messageWrite?.(
+                                            userIdx,
+                                          );
                                         } else {
-                                          (window as any).userDetail?.(userIdx, (link as any).tabType);
+                                          (window as any).userDetail?.(
+                                            userIdx,
+                                            (link as any).tabType,
+                                          );
                                         }
                                       }}
                                     >
@@ -752,11 +884,19 @@ function ExchangePageInner() {
                         <td>{row.bankName || <>&nbsp;</>}</td>
                         <td>{row.accountNumber || <>&nbsp;</>}</td>
                         <td>{formatNumber(row.requestAmount)}</td>
-                        <td>{row.afterAmount !== null ? formatNumber(row.afterAmount) : <>&nbsp;</>}</td>
+                        <td>
+                          {row.afterAmount !== null ? (
+                            formatNumber(row.afterAmount)
+                          ) : (
+                            <>&nbsp;</>
+                          )}
+                        </td>
                         <td>
                           {statusSequence.map(({ key, label }, badgeIndex) => {
                             const active = row.status === key;
-                            const badgeClass = active ? badgeVariantMap[key] : "bg-secondary";
+                            const badgeClass = active
+                              ? badgeVariantMap[key]
+                              : "bg-secondary";
                             return (
                               <span
                                 key={`${row.id}-${key}`}
@@ -769,7 +909,9 @@ function ExchangePageInner() {
                         </td>
                         <td>{row.processor || <>&nbsp;</>}</td>
                         <td>{row.requestIp || <>&nbsp;</>}</td>
-                        <td>{formatDateTime(row.requestedAt) || <>&nbsp;</>}</td>
+                        <td>
+                          {formatDateTime(row.requestedAt) || <>&nbsp;</>}
+                        </td>
                         <td>{formatDateTime(row.confirmedAt)}</td>
                         <td>{formatDateTime(row.processedAt)}</td>
                       </tr>
@@ -785,7 +927,8 @@ function ExchangePageInner() {
       <div className="row mt-3">
         <div className="col d-flex justify-content-between align-items-center">
           <div>
-            총 {pagination.total.toLocaleString("ko-KR")}건 / {pagination.page}페이지
+            총 {pagination.total.toLocaleString("ko-KR")}건 / {pagination.page}
+            페이지
           </div>
           <div className="btn-group">
             <button
@@ -821,7 +964,11 @@ function ExchangePageInner() {
       >
         <div className="modal-dialog d-flex justify-content-center modal-dialog-centered">
           <button className="btn btn-primary" type="button" disabled>
-            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span
+              className="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
             처리중입니다. 잠시 기다려주십시오.
           </button>
         </div>

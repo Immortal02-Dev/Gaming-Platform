@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Layout from "@/components/Layout";
 
@@ -26,11 +26,7 @@ export default function TradingMarketListPage() {
   const [loading, setLoading] = useState(false);
   const [editingMarket, setEditingMarket] = useState<TradingMarket | null>(null);
 
-  useEffect(() => {
-    fetchMarkets();
-  }, []);
-
-  const fetchMarkets = async () => {
+  const fetchMarkets = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`${BACKEND_URL}/api/admin/trading/markets`, {
@@ -45,7 +41,11 @@ export default function TradingMarketListPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    void (async () => { await fetchMarkets(); })();
+  }, [fetchMarkets]);
 
   const handleEdit = (market: TradingMarket) => {
     setEditingMarket({ ...market });
@@ -97,7 +97,7 @@ export default function TradingMarketListPage() {
         </div>
         <div className="panel-body p-0">
           <table className="table table-striped table-bordered align-middle text-center mb-0 fw-bold">
-            <thead className="bg-dark text-white">
+            <thead className="bg-dark bg-gradient text-white">
               <tr>
                 <th>아이콘</th>
                 <th>심볼</th>

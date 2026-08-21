@@ -533,7 +533,7 @@ function PointLogListPageInner() {
                         <td className="p-1">
                           {log.affiliation && (
                             <div
-                              className="input-group-text p-1 d-inline"
+                              className="input-group-text text-white p-1 d-inline"
                               style={{
                                 backgroundColor:
                                   log.affiliation.backgroundColor,
@@ -545,12 +545,12 @@ function PointLogListPageInner() {
                         </td>
                         <td className="">
                           <div
-                            className="input-group w-auto d-flex user-action"
+                            className="input-group w-auto d-flex  user-action"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                           >
                             <div
-                              className="input-group-text p-1 cursor-pointer d-inline"
+                              className="input-group-text p-1 text-white cursor-pointer d-inline"
                               style={{
                                 backgroundColor: log.user.backgroundColor,
                               }}

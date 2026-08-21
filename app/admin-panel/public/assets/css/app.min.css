@@ -2957,6 +2957,7 @@ textarea.form-control-lg {
   background-color: rgba(var(--app-component-border-color-rgb), 1);
   border: 1px solid var(--app-component-border-color);
   border-radius: 4px;
+  text-transform: capitalize !important;
 }
 
 .input-group-lg > .btn,
@@ -19348,6 +19349,7 @@ a:focus {
   display: inline;
   padding: 0.35em 0.65em;
   vertical-align: middle;
+  font-size: 12px;
 }
 
 .breadcrumb {

@@ -58,13 +58,25 @@ function PaybackListPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [pageSize, setPageSize] = useState("50");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [paybackType, setPaybackType] = useState("");
-  const [paybackStatus, setPaybackStatus] = useState("");
-  const [searchType, setSearchType] = useState("");
-  const [searchText, setSearchText] = useState("");
+  const [pageSize, setPageSize] = useState(
+    searchParams.get("pageSize") || "50",
+  );
+  const [startDate, setStartDate] = useState(
+    searchParams.get("startDate") || "",
+  );
+  const [endDate, setEndDate] = useState(searchParams.get("endDate") || "");
+  const [paybackType, setPaybackType] = useState(
+    searchParams.get("paybackType") || "",
+  );
+  const [paybackStatus, setPaybackStatus] = useState(
+    searchParams.get("paybackStatus") || "",
+  );
+  const [searchType, setSearchType] = useState(
+    searchParams.get("searchType") || "",
+  );
+  const [searchText, setSearchText] = useState(
+    searchParams.get("searchText") || "",
+  );
 
   const [totalRequestAmount, setTotalRequestAmount] = useState("0");
   const [totalApprovedAmount, setTotalApprovedAmount] = useState("0");
@@ -127,13 +139,13 @@ function PaybackListPageInner() {
     try {
       const params = new URLSearchParams();
 
-      const qPageSize = searchParams.get("pageSize") || "50";
-      const qStartDate = searchParams.get("startDate") || "";
-      const qEndDate = searchParams.get("endDate") || "";
-      const qPaybackType = searchParams.get("paybackType") || "";
-      const qPaybackStatus = searchParams.get("paybackStatus") || "";
-      const qSearchType = searchParams.get("searchType") || "";
-      const qSearchText = searchParams.get("searchText") || "";
+      const qPageSize = searchParams.get("pageSize") || pageSize;
+      const qStartDate = searchParams.get("startDate") || startDate;
+      const qEndDate = searchParams.get("endDate") || endDate;
+      const qPaybackType = searchParams.get("paybackType") || paybackType;
+      const qPaybackStatus = searchParams.get("paybackStatus") || paybackStatus;
+      const qSearchType = searchParams.get("searchType") || searchType;
+      const qSearchText = searchParams.get("searchText") || searchText;
 
       params.set("pageSize", qPageSize);
       if (qStartDate) params.set("startDate", qStartDate);
@@ -143,7 +155,7 @@ function PaybackListPageInner() {
       if (qSearchType) params.set("searchType", qSearchType);
       if (qSearchText) params.set("searchText", qSearchText);
 
-      // Update local state to match URL params
+      // Update local state to match URL params or defaults
       setPageSize(qPageSize);
       setStartDate(qStartDate);
       setEndDate(qEndDate);
@@ -211,7 +223,16 @@ function PaybackListPageInner() {
     } finally {
       setLoading(false);
     }
-  }, [searchParams]);
+  }, [
+    searchParams,
+    pageSize,
+    startDate,
+    endDate,
+    paybackType,
+    paybackStatus,
+    searchType,
+    searchText,
+  ]);
 
   useEffect(() => {
     const loadPaybacks = async () => {
@@ -651,7 +672,7 @@ function PaybackListPageInner() {
                             aria-expanded="false"
                           >
                             <div
-                              className="input-group-text p-1 cursor-pointer d-inline"
+                              className="input-group-text text-white p-1 cursor-pointer d-inline"
                               style={{
                                 backgroundColor:
                                   row.affiliation.backgroundColor,
@@ -853,18 +874,18 @@ function PaybackListPageInner() {
                       {row.applicant ? (
                         <>
                           <div
-                            className="input-group w-auto d-flex user-action"
+                            className="input-group w-auto text-capitalize d-flex user-action"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                           >
-                            <div
-                              className="input-group-text p-1 cursor-pointer d-inline"
+                            <span
+                              className="input-group-text text-white p-1 cursor-pointer d-inline"
                               style={{
                                 backgroundColor: row.applicant.backgroundColor,
                               }}
                             >
                               {row.applicant.role}
-                            </div>
+                            </span>
                             <label className="form-control p-1 cursor-pointer">
                               {row.applicant.userID} ({row.applicant.nickname})
                             </label>

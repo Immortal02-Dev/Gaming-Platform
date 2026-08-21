@@ -17,19 +17,23 @@ function getSportIcon(sport: string): string {
   if (norm === "baseball") return "/assets/svg/baseball.svg";
   if (norm === "basketball") return "/assets/svg/basketball.svg";
   if (norm === "volleyball") return "/assets/svg/volleyball.svg";
-  if (norm === "tennis" || norm === "tennis table") return "/assets/svg/tabletennis.svg";
+  if (norm === "tennis" || norm === "tennis table")
+    return "/assets/svg/tabletennis.svg";
   if (norm === "boxing") return "/assets/svg/boxing.svg";
-  if (norm === "lol" || norm === "league of legends") return "/assets/svg/lol.svg";
+  if (norm === "lol" || norm === "league of legends")
+    return "/assets/svg/lol.svg";
   return "/assets/svg/earth.svg";
 }
 
 function getCountryFlag(country: string): string {
   const norm = country.toLowerCase();
-  if (norm === "korea" || norm === "대한민국") return "https://p.staticube.com/common/flags/circle/kr.svg";
+  if (norm === "korea" || norm === "대한민국")
+    return "https://p.staticube.com/common/flags/circle/kr.svg";
   if (norm === "japan" || norm === "일본") return "/assets/svg/jp.svg";
   if (norm === "usa" || norm === "미국") return "/assets/svg/us.svg";
   if (norm === "spain" || norm === "스페인") return "/assets/svg/es.svg";
-  if (norm === "england" || norm === "영국") return "https://p.staticube.com/common/flags/circle/gb.svg";
+  if (norm === "england" || norm === "영국")
+    return "https://p.staticube.com/common/flags/circle/gb.svg";
   if (norm === "vietnam" || norm === "베트남") return "/assets/svg/vn.svg";
   if (norm === "australia" || norm === "호주") return "/assets/svg/au.svg";
   return "https://p.staticube.com/common/fe7b60e7-882c-45d8-8038-7f59ab55953e.svg";

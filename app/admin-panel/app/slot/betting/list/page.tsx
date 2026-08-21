@@ -3,11 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
 
-// Extend Window interface for jQuery
 declare global {
   interface Window {
-    $: any;
-    jQuery: any;
+    userDetail?: (userIdx: string | number, tab: number) => void;
+    messageWrite?: (userIdx: string | number) => void;
   }
 }
 
@@ -71,44 +70,9 @@ export default function SlotBettingListPage() {
     totalCancelledMoney: 0,
   });
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    // Initialize flatpickr for datetime inputs if available
-    if (typeof window !== "undefined" && (window as any).flatpickr) {
-      if (startDateRef.current) {
-        (window as any).flatpickr(startDateRef.current, {
-          locale: "ko",
-          dateFormat: "Y-m-d H:i",
-          enableTime: true,
-          time_24hr: true,
-          disableMobile: true,
-          onChange: (selectedDates: Date[], dateStr: string) => {
-            setStartDate(dateStr);
-          },
-        });
-      }
-      if (endDateRef.current) {
-        (window as any).flatpickr(endDateRef.current, {
-          locale: "ko",
-          dateFormat: "Y-m-d H:i",
-          enableTime: true,
-          time_24hr: true,
-          disableMobile: true,
-          onChange: (selectedDates: Date[], dateStr: string) => {
-            setEndDate(dateStr);
-          },
-        });
-      }
-    }
-
-    // Fetch data on initial load
-    fetchOrders(1);
-  }, []);
 
   const fetchOrders = async (page: number = 1) => {
     setLoading(true);
@@ -149,8 +113,6 @@ export default function SlotBettingListPage() {
           totalCancelledMoney: 0,
         },
       );
-      setCurrentPage(data.pagination.page);
-      setTotalPages(data.pagination.totalPages);
     } catch (error) {
       console.error("Error fetching orders:", error);
       setOrders([]);
@@ -160,7 +122,45 @@ export default function SlotBettingListPage() {
   };
 
   useEffect(() => {
-    fetchOrders(1);
+    // Initialize flatpickr for datetime inputs if available
+    if (typeof window !== "undefined" && window.flatpickr) {
+      if (startDateRef.current) {
+        window.flatpickr(startDateRef.current, {
+          locale: "ko",
+          dateFormat: "Y-m-d H:i",
+          enableTime: true,
+          time_24hr: true,
+          disableMobile: true,
+          onChange: (_selectedDates: Date[], dateStr: string) => {
+            setStartDate(dateStr);
+          },
+        });
+      }
+      if (endDateRef.current) {
+        window.flatpickr(endDateRef.current, {
+          locale: "ko",
+          dateFormat: "Y-m-d H:i",
+          enableTime: true,
+          time_24hr: true,
+          disableMobile: true,
+          onChange: (_selectedDates: Date[], dateStr: string) => {
+            setEndDate(dateStr);
+          },
+        });
+      }
+    }
+
+    // Fetch data on initial load
+    void (async () => {
+      await fetchOrders(1);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    void (async () => {
+      await fetchOrders(1);
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSize, startDate, endDate, vendorIdx, betStatus]);
 
@@ -239,7 +239,7 @@ export default function SlotBettingListPage() {
         <div className="col">
           <div className="d-flex bg-white p-2">
             <form onSubmit={handleSearch}>
-              <div className="d-flex flex-wrap gap-2 gap-xl-0">
+              <div className="d-flex flex-wrap">
                 <select
                   name="pageSize"
                   className="form-select w-80px me-2"
@@ -489,16 +489,13 @@ export default function SlotBettingListPage() {
                     <tr key={order.id}>
                       <td>{order.no}</td>
                       <td>{order.transactionID}</td>
-                      <td className="p-1">
+                      <td>
                         {order.affiliation && (
                           <div
+                            className="badge"
                             style={{
                               backgroundColor:
                                 order.affiliation.backgroundColor,
-                              padding: "2px 8px",
-                              borderRadius: "4px",
-                              color: "#fff",
-                              fontSize: "12px",
                             }}
                           >
                             {order.affiliation.role}
@@ -540,10 +537,7 @@ export default function SlotBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  1,
-                                )
+                                window.userDetail?.(order.user.userIdx, 1)
                               }
                             >
                               정보수정
@@ -554,10 +548,7 @@ export default function SlotBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  17,
-                                )
+                                window.userDetail?.(order.user.userIdx, 17)
                               }
                             >
                               수수료율
@@ -568,10 +559,7 @@ export default function SlotBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  3,
-                                )
+                                window.userDetail?.(order.user.userIdx, 3)
                               }
                             >
                               머니지급/차감
@@ -582,10 +570,7 @@ export default function SlotBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  6,
-                                )
+                                window.userDetail?.(order.user.userIdx, 6)
                               }
                             >
                               포인트지급/차감
@@ -608,10 +593,7 @@ export default function SlotBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  8,
-                                )
+                                window.userDetail?.(order.user.userIdx, 8)
                               }
                             >
                               베팅내역
@@ -622,10 +604,7 @@ export default function SlotBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  4,
-                                )
+                                window.userDetail?.(order.user.userIdx, 4)
                               }
                             >
                               충환전내역
@@ -636,10 +615,7 @@ export default function SlotBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  5,
-                                )
+                                window.userDetail?.(order.user.userIdx, 5)
                               }
                             >
                               머니거래내역
@@ -650,10 +626,7 @@ export default function SlotBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  7,
-                                )
+                                window.userDetail?.(order.user.userIdx, 7)
                               }
                             >
                               포인트거래내역
@@ -664,10 +637,7 @@ export default function SlotBettingListPage() {
                               className="dropdown-item"
                               href="#"
                               onClick={() =>
-                                (window as any).userDetail(
-                                  order.user.userIdx,
-                                  15,
-                                )
+                                window.userDetail?.(order.user.userIdx, 15)
                               }
                             >
                               쿠폰 현황

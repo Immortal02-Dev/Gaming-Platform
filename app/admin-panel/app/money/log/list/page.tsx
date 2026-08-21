@@ -699,7 +699,7 @@ function MoneyLogListPageInner() {
                       <td className="p-1">
                         {log.affiliation && (
                           <div
-                            className="input-group-text p-1 d-inline"
+                            className="input-group-text p-1 d-inline text-white"
                             style={{
                               backgroundColor: log.affiliation.backgroundColor,
                             }}
@@ -710,12 +710,12 @@ function MoneyLogListPageInner() {
                       </td>
                       <td className="">
                         <div
-                          className="input-group w-auto d-flex user-action"
+                          className="input-group w-auto text-white d-flex user-action"
                           data-bs-toggle="dropdown"
                           aria-expanded="false"
                         >
                           <div
-                            className="input-group-text p-1 cursor-pointer d-inline"
+                            className="input-group-text p-1 cursor-pointer d-inline text-white"
                             style={{
                               backgroundColor: log.user.backgroundColor,
                             }}

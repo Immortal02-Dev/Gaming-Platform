@@ -62,13 +62,13 @@ function LoginLogListPageInner() {
     hasMore: false,
   });
   const [pageSize, setPageSize] = useState(
-    searchParams.get("pageSize") || "50"
+    searchParams.get("pageSize") || "50",
   );
   const [searchType, setSearchType] = useState(
-    searchParams.get("searchType") || ""
+    searchParams.get("searchType") || "",
   );
   const [searchText, setSearchText] = useState(
-    searchParams.get("searchText") || ""
+    searchParams.get("searchText") || "",
   );
 
   const fetchLogs = async () => {
@@ -88,7 +88,7 @@ function LoginLogListPageInner() {
         `${API_BASE_URL}/api/admin/login-logs?${params.toString()}`,
         {
           credentials: "include",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -109,8 +109,11 @@ function LoginLogListPageInner() {
   };
 
   useEffect(() => {
-    fetchLogs();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    const loadLogs = async () => {
+      await fetchLogs();
+    };
+    void loadLogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, pageSize, searchType, searchText]);
 
   useEffect(() => {
@@ -182,7 +185,7 @@ function LoginLogListPageInner() {
             logIdx: selectedLogIdx,
             logMemo,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -253,7 +256,7 @@ function LoginLogListPageInner() {
             &lsaquo;
           </a>
         )}
-      </li>
+      </li>,
     );
 
     // Page numbers
@@ -280,7 +283,7 @@ function LoginLogListPageInner() {
               {i}
             </a>
           )}
-        </li>
+        </li>,
       );
     }
 
@@ -310,7 +313,7 @@ function LoginLogListPageInner() {
             &rsaquo;
           </a>
         )}
-      </li>
+      </li>,
     );
 
     return pages;
@@ -325,8 +328,8 @@ function LoginLogListPageInner() {
         <small></small>
       </h1>
 
-      <div className="row mb-2">
-        <div className="col">
+      <div className="row mb-2 ">
+        <div className="col ">
           <div className="d-flex bg-white p-2">
             <form
               id="moneyLogList"
@@ -389,8 +392,8 @@ function LoginLogListPageInner() {
         </div>
       </div>
 
-      <div className="row">
-        <div className="col">
+      <div className="row g-0">
+        <div className="col" style={{ overflowX: "auto" }}>
           <table className="table table-striped table-bordered table-responsive align-middle bg-white text-center fw-bold">
             <thead className="bg-dark bg-gradient text-white">
               <tr>

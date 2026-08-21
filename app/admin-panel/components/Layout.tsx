@@ -790,7 +790,7 @@ export default function Layout({ children }: LayoutProps) {
                   }`}
                 >
                   <a href="/login/log/list" className="menu-link">
-                    <div className="menu-text" style={{ fontSize: "12px" }}>
+                    <div className="menu-text">
                       로그인 로그
                     </div>
                   </a>

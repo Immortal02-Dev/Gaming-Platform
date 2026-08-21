@@ -634,7 +634,7 @@ export default function UserGradeSettingPage() {
                     <form onSubmit={(e) => handleFormSubmit(e, "벤더 스킨 설정")}>
                       <input type="hidden" name="userGradeIdx" value={activeGrade} />
                       <table className="table table-striped table-bordered align-middle bg-white text-center fw-bold fs-7 mb-3">
-                        <thead className="table-dark">
+                        <thead className="bg-dark bg-gradient text-white">
                           <tr>
                             <th>벤더</th>
                             <th>스킨</th>
@@ -802,7 +802,7 @@ export default function UserGradeSettingPage() {
                   </div>
                   <div className="panel-body border p-3 bg-white rounded-bottom">
                     <table className="table table-striped table-bordered align-middle bg-white text-center fw-bold fs-7 mb-0">
-                      <thead className="table-dark">
+                      <thead className="bg-dark bg-gradient text-white">
                         <tr>
                           <th style={{ width: "8%" }}>번호</th>
                           <th style={{ width: "30%" }}>지정 시간</th>
@@ -1498,7 +1498,7 @@ export default function UserGradeSettingPage() {
                 <div className="panel-body p-3 bg-white rounded-bottom">
                   <form onSubmit={handleSaveEvent}>
                     <table className="table table-striped table-bordered align-middle bg-white text-center fw-bold fs-7 mb-3">
-                      <thead className="table-dark">
+                      <thead className="bg-dark bg-gradient text-white">
                         <tr>
                           <th>지정 시간</th>
                           <th>돌발 보너스 %</th>

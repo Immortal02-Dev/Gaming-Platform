@@ -40,61 +40,69 @@ export default function TradingBettingListPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
+  const fetchTrades = useCallback(
+    async (page: number = 1) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: pageSize,
+          ...(status && { status }),
+          ...(symbol && { symbol }),
+          ...(search && { search }),
+        });
 
+        const response = await fetch(
+          `${BACKEND_URL}/api/admin/trading/trades?${params.toString()}`,
+          {
+            credentials: "include",
+          },
+        );
 
-  const fetchTrades = useCallback(async (page: number = 1) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: pageSize,
-        ...(status && { status }),
-        ...(symbol && { symbol }),
-        ...(search && { search }),
-      });
+        if (!response.ok) throw new Error("Failed to fetch trades");
 
-      const response = await fetch(`${BACKEND_URL}/api/admin/trading/trades?${params.toString()}`, {
-        credentials: 'include',
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch trades');
-
-      const data = await response.json();
-      if (data.success) {
-        setTrades(data.data.data);
-        setTotal(data.data.meta.total);
-        setCurrentPage(data.data.meta.page);
-        setTotalPages(data.data.meta.totalPages);
+        const data = await response.json();
+        if (data.success) {
+          setTrades(data.data.data);
+          setTotal(data.data.meta.total);
+          setCurrentPage(data.data.meta.page);
+          setTotalPages(data.data.meta.totalPages);
+        }
+      } catch (error) {
+        console.error("Error fetching trades:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching trades:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [pageSize, status, symbol, search]);
+    },
+    [pageSize, status, symbol, search],
+  );
 
   useEffect(() => {
-    fetchTrades(1);
+    void (async () => { await fetchTrades(1); })();
   }, [fetchTrades]);
 
   const handleCancel = async (id: number) => {
-    if (!window.confirm('정말 이 거래를 취소하고 금액을 환불하시겠습니까?')) return;
+    if (!window.confirm("정말 이 거래를 취소하고 금액을 환불하시겠습니까?"))
+      return;
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/admin/trading/cancel/${id}`, {
-        method: 'POST',
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${BACKEND_URL}/api/admin/trading/cancel/${id}`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
 
       if (response.ok) {
-        alert('거래가 취소되고 환불되었습니다.');
+        alert("거래가 취소되고 환불되었습니다.");
         fetchTrades(currentPage);
       } else {
         const data = await response.json();
-        alert(data.message || '취소 중 오류가 발생했습니다.');
+        alert(data.message || "취소 중 오류가 발생했습니다.");
       }
     } catch (error) {
-      console.error('Error canceling trade:', error);
+      console.error("Error canceling trade:", error);
     }
   };
 
@@ -104,28 +112,47 @@ export default function TradingBettingListPage() {
   };
 
   const formatNumber = (num: number | null, decimals: number = 2) => {
-    if (num === null) return '-';
-    return new Intl.NumberFormat('ko-KR', { minimumFractionDigits: decimals }).format(num);
+    if (num === null) return "-";
+    return new Intl.NumberFormat("ko-KR", {
+      minimumFractionDigits: decimals,
+    }).format(num);
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'pending': return <span className="badge bg-warning text-dark">대기</span>;
-      case 'won': return <span className="badge bg-success">승리</span>;
-      case 'lost': return <span className="badge bg-danger">패배</span>;
-      case 'liquidated': return <span className="badge bg-dark">청산</span>;
-      case 'canceled': return <span className="badge bg-secondary">취소</span>;
-      default: return <span className="badge bg-info">{status}</span>;
+      case "pending":
+        return <span className="badge bg-warning text-dark">대기</span>;
+      case "won":
+        return <span className="badge bg-success">승리</span>;
+      case "lost":
+        return <span className="badge bg-danger">패배</span>;
+      case "liquidated":
+        return <span className="badge bg-dark">청산</span>;
+      case "canceled":
+        return <span className="badge bg-secondary">취소</span>;
+      default:
+        return <span className="badge bg-info">{status}</span>;
     }
   };
 
   const getDirectionBadge = (dir: string) => {
     switch (dir) {
-      case 'up':
-      case 'buy': return <span className="text-danger"><i className="fa fa-arrow-up me-1"></i>BUY</span>;
-      case 'down':
-      case 'sell': return <span className="text-primary"><i className="fa fa-arrow-down me-1"></i>SELL</span>;
-      default: return <span>{dir}</span>;
+      case "up":
+      case "buy":
+        return (
+          <span className="text-danger">
+            <i className="fa fa-arrow-up me-1"></i>BUY
+          </span>
+        );
+      case "down":
+      case "sell":
+        return (
+          <span className="text-primary">
+            <i className="fa fa-arrow-down me-1"></i>SELL
+          </span>
+        );
+      default:
+        return <span>{dir}</span>;
     }
   };
 
@@ -144,7 +171,11 @@ export default function TradingBettingListPage() {
           <form onSubmit={handleSearch} className="row g-3">
             <div className="col-md-2">
               <label className="form-label">표시 개수</label>
-              <select className="form-select" value={pageSize} onChange={(e) => setPageSize(e.target.value)}>
+              <select
+                className="form-select"
+                value={pageSize}
+                onChange={(e) => setPageSize(e.target.value)}
+              >
                 <option value="50">50개씩</option>
                 <option value="100">100개씩</option>
                 <option value="200">200개씩</option>
@@ -152,7 +183,11 @@ export default function TradingBettingListPage() {
             </div>
             <div className="col-md-2">
               <label className="form-label">상태</label>
-              <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+              <select
+                className="form-select"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
                 <option value="">전체 상태</option>
                 <option value="pending">진행중</option>
                 <option value="won">승리</option>
@@ -163,13 +198,29 @@ export default function TradingBettingListPage() {
             </div>
             <div className="col-md-2">
               <label className="form-label">심볼 (BTC, ETH...)</label>
-              <input type="text" className="form-control" value={symbol} onChange={(e) => setSymbol(e.target.value)} placeholder="예: BTCUSDT" />
+              <input
+                type="text"
+                className="form-control"
+                value={symbol}
+                onChange={(e) => setSymbol(e.target.value)}
+                placeholder="예: BTCUSDT"
+              />
             </div>
             <div className="col-md-4">
               <label className="form-label">아이디 검색</label>
               <div className="input-group">
-                <input type="text" className="form-control" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="회원 아이디 입력" />
-                <button type="submit" className="btn btn-primary" disabled={loading}>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="회원 아이디 입력"
+                />
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
                   <i className="fa fa-search me-1"></i>검색
                 </button>
               </div>
@@ -185,7 +236,7 @@ export default function TradingBettingListPage() {
         <div className="panel-body p-0">
           <div className="table-responsive">
             <table className="table table-striped table-bordered align-middle text-center mb-0 fw-bold">
-              <thead className="bg-dark text-white">
+              <thead className="bg-dark bg-gradient text-white">
                 <tr>
                   <th>No.</th>
                   <th>ID</th>
@@ -204,9 +255,17 @@ export default function TradingBettingListPage() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={13} className="py-5"><div className="spinner-border text-primary"></div></td></tr>
+                  <tr>
+                    <td colSpan={13} className="py-5">
+                      <div className="spinner-border text-primary"></div>
+                    </td>
+                  </tr>
                 ) : trades.length === 0 ? (
-                  <tr><td colSpan={13} className="py-5">거래 내역이 없습니다.</td></tr>
+                  <tr>
+                    <td colSpan={13} className="py-5">
+                      거래 내역이 없습니다.
+                    </td>
+                  </tr>
                 ) : (
                   trades.map((trade) => (
                     <tr key={trade.id}>
@@ -214,22 +273,39 @@ export default function TradingBettingListPage() {
                       <td>{trade.username}</td>
                       <td>{trade.symbol}</td>
                       <td>
-                        <span className="badge bg-secondary">{trade.trading_type.toUpperCase()}</span>
+                        <span className="badge bg-secondary">
+                          {trade.trading_type.toUpperCase()}
+                        </span>
                       </td>
                       <td>{getDirectionBadge(trade.direction)}</td>
                       <td>{trade.leverage}x</td>
-                      <td>{formatNumber(trade.amount, 2)} {trade.currency}</td>
+                      <td>
+                        {formatNumber(trade.amount, 2)} {trade.currency}
+                      </td>
                       <td>{formatNumber(trade.entry_price, 2)}</td>
                       <td>{formatNumber(trade.exit_price, 2)}</td>
-                      <td className={trade.profit && trade.profit > 0 ? 'text-danger' : (trade.profit && trade.profit < 0 ? 'text-primary' : '')}>
-                        {trade.profit ? (trade.profit > 0 ? '+' : '') + formatNumber(trade.profit, 2) : '-'}
+                      <td
+                        className={
+                          trade.profit && trade.profit > 0
+                            ? "text-danger"
+                            : trade.profit && trade.profit < 0
+                              ? "text-primary"
+                              : ""
+                        }
+                      >
+                        {trade.profit
+                          ? (trade.profit > 0 ? "+" : "") +
+                            formatNumber(trade.profit, 2)
+                          : "-"}
                       </td>
                       <td>{getStatusBadge(trade.status)}</td>
-                      <td>{new Date(trade.created_at).toLocaleString('ko-KR')}</td>
                       <td>
-                        {trade.status === 'pending' && (
-                          <button 
-                            className="btn btn-xs btn-danger"
+                        {new Date(trade.created_at).toLocaleString("ko-KR")}
+                      </td>
+                      <td>
+                        {trade.status === "pending" && (
+                          <button
+                            className="btn btn-danger"
                             onClick={() => handleCancel(trade.id)}
                           >
                             취소/환불
@@ -246,21 +322,46 @@ export default function TradingBettingListPage() {
         <div className="panel-footer bg-white border-top">
           <nav>
             <ul className="pagination justify-content-center mb-0">
-              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                <button className="page-link" onClick={() => fetchTrades(currentPage - 1)}>이전</button>
+              <li
+                className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
+              >
+                <button
+                  className="page-link"
+                  onClick={() => fetchTrades(currentPage - 1)}
+                >
+                  이전
+                </button>
               </li>
               {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
-                const start = Math.max(1, Math.min(currentPage - 5, totalPages - 9));
+                const start = Math.max(
+                  1,
+                  Math.min(currentPage - 5, totalPages - 9),
+                );
                 const pageNum = start + i;
                 if (pageNum > totalPages) return null;
                 return (
-                  <li key={pageNum} className={`page-item ${currentPage === pageNum ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => fetchTrades(pageNum)}>{pageNum}</button>
+                  <li
+                    key={pageNum}
+                    className={`page-item ${currentPage === pageNum ? "active" : ""}`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => fetchTrades(pageNum)}
+                    >
+                      {pageNum}
+                    </button>
                   </li>
                 );
               })}
-              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                <button className="page-link" onClick={() => fetchTrades(currentPage + 1)}>다음</button>
+              <li
+                className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}
+              >
+                <button
+                  className="page-link"
+                  onClick={() => fetchTrades(currentPage + 1)}
+                >
+                  다음
+                </button>
               </li>
             </ul>
           </nav>

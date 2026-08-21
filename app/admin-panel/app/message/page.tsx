@@ -81,7 +81,9 @@ export default function MessagePage() {
   );
 
   useEffect(() => {
-    fetchMessages(1);
+    void (async () => {
+      await fetchMessages(1);
+    })();
   }, [pageSize, fetchMessages]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -375,7 +377,7 @@ export default function MessagePage() {
                         <div
                           className="input-group-text p-1 cursor-pointer d-inline"
                           style={{
-                            backgroundColor: message.parent?.color || "#b6d7a8",
+                            backgroundColor: message.parent?.color || "#f4a29c",
                           }}
                         >
                           {message.parent?.role || "회원"}

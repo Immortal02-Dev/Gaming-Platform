@@ -98,7 +98,7 @@ export default function AuditLogsPage() {
                   ) : (
                     logs.map((log) => (
                       <tr key={log.id}>
-                        <td className="small text-muted">
+                        <td className=" text-muted">
                           {new Date(log.created_at).toLocaleString()}
                         </td>
                         <td>
@@ -116,7 +116,7 @@ export default function AuditLogsPage() {
                         <td className="small">{log.ip_address}</td>
                         <td>
                           <button
-                            className="btn btn-xs btn-outline-info"
+                            className="btn btn-info"
                             onClick={() => alert(log.details)}
                           >
                             보기

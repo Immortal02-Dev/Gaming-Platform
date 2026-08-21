@@ -1,23 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Layout from "@/components/Layout";
 
 const BACKEND_URL = ""; // Use relative path for proxy
+
+interface VaultTransfer {
+  id: number;
+  username: string;
+  type: string;
+  amount: number;
+  description: string;
+  created_at: string;
+}
 
 interface VaultStats {
   total_users: number;
   total_tvl: number;
   total_return_paid: number;
   vault_apr: string;
-  recent_transfers: any[];
+  recent_transfers: VaultTransfer[];
 }
 
 export default function VaultPage() {
   const [stats, setStats] = useState<VaultStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/admin/vault/overview`, {
         credentials: "include",
@@ -31,11 +40,11 @@ export default function VaultPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    void (async () => { await fetchStats(); })();
+  }, [fetchStats]);
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat("ko-KR").format(num);
@@ -118,7 +127,7 @@ export default function VaultPage() {
             <div className="card-body p-0">
               <div className="table-responsive">
                 <table className="table table-hover align-middle mb-0 text-center fw-bold">
-                  <thead className="table-light">
+                  <thead className="bg-dark bg-gradient text-white">
                     <tr>
                       <th>ID</th>
                       <th>회원</th>

@@ -124,7 +124,7 @@ export default function KycPage() {
         <a href="/user/kyc">
           <i className="fa fa-id-card me-2"></i>KYC 본인인증 심사
         </a>
-        <small>사용자 제출 서류 검토 및 승인/거절</small>
+        <>사용자 제출 서류 검토 및 승인/거절</>
       </h1>
 
       <div className="card shadow-sm border-0">
@@ -155,7 +155,7 @@ export default function KycPage() {
               ) : null}
               <div className="table-responsive">
                 <table className="table table-striped table-hover align-middle text-center fw-bold">
-                  <thead className="table-light">
+                  <thead className="bg-dark bg-gradient text-white">
                     <tr>
                       <th>제출일</th>
                       <th>회원</th>
@@ -178,12 +178,12 @@ export default function KycPage() {
                     ) : (
                       submissions.map((s) => (
                         <tr key={s.id}>
-                          <td className="small text-muted">
+                          <td className=" text-muted">
                             {new Date(s.submitted_at).toLocaleString()}
                           </td>
                           <td className="text-start">
                             <div>{s.username}</div>
-                            <div className="small text-muted fw-normal">
+                            <div className=" text-muted fw-normal">
                               {s.email}
                             </div>
                           </td>
@@ -194,7 +194,7 @@ export default function KycPage() {
                           </td>
                           <td className="text-start">
                             <div>{s.full_name}</div>
-                            <div className="small text-muted fw-normal">
+                            <div className=" text-muted fw-normal">
                               {s.id_number}
                             </div>
                           </td>
@@ -204,7 +204,7 @@ export default function KycPage() {
                                 href={s.id_front_url}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="btn btn-xs btn-outline-info"
+                                className="btn btn-outline-info p-1"
                               >
                                 앞면
                               </a>
@@ -212,7 +212,7 @@ export default function KycPage() {
                                 href={s.id_back_url}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="btn btn-xs btn-outline-info"
+                                className="btn btn-outline-info p-1"
                               >
                                 뒷면
                               </a>
@@ -220,7 +220,7 @@ export default function KycPage() {
                                 href={s.selfie_url}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="btn btn-xs btn-outline-info"
+                                className="btn btn-outline-info p-1"
                               >
                                 셀카
                               </a>
@@ -260,7 +260,7 @@ export default function KycPage() {
                             )}
                             {s.status !== "pending" && s.rejection_reason && (
                               <div
-                                className="small text-danger text-truncate"
+                                className=" text-danger text-truncate"
                                 style={{ maxWidth: "100px" }}
                                 title={s.rejection_reason}
                               >

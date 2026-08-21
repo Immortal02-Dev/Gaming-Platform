@@ -55,7 +55,7 @@ export default function TradingRoundListPage() {
   }, [symbol, status]);
 
   useEffect(() => {
-    fetchRounds(1);
+    void (async () => { await fetchRounds(1); })();
   }, [fetchRounds]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -110,7 +110,7 @@ export default function TradingRoundListPage() {
         <div className="panel-body p-0">
           <div className="table-responsive">
             <table className="table table-striped table-bordered align-middle text-center mb-0 fw-bold">
-              <thead className="bg-dark text-white">
+              <thead className="bg-dark bg-gradient text-white">
                 <tr>
                   <th>No.</th>
                   <th>심볼</th>

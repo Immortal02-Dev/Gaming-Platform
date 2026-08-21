@@ -52,7 +52,12 @@ export default function ChatModerationPage() {
   };
 
   const handleClear = async () => {
-    if (!confirm("전체 채팅 내역을 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) return;
+    if (
+      !confirm(
+        "전체 채팅 내역을 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+      )
+    )
+      return;
     try {
       const res = await fetch(`${BACKEND_URL}/api/admin/chat/clear`, {
         method: "DELETE",
@@ -106,18 +111,23 @@ export default function ChatModerationPage() {
                 <tbody>
                   {messages.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="p-4 text-muted">최근 채팅 내역이 없습니다.</td>
+                      <td colSpan={4} className="p-4 text-muted">
+                        최근 채팅 내역이 없습니다.
+                      </td>
                     </tr>
                   ) : (
                     messages.map((m) => (
                       <tr key={m.id}>
-                        <td className="text-muted small" style={{ width: "150px" }}>
+                        <td className="text-muted " style={{ width: "150px" }}>
                           {new Date(m.created_at).toLocaleString()}
                         </td>
                         <td style={{ width: "150px" }}>{m.username}</td>
                         <td className="text-start">{m.message}</td>
                         <td style={{ width: "100px" }}>
-                          <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(m.id)}>
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => handleDelete(m.id)}
+                          >
                             <i className="fa fa-times"></i> 삭제
                           </button>
                         </td>

@@ -20,8 +20,15 @@ const dropdownLinks = [
 
 export default function MoneyDepositWithdrawListPage() {
   const [pageSize, setPageSize] = useState("50");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(() => {
+    const today = new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(today.getFullYear() - 1);
+    return oneYearAgo.toISOString().split("T")[0];
+  });
+  const [endDate, setEndDate] = useState(() => {
+    return new Date().toISOString().split("T")[0];
+  });
   const [logType, setLogType] = useState("");
   const [searchType, setSearchType] = useState("");
   const [searchText, setSearchText] = useState("");
@@ -40,16 +47,7 @@ export default function MoneyDepositWithdrawListPage() {
 
   const API_BASE_URL = ""; // Use relative path for proxy
 
-  useEffect(() => {
-    // Set default dates if not set
-    if (!startDate || !endDate) {
-      const today = new Date();
-      const oneYearAgo = new Date();
-      oneYearAgo.setFullYear(today.getFullYear() - 1);
-      setStartDate(oneYearAgo.toISOString().split("T")[0]);
-      setEndDate(today.toISOString().split("T")[0]);
-    }
-  }, [startDate, endDate]);
+  // Default dates are initialized lazily in useState (see component top)
 
   useEffect(() => {
     if (
@@ -158,7 +156,10 @@ export default function MoneyDepositWithdrawListPage() {
 
   useEffect(() => {
     if (startDate && endDate) {
-      fetchData();
+      const load = async () => {
+        await fetchData();
+      };
+      void load();
     }
   }, [fetchData, startDate, endDate]);
 
@@ -228,11 +229,11 @@ export default function MoneyDepositWithdrawListPage() {
 
       <div className="row mb-2">
         <div className="col">
-          <div className="d-flex bg-white p-2">
+          <div className="d-flex bg-white p-2 gap-2 flex-wrap">
             <form id="moneyDepositWithdraw" onSubmit={handleSearch}>
               <div className="row">
                 <div className="col">
-                  <div className="d-flex">
+                  <div className="d-flex flex-wrap gap-2 gap-lg-0">
                     <select
                       name="pageSize"
                       className="form-select w-80px me-2"
@@ -320,7 +321,7 @@ export default function MoneyDepositWithdrawListPage() {
                 </div>
               </div>
             </form>
-            <div className="ms-auto">
+            <div className="d-flex flex-wrap align-items-center justify-content-start">
               <label className="col-form-label">
                 총 지급금액 :{" "}
                 <span className="text-primary">{summary.totalDeposit}</span>원
@@ -355,8 +356,8 @@ export default function MoneyDepositWithdrawListPage() {
         </div>
       </div>
 
-      <div className="row">
-        <div className="col">
+      <div className="row g-0">
+        <div className="col" style={{ overflow: "auto" }}>
           <table className="table table-striped table-bordered table-responsive align-middle bg-white text-center fw-bold">
             <thead className="bg-dark bg-gradient text-white">
               <tr>
@@ -405,7 +406,7 @@ export default function MoneyDepositWithdrawListPage() {
                             style={{ cursor: "pointer" }}
                           >
                             <div
-                              className="input-group-text p-1 cursor-pointer d-inline"
+                              className="input-group-text text-white p-1 cursor-pointer d-inline"
                               style={{
                                 backgroundColor: row.applicant.backgroundColor,
                               }}
@@ -467,7 +468,7 @@ export default function MoneyDepositWithdrawListPage() {
                             style={{ cursor: "pointer" }}
                           >
                             <div
-                              className="input-group-text p-1 cursor-pointer d-inline"
+                              className="input-group-text text-white p-1 cursor-pointer d-inline"
                               style={{
                                 backgroundColor: row.processor.backgroundColor,
                               }}

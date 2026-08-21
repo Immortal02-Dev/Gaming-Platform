@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
 import Layout from "@/components/Layout";
 
-// Extend Window interface for jQuery
-declare global {
-  interface Window {
-    $: any;
-    jQuery: any;
-  }
-}
+// Extension for third-party libraries
+// Using type casting to avoid conflicts with existing Window definitions
 
 const BACKEND_URL = ""; // Use relative path for proxy
 
@@ -61,7 +61,7 @@ interface GameDetail {
   gameTime: string;
   betCloseTime: string;
   resultTime: string | null;
-  resultData: any;
+  resultData: Record<string, unknown>;
   bettingStatsByItem: BettingStat[];
   recentBets: RecentBet[];
 }
@@ -138,31 +138,84 @@ export default function ArcadeGameListPage() {
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    // Set default dates to today
-    const today = new Date().toISOString().split("T")[0];
-    setStartDate(today);
-    setEndDate(today);
+  // Fetch games function - defined before useEffect using useCallback
+  const fetchGames = useCallback(
+    async (page: number = 1, overrideGameTypeIdx?: string) => {
+      setLoading(true);
+      try {
+        const effectiveGameTypeIdx = overrideGameTypeIdx ?? gameTypeIdx;
+        const params = new URLSearchParams({
+          page: page.toString(),
+          pageSize,
+          ...(startDate && endDate && { startDate, endDate }),
+          ...(effectiveGameTypeIdx && { gameTypeIdx: effectiveGameTypeIdx }),
+          ...(betStatus && { betStatus }),
+          ...(searchType && { searchType }),
+          ...(searchText && { searchText }),
+        });
 
+        const response = await fetch(
+          `${BACKEND_URL}/api/admin/arcade-games?${params.toString()}`,
+          {
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch games: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setGames(data.data || []);
+        setCurrentPage(data.pagination.page);
+        setTotalPages(data.pagination.totalPages);
+      } catch (error) {
+        console.error("Error fetching games:", error);
+        setGames([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      gameTypeIdx,
+      pageSize,
+      startDate,
+      endDate,
+      betStatus,
+      searchType,
+      searchText,
+    ],
+  );
+
+  useEffect(() => {
     // Initialize flatpickr for date inputs if available
-    if (typeof window !== "undefined" && (window as any).flatpickr) {
+    if (
+      typeof window !== "undefined" &&
+      (window as unknown as { flatpickr: unknown }).flatpickr
+    ) {
+      const flatpickr = (
+        window as unknown as {
+          flatpickr: (el: HTMLElement, opts: Record<string, unknown>) => void;
+        }
+      ).flatpickr;
       if (startDateRef.current) {
-        (window as any).flatpickr(startDateRef.current, {
+        flatpickr(startDateRef.current, {
           locale: "ko",
           dateFormat: "Y-m-d",
           disableMobile: true,
-          defaultDate: today,
           onChange: (selectedDates: Date[], dateStr: string) => {
             setStartDate(dateStr);
           },
         });
       }
       if (endDateRef.current) {
-        (window as any).flatpickr(endDateRef.current, {
+        flatpickr(endDateRef.current, {
           locale: "ko",
           dateFormat: "Y-m-d",
           disableMobile: true,
-          defaultDate: today,
           onChange: (selectedDates: Date[], dateStr: string) => {
             setEndDate(dateStr);
           },
@@ -170,49 +223,12 @@ export default function ArcadeGameListPage() {
       }
     }
 
-    // Fetch data on initial load after dates are set
-    setTimeout(() => fetchGames(1), 100);
-  }, []);
-
-  const fetchGames = async (page: number = 1, overrideGameTypeIdx?: string) => {
-    setLoading(true);
-    try {
-      const effectiveGameTypeIdx = overrideGameTypeIdx ?? gameTypeIdx;
-      const params = new URLSearchParams({
-        page: page.toString(),
-        pageSize,
-        ...(startDate && endDate && { startDate, endDate }),
-        ...(effectiveGameTypeIdx && { gameTypeIdx: effectiveGameTypeIdx }),
-        ...(betStatus && { betStatus }),
-        ...(searchType && { searchType }),
-        ...(searchText && { searchText }),
-      });
-
-      const response = await fetch(
-        `${BACKEND_URL}/api/admin/arcade-games?${params.toString()}`,
-        {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch games: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setGames(data.data || []);
-      setCurrentPage(data.pagination.page);
-      setTotalPages(data.pagination.totalPages);
-    } catch (error) {
-      console.error("Error fetching games:", error);
-      setGames([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Fetch data on initial load
+    // Using an IIFE to avoid direct setState in effect
+    void (async () => {
+      await fetchGames(1);
+    })();
+  }, [fetchGames]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -247,7 +263,7 @@ export default function ArcadeGameListPage() {
   const handleChangeStatus = async (
     gameArcadeListIdx: number,
     gameArcadeStatus: number,
-    gameArcadeStatusName: string
+    gameArcadeStatusName: string,
   ) => {
     if (!confirm(`${gameArcadeStatusName} 상태로 변경하시겠습니까?`)) {
       return;
@@ -263,7 +279,7 @@ export default function ArcadeGameListPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ gameArcadeStatus }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -273,9 +289,13 @@ export default function ArcadeGameListPage() {
 
       alert("상태가 변경되었습니다.");
       fetchGames(currentPage);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error changing status:", error);
-      alert(error.message || "상태 변경 중 오류가 발생했습니다.");
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "상태 변경 중 오류가 발생했습니다.";
+      alert(errorMessage);
     }
   };
 
@@ -301,7 +321,7 @@ export default function ArcadeGameListPage() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -320,6 +340,7 @@ export default function ArcadeGameListPage() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleBettingListDetail = (gameArcadeListIdx: number, type: string) => {
     const nWidth = screen.width;
     const nHeight = screen.height;
@@ -335,10 +356,9 @@ export default function ArcadeGameListPage() {
     window.open(
       `/arcade/betting/list?gameTypeIdx=${gameTypeIdx}&gameArcadeListIdx=${gameArcadeListIdx}&type=${type}`,
       "",
-      `top=${nTop}, left=${nLeft},width=${nWidth}, height=${nHeight}, status=no, menubar=no, toolbar=no`
+      `top=${nTop}, left=${nLeft},width=${nWidth}, height=${nHeight}, status=no, menubar=no, toolbar=no`,
     );
   };
-
   const handleArcadeGameStatusBoard = () => {
     const nWidth = screen.width;
     const nHeight = screen.height;
@@ -354,7 +374,7 @@ export default function ArcadeGameListPage() {
     window.open(
       "/arcade/game/status-board",
       "",
-      `top=${nTop}, left=${nLeft},width=${nWidth}, height=${nHeight}, status=no, menubar=no, toolbar=no`
+      `top=${nTop}, left=${nLeft},width=${nWidth}, height=${nHeight}, status=no, menubar=no, toolbar=no`,
     );
   };
 
@@ -381,7 +401,7 @@ export default function ArcadeGameListPage() {
               handleChangeStatus(
                 game.gameArcadeListIdx,
                 status.value,
-                status.name
+                status.name,
               );
             }
           }}
@@ -398,7 +418,7 @@ export default function ArcadeGameListPage() {
 
   const renderBettingCategory = (
     categoryKey: keyof typeof BET_CATEGORIES,
-    gameDetail: GameDetail
+    gameDetail: GameDetail,
   ) => {
     const category = BET_CATEGORIES[categoryKey];
     return (
@@ -412,7 +432,7 @@ export default function ArcadeGameListPage() {
         <div className="row mx-1 my-2">
           {category.items.map((item) => {
             const stat = gameDetail?.bettingStatsByItem?.find(
-              (s: BettingStat) => s.betItem === item
+              (s) => s.betItem === item,
             );
             return (
               <div key={item} className="col rounded border mx-1">
@@ -475,7 +495,7 @@ export default function ArcadeGameListPage() {
 
       {/* begin row */}
       <div className="row mb-2">
-        <div className="col">
+        <div className="col ">
           <div className="d-flex bg-white p-2">
             <form onSubmit={handleSearch}>
               <input type="hidden" name="gameTypeIdx" value={gameTypeIdx} />
@@ -567,8 +587,8 @@ export default function ArcadeGameListPage() {
       </div>
       {/* end row */}
 
-      <div className="row">
-        <div className="col">
+      <div className="row gap-0">
+        <div className="col" style={{ overflowY: "auto" }}>
           <table
             className="table dataTable table-striped table-bordered table-responsive align-middle bg-white text-center fw-bold"
             id="listTable"
@@ -616,7 +636,9 @@ export default function ArcadeGameListPage() {
                         <td>
                           {game.gameInning} ({game.gameTodayInning})
                         </td>
-                        <td>{renderStatusBadge(game)}</td>
+                        <td className="d-flex align-items-center justify-content-center gap-1">
+                          {renderStatusBadge(game)}
+                        </td>
                         <td>{formatNumber(game.betMoney)}</td>
                         <td>{formatNumber(game.winMoney)}</td>
                         <td>{formatDateTime(game.gameTime)}</td>
@@ -641,27 +663,27 @@ export default function ArcadeGameListPage() {
                               <>
                                 {renderBettingCategory(
                                   "powerball",
-                                  gameDetails[game.gameArcadeListIdx]
+                                  gameDetails[game.gameArcadeListIdx],
                                 )}
                                 {renderBettingCategory(
                                   "normalball",
-                                  gameDetails[game.gameArcadeListIdx]
+                                  gameDetails[game.gameArcadeListIdx],
                                 )}
                                 {renderBettingCategory(
                                   "powerballCombo",
-                                  gameDetails[game.gameArcadeListIdx]
+                                  gameDetails[game.gameArcadeListIdx],
                                 )}
                                 {renderBettingCategory(
                                   "normalballCombo",
-                                  gameDetails[game.gameArcadeListIdx]
+                                  gameDetails[game.gameArcadeListIdx],
                                 )}
                                 {renderBettingCategory(
                                   "normalballSize",
-                                  gameDetails[game.gameArcadeListIdx]
+                                  gameDetails[game.gameArcadeListIdx],
                                 )}
                                 {renderBettingCategory(
                                   "powerballNormalballCombo",
-                                  gameDetails[game.gameArcadeListIdx]
+                                  gameDetails[game.gameArcadeListIdx],
                                 )}
                               </>
                             ) : (
