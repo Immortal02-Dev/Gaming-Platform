@@ -61,7 +61,7 @@ exports.getAllPaybacks = async (req, res) => {
     };
 
     try {
-      const rowsResult = await db.execute(
+      const rowsResult = await db.query(
         `
         SELECT 
           p.id,
@@ -103,7 +103,7 @@ exports.getAllPaybacks = async (req, res) => {
     }
 
     try {
-      const countRowsResult = await db.execute(
+      const countRowsResult = await db.query(
         `
         SELECT COUNT(*) as total FROM payback_requests p JOIN users u ON p.user_id = u.id ${whereClause}`,
         queryParams,
@@ -115,7 +115,7 @@ exports.getAllPaybacks = async (req, res) => {
     }
 
     try {
-      const summaryResult = await db.execute(
+      const summaryResult = await db.query(
         `
         SELECT 
           SUM(p.amount) as totalRequestAmount,
@@ -242,7 +242,7 @@ exports.getAllPaybacks = async (req, res) => {
 exports.changeStatus = async (req, res) => {
   try {
     const { paybackIdx, paybackStatus } = req.body;
-    await db.execute(
+    await db.query(
       "UPDATE payback_requests SET status = ?, processed_at = NOW() WHERE id = ?",
       [paybackStatus, paybackIdx],
     );
@@ -258,7 +258,7 @@ exports.changeStatusList = async (req, res) => {
     const ids = Object.values(paybackIdx);
     if (ids.length > 0) {
       const placeholders = ids.map(() => "?").join(",");
-      await db.execute(
+      await db.query(
         `UPDATE payback_requests SET status = ?, processed_at = NOW() WHERE id IN (${placeholders})`,
         [paybackStatus, ...ids],
       );
