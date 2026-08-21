@@ -224,7 +224,7 @@ export function UserDetailPageInner({
             {tabs.map((tab) => (
               <li className="nav-item" key={tab.id}>
                 <button
-                  className={`nav-link bg-primary text-white ${activeTab === tab.id ? "active fw-bold" : "bg-gray-200"}`}
+                  className={`nav-link bg-primary  ${activeTab === tab.id ? "active fw-bold text-white" : "bg-gray-200 text-black"}`}
                   onClick={() => setActiveTab(tab.id)}
                   style={{ whiteSpace: "nowrap", cursor: "pointer" }}
                 >

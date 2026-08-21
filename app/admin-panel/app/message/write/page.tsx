@@ -25,7 +25,7 @@ function MessageWritePageInner() {
   const initialReceiverId = searchParams.get("receiverId");
 
   const [receiverId, setReceiverId] = useState<string | null>(
-    initialReceiverId
+    initialReceiverId,
   );
   const [receiverSearch, setReceiverSearch] = useState("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
@@ -119,7 +119,7 @@ function MessageWritePageInner() {
             "Content-Type": "application/json",
             ...(token && { Authorization: `Bearer ${token}` }),
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -165,7 +165,7 @@ function MessageWritePageInner() {
   }, [receiverSearch, selectedReceiver]);
 
   const handleReceiverSearchChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const value = e.target.value;
     setReceiverSearch(value);
@@ -196,7 +196,7 @@ function MessageWritePageInner() {
             "Content-Type": "application/json",
             ...(token && { Authorization: `Bearer ${token}` }),
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -222,7 +222,7 @@ function MessageWritePageInner() {
             "Content-Type": "application/json",
             ...(token && { Authorization: `Bearer ${token}` }),
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -441,11 +441,8 @@ function MessageWritePageInner() {
                 />
               </div>
             </div>
-            <div className="col text-center">
-              <button
-                type="submit"
-                className="btn btn-success"
-              >
+            <div className="d-flex align-items justify-content-center gap-1 text-center">
+              <button type="submit" className="btn btn-success">
                 <i className="fa fa-save me-1"></i>저장
               </button>
               <button
@@ -469,4 +466,3 @@ export default function MessageWritePage() {
     </Suspense>
   );
 }
-
